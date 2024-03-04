@@ -163,8 +163,11 @@ W DataGrip użyj opcji Explain Plan/Explain Analyze
 
 
 ```sql
--- wyniki ...
+select p.ProductID, p.ProductName, p.UnitPrice, (select avg(unitprice) from products) as avgprice
+from Products p
 ```
+![w:700](_img/zad3-exec-plan.png)
+![w:700](_img/zad3-live-query.png)
 
 ---
 
