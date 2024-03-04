@@ -78,9 +78,42 @@ from products p;
 
 Jaka jest są podobieństwa, jakie różnice pomiędzy grupowaniem danych a działaniem funkcji okna?
 
+### Wyniki
+
+#### Zapytanie 1
+```sql
+select avg(unitprice) avgprice
+from products p;
 ```
--- wyniki ...
+
+ ![[Pasted image 20240304183527.png]]
+
+To zapytanie policzyło średnią z **unitprice** z wszystkich wierszy w tabeli.
+#### Zapytanie 2
+```sql
+select avg(unitprice) over () as avgprice
+from products p;
 ```
+![[Pasted image 20240304183602.png]]
+Funkcja okna bez Partition policzyła średnią **unitPrice** z wszystkich wierszów, następnie zwróciła tą wartość dla każdego wiersza w tabeli.
+#### Zapytanie 3
+```sql
+select categoryid, avg(unitprice) avgprice
+from products p
+group by categoryid
+```
+
+![[Pasted image 20240304183631.png]]
+Powyższe zapytanie pogrupowało produkty po **categoryId** a następnie dla każdej grupy policzyła średnią z **unitPrice**. Jako wynik zwróciła tabele pogrupowaną po **categoryId**
+
+#### Zapytanie 4
+```sql
+select avg(unitprice) over (partition by categoryid) as avgprice
+from products p;
+```
+
+![[Pasted image 20240304183652.png]]
+Funkcja okna z partition policzyła średnią dla każdej kategorii, następnie jako wynik zwróciła wszystkie wiersze z wartością odpowiadającej średniej dla kategorii do której dany wiersz należy
 
 ---
 # Zadanie 2 - obserwacja
