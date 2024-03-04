@@ -411,8 +411,16 @@ where 1=1;
 Wykonaj polecenia: `select count(*) from product_history`,  potwierdzające wykonanie zadania
 
 ```sql
---- wyniki ...
+select count(*) from product_history
 ```
+**PostgreSQL**
+![alt text](./_img/zad5_1.png)
+
+**SQL Server**
+![alt text](./_img/zad5_2.png)
+
+**SQLite**
+![alt text](./_img/zad5_3.png)
 
 ---
 # Zadanie 6
