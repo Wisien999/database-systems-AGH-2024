@@ -236,7 +236,7 @@ Napisz polecenie z wykorzystaniem podzapytania, join'a oraz funkcji okna. Porów
 Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
 ```sql
--- podzapytanie
+-- subquery
 select productid, productname, unitprice, (select AVG(unitprice) FROM products AS P2 where P2.categoryid = P1.categoryid) AS avg_price FROM products AS P1
 where unitprice > (select AVG(unitprice) FROM products AS P2 where P2.categoryid = P1.categoryid);
 
@@ -255,15 +255,57 @@ GROUP BY
 HAVING P1.unitprice > AVG(P2.unitprice);
 
 -- window function
-SELECT
-    P.productid,
-    P.productname,
-    P.unitprice,
-    AVG(unitprice) over (partition by categoryid) as avgprice
-FROM products AS P
-WHERE unitprice > AVG(unitprice) OVER (PARTITION BY categoryid);
+SELECT productid, productname, unitprice, avg
+FROM
+    (SELECT productid, productname, unitprice, AVG(unitprice) over (partition by categoryid) AS avg
+     FROM products
+    ) AS ss
+WHERE unitprice > avg;
 ```
+- **Zapytania**
 
+    ***Subquery*** wykorzystuje podzapytanie do uzyskania średniej ceny dla danej kategorii, a następnie porównuje jednostkową cenę produktu z tą średnią.
+
+    ***Join*** wykorzystuje operację JOIN oraz GROUP BY do uzyskania średniej ceny dla danej kategorii, a następnie porównuje jednostkową cenę produktu z tą średnią.
+
+    ***Window Function*** wykorzystuje funkcję okna do uzyskania średniej ceny dla danej kategorii, a następnie porównuje jednostkową cenę produktu z tą średnią.
+
+- **Czas**
+
+    **PostgreSQL**
+    | Zapytanie | subquery  | join  | window function |
+    | ---       | ---       | ---   |---              |
+    | Czas      | 80ms      | 71ms  | 65ms            |
+
+    **SQL Server**
+    | Zapytanie | subquery  | join  | window function |
+    | ---       | ---       | ---   |---              |
+    | Czas      | 0ms       | 0ms   | 0ms             |
+
+    **SQLite**
+    | Zapytanie | subquery  | join  | window function |
+    | ---       | ---       | ---   |---              |
+    | Czas      | 65ms      | 48ms  | 42ms            |
+
+    Jak wynika z wyników, najszybszym rozwiązaniem okazał się SQL Server. Warto jednak zauważyć, że może to być wynikiem specyfiki pomiaru czasu w samym SQL Server Management Studio. W przypadku dwóch pozostałych systemów szybszym okazał się SQLite.
+
+- **Plany wykonania**
+    **PostgreSQL**
+    ![alt text](./_img/zad4_1.png)
+    ![alt text](./_img/zad4_2.png)
+    ![alt text](./_img/zad4_3.png)
+
+    Jak widać koszt oraz czas zapytań jest najlepszy w przypadku funkcji okna.
+
+    **SQL Server**
+    ![alt text](./_img/zad4_4.png)
+    ![alt text](./_img/zad4_5.png)
+    ![alt text](./_img/zad4_6.png)
+
+    Tutaj również widać, że koszt zapytań jest najlepszy w przypadku funkcji okna.
+
+    **SQLite**
+    Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 ---
 # Zadanie 5 - przygotowanie
