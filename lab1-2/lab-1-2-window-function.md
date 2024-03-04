@@ -80,6 +80,7 @@ Jaka jest są podobieństwa, jakie różnice pomiędzy grupowaniem danych a dzia
 
 ### Wyniki
 
+Zapytania zrealizowane w bazie danych **Postgres**
 #### Zapytanie 1
 ```sql
 select avg(unitprice) avgprice
@@ -140,6 +141,59 @@ Jaka jest różnica? Czego dotyczy warunek w każdym z przypadków? Napisz polec
 - 1) z wykorzystaniem funkcji okna. Napisz polecenie równoważne 
 - 2) z wykorzystaniem podzapytania
 
+### Wyniki
+
+#### Zapytanie 1
+
+```sql
+select p.productid, p.ProductName, p.unitprice,
+       (select avg(unitprice) from products) as avgprice
+from products p
+where productid < 10
+```
+
+![[Pasted image 20240304185604.png]]
+
+To zapytanie najpierw liczy średnią dla wszystkich produktów, następnie ogranicza wynikową tabele do wierszy z **productId** < 10
+#### Zapytanie 2
+
+```sql
+select p.productid, p.ProductName, p.unitprice,
+       avg(unitprice) over () as avgprice
+from products p
+where productid < 10
+```
+
+![[Pasted image 20240304185721.png]]
+
+Natomiast w tym zapytaniu średnia liczona jest z produktów gdzie **productId** < 10
+
+#### Równoważne 1
+
+(spróbować z with)
+
+```sql
+select distinct p.productid, p.ProductName, p.unitprice,  
+    avg(sp.unitprice) over () as avgprice  
+from products p, (select * from products) sp  
+where p.productid < 10;
+```
+
+Ponieważ funkcja okna wykonuje się po klauzuli **WHERE**, to dodaliśmy do zapytania kolejną tabele, która nie jest ograniczona przez **WHERE**  i to na niej policzyliśmy średnią
+
+![[Pasted image 20240304194655.png]]
+#### Równoważne 2
+
+```sql
+select p.productid, p.ProductName, p.unitprice,  
+    (select avg(unitprice) from (select * from products sp where sp.productid < 10 )) as avgprice  
+from products p  
+where productid < 10;
+```
+
+Sposobem na uniknięcie korzystania z funkcji okna jest policzenie średniej z tabeli już ograniczonej do **productId** < 10
+
+![[Pasted image 20240304194034.png]]
 # Zadanie 3
 
 Baza: Northwind, tabela: products
