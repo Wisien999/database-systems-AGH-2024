@@ -407,6 +407,51 @@ set value = unitprice * quantity
 where 1=1;
 ```
 
+Skrypt dla SQLite
+
+```sql
+CREATE TABLE IF NOT EXISTS product_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    productid INTEGER,
+    productname TEXT NOT NULL,
+    supplierid INTEGER,
+    categoryid INTEGER,
+    quantityperunit TEXT,
+    unitprice REAL,
+    quantity INTEGER,
+    value REAL,
+    date DATE
+);
+```
+
+Wygeneruj przykładowe dane:
+
+Skrypt dla SQLite
+
+```sql
+WITH RECURSIVE cnt(i) AS (
+    SELECT 1
+    UNION ALL
+    SELECT i+1 FROM cnt WHERE i < 30000
+)
+INSERT INTO product_history (productid, productname, supplierid, categoryid, quantityperunit, unitprice, quantity, value, date)
+SELECT
+    productid,
+    productname,
+    supplierid,
+    categoryid,
+    quantityperunit,
+    ROUND(RANDOM() * unitprice + 10, 2),
+    CAST(RANDOM() * productid + 10 AS INTEGER),
+    0,
+    date('1940-01-01', '+' || cnt.i || ' days')
+FROM
+    products,
+    cnt;
+
+UPDATE product_history
+SET value = unitprice * quantity;
+```
 
 Wykonaj polecenia: `select count(*) from product_history`,  potwierdzające wykonanie zadania
 
