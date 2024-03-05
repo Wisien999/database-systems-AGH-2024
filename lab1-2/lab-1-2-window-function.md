@@ -161,13 +161,33 @@ W DataGrip użyj opcji Explain Plan/Explain Analyze
 
 ![w:700](_img/window-3.png)
 
+### Wyniki
 
 ```sql
+subquery)
 select p.ProductID, p.ProductName, p.UnitPrice, (select avg(unitprice) from products) as avgprice
 from Products p
+
+join)
+select p.productid, p.productname, p.unitprice, avgprices.avgprice
+from Products p
+inner join (select avg(unitprice) as avgprice from Products) avprices on 1=1
+
+window) 
+select p.productid, p.productname, p.unitprice, avg(p.unitprice) over () as avgprice
+from Products p
 ```
-![w:700](_img/zad3-exec-plan.png)
-![w:700](_img/zad3-live-query.png)
+#### Query with join
+![w:700](_img/zad3-join-exec-plan.png)
+![w:700](_img/zad3-join-live-query.png)
+
+#### Query with widnow function
+![w:700](_img/zad3-widnow-exec-plan.png)
+![w:700](_img/zad3-widnow-live-query.png)
+
+#### Query with subquery
+![w:700](_img/zad3-subquery-exec-plan.png)
+![w:700](_img/zad3-subquery-live-query.png)
 
 ---
 
