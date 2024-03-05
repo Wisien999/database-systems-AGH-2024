@@ -80,6 +80,7 @@ Jaka jest są podobieństwa, jakie różnice pomiędzy grupowaniem danych a dzia
 
 ### Wyniki
 
+Zapytania zrealizowane w bazie danych **Postgres**
 #### Zapytanie 1
 ```sql
 select avg(unitprice) avgprice
@@ -140,6 +141,59 @@ Jaka jest różnica? Czego dotyczy warunek w każdym z przypadków? Napisz polec
 - 1) z wykorzystaniem funkcji okna. Napisz polecenie równoważne 
 - 2) z wykorzystaniem podzapytania
 
+### Wyniki
+
+#### Zapytanie 1
+
+```sql
+select p.productid, p.ProductName, p.unitprice,
+       (select avg(unitprice) from products) as avgprice
+from products p
+where productid < 10
+```
+
+![[Pasted image 20240304185604.png]]
+
+To zapytanie najpierw liczy średnią dla wszystkich produktów, następnie ogranicza wynikową tabele do wierszy z **productId** < 10
+#### Zapytanie 2
+
+```sql
+select p.productid, p.ProductName, p.unitprice,
+       avg(unitprice) over () as avgprice
+from products p
+where productid < 10
+```
+
+![[Pasted image 20240304185721.png]]
+
+Natomiast w tym zapytaniu średnia liczona jest z produktów gdzie **productId** < 10
+
+#### Równoważne 1
+
+(spróbować z with)
+
+```sql
+select distinct p.productid, p.ProductName, p.unitprice,  
+    avg(sp.unitprice) over () as avgprice  
+from products p, (select * from products) sp  
+where p.productid < 10;
+```
+
+Ponieważ funkcja okna wykonuje się po klauzuli **WHERE**, to dodaliśmy do zapytania kolejną tabele, która nie jest ograniczona przez **WHERE**  i to na niej policzyliśmy średnią
+
+![[Pasted image 20240304194655.png]]
+#### Równoważne 2
+
+```sql
+select p.productid, p.ProductName, p.unitprice,  
+    (select avg(unitprice) from (select * from products sp where sp.productid < 10 )) as avgprice  
+from products p  
+where productid < 10;
+```
+
+Sposobem na uniknięcie korzystania z funkcji okna jest policzenie średniej z tabeli już ograniczonej do **productId** < 10
+
+![[Pasted image 20240304194034.png]]
 # Zadanie 3
 
 Baza: Northwind, tabela: products
@@ -202,9 +256,76 @@ Napisz polecenie z wykorzystaniem podzapytania, join'a oraz funkcji okna. Porów
 Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
 ```sql
--- wyniki ...
-```
+-- subquery
+select productid, productname, unitprice, (select AVG(unitprice) FROM products AS P2 where P2.categoryid = P1.categoryid) AS avg_price FROM products AS P1
+where unitprice > (select AVG(unitprice) FROM products AS P2 where P2.categoryid = P1.categoryid);
 
+-- join
+SELECT
+    P1.productid,
+    P1.productname,
+    P1.unitprice,
+    AVG(P2.unitprice) AS avg_price
+FROM
+    products AS P1
+        JOIN
+    products AS P2 ON P1.categoryid = P2.categoryid
+GROUP BY
+    P1.productid, P1.productname, P1.unitprice
+HAVING P1.unitprice > AVG(P2.unitprice);
+
+-- window function
+SELECT productid, productname, unitprice, avg
+FROM
+    (SELECT productid, productname, unitprice, AVG(unitprice) over (partition by categoryid) AS avg
+     FROM products
+    ) AS ss
+WHERE unitprice > avg;
+```
+- **Zapytania**
+
+    ***Subquery*** wykorzystuje podzapytanie do uzyskania średniej ceny dla danej kategorii, a następnie porównuje jednostkową cenę produktu z tą średnią.
+
+    ***Join*** wykorzystuje operację JOIN oraz GROUP BY do uzyskania średniej ceny dla danej kategorii, a następnie porównuje jednostkową cenę produktu z tą średnią.
+
+    ***Window Function*** wykorzystuje funkcję okna do uzyskania średniej ceny dla danej kategorii, a następnie porównuje jednostkową cenę produktu z tą średnią.
+
+- **Czas**
+
+    **PostgreSQL**
+    | Zapytanie | subquery  | join  | window function |
+    | ---       | ---       | ---   |---              |
+    | Czas      | 80ms      | 71ms  | 65ms            |
+
+    **SQL Server**
+    | Zapytanie | subquery  | join  | window function |
+    | ---       | ---       | ---   |---              |
+    | Czas      | 0ms       | 0ms   | 0ms             |
+
+    **SQLite**
+    | Zapytanie | subquery  | join  | window function |
+    | ---       | ---       | ---   |---              |
+    | Czas      | 65ms      | 48ms  | 42ms            |
+
+    Jak wynika z wyników, najszybszym rozwiązaniem okazał się SQL Server. Warto jednak zauważyć, że może to być wynikiem specyfiki pomiaru czasu w samym SQL Server Management Studio. W przypadku dwóch pozostałych systemów szybszym okazał się SQLite.
+
+- **Plany wykonania**
+    **PostgreSQL**
+    ![alt text](./_img/zad4_1.png)
+    ![alt text](./_img/zad4_2.png)
+    ![alt text](./_img/zad4_3.png)
+
+    Jak widać koszt oraz czas zapytań jest najlepszy w przypadku funkcji okna.
+
+    **SQL Server**
+    ![alt text](./_img/zad4_4.png)
+    ![alt text](./_img/zad4_5.png)
+    ![alt text](./_img/zad4_6.png)
+
+    Tutaj również widać, że koszt zapytań jest najlepszy w przypadku funkcji okna.
+
+    **SQLite**
+    Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 ---
 # Zadanie 5 - przygotowanie
@@ -306,12 +427,65 @@ set value = unitprice * quantity
 where 1=1;
 ```
 
+Skrypt dla SQLite
+
+```sql
+CREATE TABLE IF NOT EXISTS product_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    productid INTEGER,
+    productname TEXT NOT NULL,
+    supplierid INTEGER,
+    categoryid INTEGER,
+    quantityperunit TEXT,
+    unitprice REAL,
+    quantity INTEGER,
+    value REAL,
+    date DATE
+);
+```
+
+Wygeneruj przykładowe dane:
+
+Skrypt dla SQLite
+
+```sql
+WITH RECURSIVE cnt(i) AS (
+    SELECT 1
+    UNION ALL
+    SELECT i+1 FROM cnt WHERE i < 30000
+)
+INSERT INTO product_history (productid, productname, supplierid, categoryid, quantityperunit, unitprice, quantity, value, date)
+SELECT
+    productid,
+    productname,
+    supplierid,
+    categoryid,
+    quantityperunit,
+    ROUND(RANDOM() * unitprice + 10, 2),
+    CAST(RANDOM() * productid + 10 AS INTEGER),
+    0,
+    date('1940-01-01', '+' || cnt.i || ' days')
+FROM
+    products,
+    cnt;
+
+UPDATE product_history
+SET value = unitprice * quantity;
+```
 
 Wykonaj polecenia: `select count(*) from product_history`,  potwierdzające wykonanie zadania
 
 ```sql
---- wyniki ...
+select count(*) from product_history
 ```
+**PostgreSQL**
+![alt text](./_img/zad5_1.png)
+
+**SQL Server**
+![alt text](./_img/zad5_2.png)
+
+**SQLite**
+![alt text](./_img/zad5_3.png)
 
 ---
 # Zadanie 6
