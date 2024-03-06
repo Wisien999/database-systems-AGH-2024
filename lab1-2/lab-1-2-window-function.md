@@ -218,16 +218,16 @@ W DataGrip użyj opcji Explain Plan/Explain Analyze
 ### Wyniki
 
 ```sql
-subquery)
+--- subquery)
 select p.ProductID, p.ProductName, p.UnitPrice, (select avg(unitprice) from products) as avgprice
 from Products p
 
-join)
+--- join)
 select p.productid, p.productname, p.unitprice, avgprices.avgprice
 from Products p
 inner join (select avg(unitprice) as avgprice from Products) avprices on 1=1
 
-window) 
+--- window) 
 select p.productid, p.productname, p.unitprice, avg(p.unitprice) over () as avgprice
 from Products p
 ```
@@ -236,8 +236,8 @@ from Products p
 ![w:700](_img/zad3-join-live-query.png)
 
 #### Query with widnow function
-![w:700](_img/zad3-widnow-exec-plan.png)
-![w:700](_img/zad3-widnow-live-query.png)
+![w:700](_img/zad3-window-exec-plan.png)
+![w:700](_img/zad3-window-live-query.png)
 
 #### Query with subquery
 ![w:700](_img/zad3-subquery-exec-plan.png)
@@ -500,6 +500,7 @@ Napisz polecenie z wykorzystaniem podzapytania, join'a oraz funkcji okna. Porów
 
 Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
+### Wyniki
 
 ```sql
 --- wyniki ...
