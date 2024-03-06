@@ -225,12 +225,13 @@ from Products p
 join)
 select p.productid, p.productname, p.unitprice, avgprices.avgprice
 from Products p
-inner join (select avg(unitprice) as avgprice from Products) avprices on 1=1
+inner join (select avg(unitprice) as avgprice from Products) avgprices on 1=1
 
 window) 
 select p.productid, p.productname, p.unitprice, avg(p.unitprice) over () as avgprice
 from Products p
 ```
+### MS SQL Server
 #### Query with join
 ![w:700](_img/zad3-join-exec-plan.png)
 ![w:700](_img/zad3-join-live-query.png)
@@ -243,6 +244,9 @@ from Products p
 ![w:700](_img/zad3-subquery-exec-plan.png)
 ![w:700](_img/zad3-subquery-live-query.png)
 
+### PostgreSQL
+
+### SQL Lite
 ---
 
 # Zadanie 4
