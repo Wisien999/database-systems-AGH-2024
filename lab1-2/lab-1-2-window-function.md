@@ -233,20 +233,36 @@ from Products p
 ```
 ### MS SQL Server
 #### Query with join
-![w:700](_img/zad3-join-exec-plan.png)
-![w:700](_img/zad3-join-live-query.png)
+![w:700](_img/zad3-mssql-join-exec-plan.png)
+![w:700](_img/zad3-mssql-join-live-query.png)
 
 #### Query with widnow function
-![w:700](_img/zad3-window-exec-plan.png)
-![w:700](_img/zad3-window-live-query.png)
+![w:700](_img/zad3-mssql-window-exec-plan.png)
+![w:700](_img/zad3-mssql-window-live-query.png)
 
 #### Query with subquery
-![w:700](_img/zad3-subquery-exec-plan.png)
-![w:700](_img/zad3-subquery-live-query.png)
+![w:700](_img/zad3-mssql-subquery-exec-plan.png)
+![w:700](_img/zad3-mssql-subquery-live-query.png)
 
 ### PostgreSQL
+#### Query with join
+![w:700](_img/zad3-postgres-join-exec-plan.png)
+
+#### Query with widnow function
+![w:700](_img/zad3-postgres-window-exec-plan.png)
+
+#### Query with subquery
+![w:700](_img/zad3-postgres-subquery-exec-plan.png)
 
 ### SQL Lite
+#### Query with join
+![w:700](_img/zad3-sqllite-join-exec-plan.png)
+
+#### Query with widnow function
+![w:700](_img/zad3-sqllite-window-exec-plan.png)
+
+#### Query with subquery
+![w:700](_img/zad3-sqllite-subquery-exec-plan.png)
 ---
 
 # Zadanie 4
