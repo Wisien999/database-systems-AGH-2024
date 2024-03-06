@@ -461,8 +461,8 @@ SELECT
     supplierid,
     categoryid,
     quantityperunit,
-    ROUND(RANDOM() * unitprice + 10, 2),
-    CAST(RANDOM() * productid + 10 AS INTEGER),
+    ROUND((ABS(RANDOM() % 10)) * unitprice + 10, 2),
+    CAST(ABS(RANDOM() % 10) * productid + 10 AS INTEGER),
     0,
     date('1940-01-01', '+' || cnt.i || ' days')
 FROM
