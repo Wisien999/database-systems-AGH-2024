@@ -572,6 +572,7 @@ FROM
 WHERE unitprice > avg;
 ```
 
+Dla dwóch milionów rekordów w tabelach `product_history` wykonanie zapytań trwało bardzo długo. Po kilku minutach zdecydowaliśmy się zmniejszyć ilość rekordów w tabelach do miliona.
 
 ---
 # Zadanie 7
@@ -592,6 +593,7 @@ Porównaj czasy oraz plany wykonania zapytań.
 
 Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
+### Wyniki
 
 ```sql
 --- wyniki ...
@@ -639,18 +641,74 @@ Dla każdego produktu, podaj 4 najwyższe ceny tego produktu w danym roku. Zbió
 - datę (datę uzyskania przez produkt takiej ceny)
 - pozycję w rankingu
 
-Uporządkuj wynik wg roku, nr produktu, pozycji w rankingu
+Uporządkuj wynik wg roku, nr produktu, pozycji w rankingu.
+
+### Wyniki
 
 ```sql
---- wyniki ...
+with RankedPrice as (
+    select
+        year(PH.Date) as Year,
+        P.ProductID,
+        P.ProductName,
+        PH.UnitPrice,
+        row_number() over (partition by P.ProductID, year(PH.Date) order by PH.UnitPrice desc) as PriceRank
+    from Products P
+    join product_history PH
+        on PH.ProductID = P.ProductID
+)
+select
+    *
+from
+    RankedPrice
+where
+    PriceRank <= 4
+order by
+    Year, ProductID, PriceRank;
 ```
-
 
 Spróbuj uzyskać ten sam wynik bez użycia funkcji okna, porównaj wyniki, czasy i plany zapytań. Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
-
 ```sql
---- wyniki ...
+select
+	year(PH.Date) as HistDate, P.ProductID, P.ProductName, PH.UnitPrice, PH.Date, (
+		select
+			count(*) + 1
+		from
+			(select top 4
+				PH2.UnitPrice
+			from
+				product_history PH2
+			where
+				PH2.ProductID = P.ProductID
+				and year(PH2.Date) = year(PH.Date)
+			order by 
+				PH2.UnitPrice desc) as Highest
+		where PH.UnitPrice < Highest.UnitPrice)
+from
+	Products P
+join product_history PH
+	on PH.ProductID = P.ProductID
+where
+	(PH.ID) in (
+		select top 4
+			PH2.ID
+		from
+			product_history PH2
+		where
+			PH2.ProductID = P.ProductID
+			and year(PH2.Date) = year(PH.Date)
+		order by 
+			PH2.UnitPrice desc)
+group by
+	P.ProductID,
+	PH.Date,
+	P.ProductName,
+	PH.UnitPrice
+order by
+	year(PH.Date),
+	P.ProductID,
+	PH.UnitPrice desc
 ```
 
 ---
@@ -682,17 +740,59 @@ where productid = 1 and year(date) = 2022
 order by date;
 ```
 
+### Wyniki
+
 ```sql
 -- wyniki ...
 ```
-
 
 Zadanie
 
 Spróbuj uzyskać ten sam wynik bez użycia funkcji okna, porównaj wyniki, czasy i plany zapytań. Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
 ```sql
--- wyniki ...
+select PH.productid, PH.productname, PH.categoryid, PH.date, PH.unitprice, (
+    select
+        PH2.unitprice
+    from
+        product_history PH2
+    where
+        PH2.productid = PH.productid and
+        PH2.date = dateadd(day, -1, PH.date) and
+        year(dateadd(day, -1, PH.date)) = 2022
+) as previousprodprice, (
+           select
+               PH2.unitprice
+           from
+               product_history PH2
+           where
+               PH2.productid = PH.productid and
+               PH2.date = dateadd(day, 1, PH.date)
+       ) as nextprodprice
+from product_history PH
+where PH.productid = 1 and year(PH.date) = 2022
+order by PH.date;
+
+select PH.productid, PH.productname, PH.categoryid, PH.date, PH.unitprice, (
+    select
+        PH2.unitprice
+    from
+        product_history PH2
+    where
+        PH2.productid = PH.productid and
+        PH2.date = dateadd(day, -1, PH.date)
+) as previousprodprice, (
+           select
+               PH2.unitprice
+           from
+               product_history PH2
+           where
+               PH2.productid = PH.productid and
+               PH2.date = dateadd(day, 1, PH.date)
+       ) as nextprodprice
+from product_history PH
+where PH.productid = 1 and year(PH.date) = 2022
+order by PH.date;
 ```
 
 ---
@@ -710,8 +810,37 @@ Zbiór wynikowy powinien zawierać:
 - datę poprzedniego zamówienia danego klienta,
 - wartość poprzedniego zamówienia danego klienta.
 
+### Wyniki
+
 ```sql
--- wyniki ...
+with Data as (select
+    O.OrderID,
+    C.CompanyName,
+    O.OrderDate,
+    O.Freight + sum(OD.UnitPrice * OD.Quantity * (1 - OD.Discount)) as Cost,
+    lag(O.OrderID) over (partition by C.CustomerID order by O.OrderDate) as PrevOrderID,
+    lag(O.OrderDate) over (partition by C.CustomerID order by O.OrderDate) as PrevOrderDate
+from
+    Orders O
+join Customers C
+    on O.CustomerID = C.CustomerID
+join [Order Details] OD
+    on O.OrderID = OD.OrderID
+group by
+    O.OrderID, C.CustomerID, C.CompanyName, O.OrderDate, O.Freight)
+select
+    Data.*,
+    O.Freight + sum(OD.UnitPrice * OD.Quantity * (1 - OD.Discount)) as PrevCost
+from
+    Data
+left join Orders O
+    on O.OrderID = PrevOrderID
+left join [Order Details] OD
+    on O.OrderID = OD.OrderID
+group by
+    O.Freight, Data.OrderID, Data.CompanyName, Data.OrderDate, Data.Cost, Data.PrevOrderID, Data.PrevOrderDate
+order by
+    Data.OrderID;
 ```
 
 
@@ -732,6 +861,8 @@ from products
 order by categoryid, unitprice desc;
 ```
 
+### Wyniki
+
 ```sql
 -- wyniki ...
 ```
@@ -741,7 +872,11 @@ Zadanie
 Spróbuj uzyskać ten sam wynik bez użycia funkcji okna, porównaj wyniki, czasy i plany zapytań. Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
 ```sql
--- wyniki ...
+select p.productid, p.productname, p.unitprice, p.categoryid,  
+    (select top 1 p2.productname from products p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice desc)first,
+	(select top 1 p2.productname from products p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice)last
+from products  p
+order by p.categoryid, p.unitprice desc;
 ```
 
 ---
@@ -765,8 +900,20 @@ Zbiór wynikowy powinien zawierać:
 	- datę tego zamówienia
 	- wartość tego zamówienia
 
+### Wyniki
+
 ```sql
---- wyniki ...
+with Data as
+         (
+         select o.CustomerID as CustomerID, o.OrderID, o.OrderDate, o.Freight+od.UnitPrice*od.Quantity-od.Discount as value
+         from orders o
+         join [Order Details] od
+            on od.OrderID = o.OrderID)
+select
+    d.CustomerID, d.OrderDate,d.OrderDate,d.value,
+    last_value(concat(d.OrderID,' ', d.OrderDate,' ', d.value)) over (partition by d.CustomerID order by d.value desc rows between unbounded preceding and unbounded following ) min_value_order,
+    first_value(concat(d.OrderID,' ', d.OrderDate,' ', d.value)) over (partition by d.CustomerID order by d.value desc ) max_value_order
+from Data d
 ```
 
 ---
@@ -783,14 +930,44 @@ Zbiór wynikowy powinien zawierać:
 - wartość sprzedaży produktu w danym dniu
 - wartość sprzedaży produktu narastające od początku miesiąca
 
+### Wyniki
+
 ```sql
--- wyniki ...
+with Data as 
+(select
+	id, productid, date,
+	sum(unitprice*quantity) over(partition by productid,convert(date,date)) dayValue
+from product_history)
+select 
+	d.*,
+	sum(d.dayValue) over(partition by d.productid, datepart(year,d.date),datepart(month,d.date) order by convert(date,date))
+from Data d
 ```
 
 Spróbuj wykonać zadanie bez użycia funkcji okna. Spróbuj uzyskać ten sam wynik bez użycia funkcji okna, porównaj wyniki, czasy i plany zapytań. Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
 ```sql
--- wyniki ...
+select
+	ph1.id,
+	ph1.productid,
+	ph1.date
+	,(select SUM(ph2.unitprice*ph2.quantity)  from product_history ph2 where convert(date,ph2.date) = convert(date,ph1.date) and ph1.productid=ph2.productid) dayValue
+	,(select
+		SUM(ph3.tDayValue) 
+	from 
+		(select 
+			SUM(ph4.unitprice*ph4.quantity) as tDayValue,
+			ph4.date as tDate
+		from product_history ph4 
+		where ph1.productid=ph4.productid
+		group by ph4.date
+		) as ph3 
+	where datepart(year,ph3.tDate) =datepart(year,ph1.date) 
+	and  datepart(month,ph3.tDate) =datepart(month,ph1.date) 
+	and datepart(day,ph3.tDate)<=datepart(day,ph1.date)
+	) as aggregatedValue
+from product_history ph1
+order by ph1.productid, ph1.date
 ```
 
 ---
@@ -798,10 +975,45 @@ Spróbuj wykonać zadanie bez użycia funkcji okna. Spróbuj uzyskać ten sam wy
 
 Wykonaj kilka "własnych" przykładowych analiz. Czy są jeszcze jakieś ciekawe/przydatne funkcje okna (z których nie korzystałeś w ćwiczeniu)? Spróbuj ich użyć w zaprezentowanych przykładach.
 
-```sql
--- wyniki ...
-```
+### Wyniki
 
+**Klauzula `RANGE`**
+```sql
+SELECT 
+    productid, 
+    productname, 
+    unitprice, 
+    categoryid,
+    FIRST_VALUE(productname) OVER (PARTITION BY categoryid
+        ORDER BY unitprice DESC RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS first,
+    LAST_VALUE(productname) OVER (PARTITION BY categoryid
+        ORDER BY unitprice DESC RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS last
+FROM 
+    products
+ORDER BY 
+    categoryid, 
+    unitprice DESC;
+```
+Za pomocą klauzuli `RANGE`, możemy określić zakres danych, który ma być uwzględniony w analizie. W tym przypadku analiza odbywa się dla każdej kategorii produktu, a zakres danych obejmuje wszystkie wartości od początku do bieżącego wiersza. W rezultacie, dla każdej kategorii produktów uzyskujemy pierwszą i ostatnią wartość produktu na podstawie sortowania według jednostkowej ceny w kolejności malejącej.
+
+**Klauzula `ROWS`**
+```sql
+SELECT 
+    productid, 
+    productname, 
+    unitprice, 
+    categoryid,
+    FIRST_VALUE(productname) OVER (PARTITION BY categoryid
+        ORDER BY unitprice DESC) AS first,
+    LAST_VALUE(productname) OVER (PARTITION BY categoryid
+        ORDER BY unitprice DESC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS last
+FROM 
+    products
+ORDER BY 
+    categoryid, 
+    unitprice DESC;
+```
+Za pomocą klauzuli `ROWS`, również analiza jest przeprowadzana dla każdej kategorii produktu, ale zakres danych jest definiowany w sposób bardziej szczegółowy. Funkcja FIRST_VALUE obejmuje cały zakres danych, ale LAST_VALUE jest ograniczona do zakresu od początku do bieżącego wiersza. Oznacza to, że dla każdej kategorii produktów uzyskujemy pierwszą wartość produktu dla całego zakresu, ale ostatnią wartość tylko dla danego wiersza.
 
 Punktacja
 
