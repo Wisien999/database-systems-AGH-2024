@@ -574,6 +574,46 @@ WHERE unitprice > avg;
 
 Dla dwóch milionów rekordów w tabelach `product_history` wykonanie zapytań trwało bardzo długo. Po kilku minutach zdecydowaliśmy się zmniejszyć ilość rekordów w tabelach do miliona.
 
+- **Czas**
+
+    **PostgreSQL**
+    | Zapytanie | subquery  | join  | window function |
+    | ---       | ---       | ---   |---              |
+    | Czas      | > 1m      | > 1m  | 741ms           |
+
+    **SQL Server**
+    | Zapytanie | subquery  | join  | window function |
+    | ---       | ---       | ---   |---              |
+    | Czas      | 280ms     | 350ms | 250ms           |
+
+    **SQLite**
+    | Zapytanie | subquery  | join  | window function |
+    | ---       | ---       | ---   |---              |
+    | Czas      | > 1m      | > 1m  | 692ms           |
+
+    W przypadku PostgreSQL oraz SQLite tylko zapytania wykorzystujące funkcje okna liczyły się w rozsądnym czasie. Pozostałe zajmowały ponad kilka minut, więc zdecydowaliśmy się je przerwać. 
+    W przypadku SQLServer każde zapytanie liczyło się szybko i nie było między nimi dużych różnic czasowych.
+
+- **Plany wykonania**
+    **PostgreSQL**
+    ![alt text](./_img/zad6_1.png)
+    ![alt text](./_img/zad6_2.png)
+
+    Plan wykonania zapytań jest prosty i przejrzysty.
+
+    **SQL Server**
+    ![alt text](./_img/zad6_3.png)
+    ![alt text](./_img/zad6_4.png)
+    ![alt text](./_img/zad6_5.png)
+    ![alt text](./_img/zad6_6.png)
+    ![alt text](./_img/zad6_7.png)
+    ![alt text](./_img/zad6_8.png)
+
+    Koszt zapytań jest najlepszy w przypadku funkcji okna.
+
+    **SQLite**
+    Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
+
 ---
 # Zadanie 7
 
@@ -596,8 +636,103 @@ Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 ### Wyniki
 
 ```sql
---- wyniki ...
+SELECT
+    ph.productid,
+    ph.ProductName,
+    ph.date,
+    ph.unitprice,
+    (SELECT AVG(unitprice) FROM product_history WHERE CategoryID = ph.CategoryID) AS avgPrice,
+    (SELECT SUM(value) FROM product_history WHERE CategoryID = ph.CategoryID) AS total,
+    (SELECT AVG(unitprice) FROM product_history WHERE productid = ph.productid AND YEAR(date) = YEAR(ph.date)) AS avgYear
+FROM
+    product_history ph
+WHERE
+    ph.UnitPrice > (SELECT AVG(unitprice) FROM product_history WHERE CategoryID = ph.CategoryID)
+ORDER BY
+    ph.productid, ph.date;
 ```
+
+```sql
+SELECT
+    ph1.productid,
+    ph1.ProductName,
+    ph1.unitprice,
+    ph1.date,
+    AVG(ph2.UnitPrice) AS avgPrice,
+    SUM(ph2.value) AS total,
+    AVG(ph3.UnitPrice) AS avgYear
+FROM product_history ph1
+JOIN product_history ph2 ON ph2.CategoryID = ph1.CategoryID
+JOIN product_history ph3 ON ph3.productid = ph1.productid AND YEAR(ph1.date) = YEAR(ph3.date)
+GROUP BY
+    ph1.productid,
+    ph1.ProductName,
+    ph1.unitprice,
+    ph1.date
+HAVING ph1.unitprice > AVG(ph2.UnitPrice)
+ORDER BY ph1.productid, ph1.date;
+```
+
+```sql
+SELECT
+    nph1.productid,
+    nph1.ProductName,
+    nph1.unitprice,
+    nph1.date,
+    nph1.avgPrice,
+    nph1.total,
+    nph1.avgYear
+FROM (
+    SELECT
+        ph.productid,
+        ph.ProductName,
+        ph.unitprice,
+        ph.date,
+        AVG(ph.unitprice) OVER w1 AS avgPrice,
+        SUM(ph.value) OVER w1 AS total,
+        AVG(ph.unitprice) OVER w2 AS avgYear
+    FROM product_history ph
+    WINDOW w1 AS (PARTITION BY ph.CategoryID),
+    w2 AS (PARTITION BY ph.productid, YEAR(ph.date))
+) AS nph1
+ORDER BY nph1.productid, nph1.date;
+```
+
+- **Czas**
+
+    **PostgreSQL**
+    | Zapytanie | subquery  | join  | window function |
+    | ---       | ---       | ---   |---              |
+    | Czas      | > 1m      | > 1m  | 3 s 822 ms      |
+
+    **SQL Server**
+    | Zapytanie | subquery  | join  | window function |
+    | ---       | ---       | ---   |---              |
+    | Czas      | 439ms     | 357ms | 331ms           |
+
+    **SQLite**
+    | Zapytanie | subquery  | join  | window function |
+    | ---       | ---       | ---   |---              |
+    | Czas      | > 1m      | > 1m  | 534ms           |
+
+    W przypadku PostgreSQL oraz SQLite tylko zapytania wykorzystujące funkcje okna liczyły się w rozsądnym czasie. Pozostałe zajmowały ponad kilka minut, więc zdecydowaliśmy się je przerwać. 
+    W przypadku SQLServer każde zapytanie liczyło się szybko i nie było między nimi dużych różnic czasowych.
+
+- **Plany wykonania**
+    **PostgreSQL**
+    ![alt text](./_img/zad7_1.png)
+
+    Plan wykonania zapytań jest prosty i przejrzyste.
+
+    **SQL Server**
+    ![alt text](./_img/zad7_2.png)
+    ![alt text](./_img/zad7_3.png)
+    ![alt text](./_img/zad7_4.png)
+
+    Koszt zapytań jest najlepszy w przypadku funkcji okna.
+
+    **SQLite**
+    Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 ---
 # Zadanie 8 - obserwacja
