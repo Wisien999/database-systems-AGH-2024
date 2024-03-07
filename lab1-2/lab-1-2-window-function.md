@@ -87,7 +87,7 @@ select avg(unitprice) avgprice
 from products p;
 ```
 
- ![[Pasted image 20240304183527.png]]
+ ![[_img/Pasted image 20240304183527.png]]
 
 To zapytanie policzyło średnią z **unitprice** z wszystkich wierszy w tabeli.
 #### Zapytanie 2
@@ -95,7 +95,7 @@ To zapytanie policzyło średnią z **unitprice** z wszystkich wierszy w tabeli.
 select avg(unitprice) over () as avgprice
 from products p;
 ```
-![[Pasted image 20240304183602.png]]
+![[_img/Pasted image 20240304183602.png]]
 Funkcja okna bez Partition policzyła średnią **unitPrice** z wszystkich wierszów, następnie zwróciła tą wartość dla każdego wiersza w tabeli.
 #### Zapytanie 3
 ```sql
@@ -104,7 +104,7 @@ from products p
 group by categoryid
 ```
 
-![[Pasted image 20240304183631.png]]
+![[_img/Pasted image 20240304183631.png]]
 Powyższe zapytanie pogrupowało produkty po **categoryId** a następnie dla każdej grupy policzyła średnią z **unitPrice**. Jako wynik zwróciła tabele pogrupowaną po **categoryId**
 
 #### Zapytanie 4
@@ -113,7 +113,7 @@ select avg(unitprice) over (partition by categoryid) as avgprice
 from products p;
 ```
 
-![[Pasted image 20240304183652.png]]
+![[_img/Pasted image 20240304183652.png]]
 Funkcja okna z partition policzyła średnią dla każdej kategorii, następnie jako wynik zwróciła wszystkie wiersze z wartością odpowiadającej średniej dla kategorii do której dany wiersz należy
 
 ---
@@ -152,7 +152,7 @@ from products p
 where productid < 10
 ```
 
-![[Pasted image 20240304185604.png]]
+![[_img/Pasted image 20240304185604.png]]
 
 To zapytanie najpierw liczy średnią dla wszystkich produktów, następnie ogranicza wynikową tabele do wierszy z **productId** < 10
 #### Zapytanie 2
@@ -164,7 +164,7 @@ from products p
 where productid < 10
 ```
 
-![[Pasted image 20240304185721.png]]
+![[_img/Pasted image 20240304185721.png]]
 
 Natomiast w tym zapytaniu średnia liczona jest z produktów gdzie **productId** < 10
 
@@ -181,7 +181,7 @@ where p.productid < 10;
 
 Ponieważ funkcja okna wykonuje się po klauzuli **WHERE**, to dodaliśmy do zapytania kolejną tabele, która nie jest ograniczona przez **WHERE**  i to na niej policzyliśmy średnią
 
-![[Pasted image 20240304194655.png]]
+![[_img/Pasted image 20240304194655.png]]
 #### Równoważne 2
 
 ```sql
@@ -193,7 +193,7 @@ where productid < 10;
 
 Sposobem na uniknięcie korzystania z funkcji okna jest policzenie średniej z tabeli już ograniczonej do **productId** < 10
 
-![[Pasted image 20240304194034.png]]
+![[_img/Pasted image 20240304194034.png]]
 # Zadanie 3
 
 Baza: Northwind, tabela: products
