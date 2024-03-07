@@ -327,34 +327,44 @@ WHERE unitprice > avg;
     **PostgreSQL**
     | Zapytanie | subquery  | join  | window function |
     | ---       | ---       | ---   |---              |
-    | Czas      | 80ms      | 71ms  | 65ms            |
+    | Czas      | 91ms      | 20ms  | 12ms            |
 
     **SQL Server**
     | Zapytanie | subquery  | join  | window function |
     | ---       | ---       | ---   |---              |
-    | Czas      | 0ms       | 0ms   | 0ms             |
+    | Czas      | 91ms      | 14ms  | 19ms             |
 
     **SQLite**
     | Zapytanie | subquery  | join  | window function |
     | ---       | ---       | ---   |---              |
-    | Czas      | 65ms      | 48ms  | 42ms            |
+    | Czas      | 42ms      | 10ms  | 8ms            |
 
-    Jak wynika z wyników, najszybszym rozwiązaniem okazał się SQL Server. Warto jednak zauważyć, że może to być wynikiem specyfiki pomiaru czasu w samym SQL Server Management Studio. W przypadku dwóch pozostałych systemów szybszym okazał się SQLite.
+    Jak wynika z wyników, najszybszym rozwiązaniem okazał się SQLite, a najszybszym zapytaniem zapytanie wykorzystujące funkcje okna.
 
 - **Plany wykonania**
     **PostgreSQL**
     ![alt text](./_img/zad4_1.png)
     ![alt text](./_img/zad4_2.png)
     ![alt text](./_img/zad4_3.png)
-
-    Jak widać koszt oraz czas zapytań jest najlepszy w przypadku funkcji okna.
-
-    **SQL Server**
     ![alt text](./_img/zad4_4.png)
     ![alt text](./_img/zad4_5.png)
     ![alt text](./_img/zad4_6.png)
 
-    Tutaj również widać, że koszt zapytań jest najlepszy w przypadku funkcji okna.
+    Jak widać koszt oraz czas zapytań jest najlepszy w przypadku funkcji okna.
+
+    Plany wykonania zapytań są proste i przejrzyste.
+
+    **SQL Server**
+    ![alt text](./_img/zad4_7.png)
+    ![alt text](./_img/zad4_8.png)
+    ![alt text](./_img/zad4_9.png)
+    ![alt text](./_img/zad4_10.png)
+    ![alt text](./_img/zad4_11.png)
+    ![alt text](./_img/zad4_12.png)
+
+    Koszt zapytań jest najlepszy w przypadku funkcji okna i wykorzystania join'a. Oba wyniki są sobie bliskie. 
+    
+    Plany wykonania zapytań są dużo bardziej skomplikowane niż w przypadku PostgreSQL.
 
     **SQLite**
     Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
