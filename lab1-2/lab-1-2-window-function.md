@@ -231,18 +231,25 @@ inner join (select avg(unitprice) as avgprice from Products) avgprices on 1=1
 select p.productid, p.productname, p.unitprice, avg(p.unitprice) over () as avgprice
 from Products p
 ```
+Brak porównania czasu wykonania, bo przy tabeli rozmiaru 77 nie ma ono większego sensu.
+
 ### MS SQL Server
 #### Query with join
 ![w:700](_img/zad3-mssql-join-exec-plan.png)
 ![w:700](_img/zad3-mssql-join-live-query.png)
+Cost: 0.007102
 
 #### Query with widnow function
 ![w:700](_img/zad3-mssql-window-exec-plan.png)
 ![w:700](_img/zad3-mssql-window-live-query.png)
+Cost: 0.0048
 
 #### Query with subquery
 ![w:700](_img/zad3-mssql-subquery-exec-plan.png)
 ![w:700](_img/zad3-mssql-subquery-live-query.png)
+Cost: 0.007109
+
+Jak widać najmniejszy koszt ma wersja query z funkcją okna.
 
 ### PostgreSQL
 #### Query with join
@@ -254,7 +261,9 @@ from Products p
 #### Query with subquery
 ![w:700](_img/zad3-postgres-subquery-exec-plan.png)
 
-### SQL Lite
+Ponownie najmniejszy koszt ma wersja query z funkcją okna.
+
+### SQLite
 #### Query with join
 ![w:700](_img/zad3-sqllite-join-exec-plan.png)
 
@@ -263,6 +272,9 @@ from Products p
 
 #### Query with subquery
 ![w:700](_img/zad3-sqllite-subquery-exec-plan.png)
+
+Datagrip nie wpiera dokładnej analizy kosztu w przypadku SQLite.
+
 ---
 
 # Zadanie 4
