@@ -545,7 +545,31 @@ Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 ### Wyniki
 
 ```sql
---- wyniki ...
+-- subquery
+select productid, productname, unitprice, (select AVG(unitprice) FROM product_history AS P2 where P2.categoryid = P1.categoryid) AS avg_price FROM product_history AS P1
+where unitprice > (select AVG(unitprice) FROM product_history AS P2 where P2.categoryid = P1.categoryid);
+
+-- join
+SELECT
+    P1.productid,
+    P1.productname,
+    P1.unitprice,
+    AVG(P2.unitprice) AS avg_price
+FROM
+    product_history AS P1
+        JOIN
+    product_history AS P2 ON P1.categoryid = P2.categoryid
+GROUP BY
+    P1.productid, P1.productname, P1.unitprice
+HAVING P1.unitprice > AVG(P2.unitprice);
+
+-- window function
+SELECT productid, productname, unitprice, avg
+FROM
+    (SELECT productid, productname, unitprice, AVG(unitprice) over (partition by categoryid) AS avg
+     FROM product_history
+    ) AS ss
+WHERE unitprice > avg;
 ```
 
 
