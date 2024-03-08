@@ -578,17 +578,27 @@ select productid, productname, unitprice, categoryid,
 from products;
 ```
 
-```sql
---- wyniki ...
-```
-
+![w:700](_img/zad8-result.png)
 
 Zadanie
 
 Spróbuj uzyskać ten sam wynik bez użycia funkcji okna
 
 ```sql
---- wyniki ...
+SELECT 
+    p.productid, p.productname, p.unitprice, p.categoryid,
+	(
+	select count(*) + 1 from products p2
+	where (p2.categoryid = p.categoryid and p2.UnitPrice > p.UnitPrice) or (p2.categoryid = p.categoryid and p2.UnitPrice = p.UnitPrice and p2.ProductID < p.ProductID)
+	) as rownno,
+    (SELECT COUNT(*) + 1
+     FROM products p2
+     WHERE p2.categoryid = p.categoryid AND p2.unitprice > p.unitprice) AS rankprice,
+    (SELECT COUNT(distinct unitprice) + 1
+     FROM products p2
+     WHERE p2.categoryid = p.categoryid AND p2.unitprice > p.unitprice) AS denserankprice
+FROM products p
+order by categoryid asc, unitprice desc, productid asc;
 ```
 
 
