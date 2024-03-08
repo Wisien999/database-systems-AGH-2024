@@ -327,34 +327,44 @@ WHERE unitprice > avg;
     **PostgreSQL**
     | Zapytanie | subquery  | join  | window function |
     | ---       | ---       | ---   |---              |
-    | Czas      | 80ms      | 71ms  | 65ms            |
+    | Czas      | 91ms      | 20ms  | 12ms            |
 
     **SQL Server**
     | Zapytanie | subquery  | join  | window function |
     | ---       | ---       | ---   |---              |
-    | Czas      | 0ms       | 0ms   | 0ms             |
+    | Czas      | 91ms      | 14ms  | 19ms             |
 
     **SQLite**
     | Zapytanie | subquery  | join  | window function |
     | ---       | ---       | ---   |---              |
-    | Czas      | 65ms      | 48ms  | 42ms            |
+    | Czas      | 42ms      | 10ms  | 8ms            |
 
-    Jak wynika z wyników, najszybszym rozwiązaniem okazał się SQL Server. Warto jednak zauważyć, że może to być wynikiem specyfiki pomiaru czasu w samym SQL Server Management Studio. W przypadku dwóch pozostałych systemów szybszym okazał się SQLite.
+    Jak wynika z wyników, najszybszym rozwiązaniem okazał się SQLite, a najszybszym zapytaniem zapytanie wykorzystujące funkcje okna.
 
 - **Plany wykonania**
     **PostgreSQL**
     ![alt text](./_img/zad4_1.png)
     ![alt text](./_img/zad4_2.png)
     ![alt text](./_img/zad4_3.png)
-
-    Jak widać koszt oraz czas zapytań jest najlepszy w przypadku funkcji okna.
-
-    **SQL Server**
     ![alt text](./_img/zad4_4.png)
     ![alt text](./_img/zad4_5.png)
     ![alt text](./_img/zad4_6.png)
 
-    Tutaj również widać, że koszt zapytań jest najlepszy w przypadku funkcji okna.
+    Jak widać koszt oraz czas zapytań jest najlepszy w przypadku funkcji okna.
+
+    Plany wykonania zapytań są proste i przejrzyste.
+
+    **SQL Server**
+    ![alt text](./_img/zad4_7.png)
+    ![alt text](./_img/zad4_8.png)
+    ![alt text](./_img/zad4_9.png)
+    ![alt text](./_img/zad4_10.png)
+    ![alt text](./_img/zad4_11.png)
+    ![alt text](./_img/zad4_12.png)
+
+    Koszt zapytań jest najlepszy w przypadku funkcji okna i wykorzystania join'a. Oba wyniki są sobie bliskie. 
+    
+    Plany wykonania zapytań są dużo bardziej skomplikowane niż w przypadku PostgreSQL.
 
     **SQLite**
     Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
@@ -535,9 +545,74 @@ Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 ### Wyniki
 
 ```sql
---- wyniki ...
+-- subquery
+select productid, productname, unitprice, (select AVG(unitprice) FROM product_history AS P2 where P2.categoryid = P1.categoryid) AS avg_price FROM product_history AS P1
+where unitprice > (select AVG(unitprice) FROM product_history AS P2 where P2.categoryid = P1.categoryid);
+
+-- join
+SELECT
+    P1.productid,
+    P1.productname,
+    P1.unitprice,
+    AVG(P2.unitprice) AS avg_price
+FROM
+    product_history AS P1
+        JOIN
+    product_history AS P2 ON P1.categoryid = P2.categoryid
+GROUP BY
+    P1.productid, P1.productname, P1.unitprice
+HAVING P1.unitprice > AVG(P2.unitprice);
+
+-- window function
+SELECT productid, productname, unitprice, avg
+FROM
+    (SELECT productid, productname, unitprice, AVG(unitprice) over (partition by categoryid) AS avg
+     FROM product_history
+    ) AS ss
+WHERE unitprice > avg;
 ```
 
+Dla dwóch milionów rekordów w tabelach `product_history` wykonanie zapytań trwało bardzo długo. Po kilku minutach zdecydowaliśmy się zmniejszyć ilość rekordów w tabelach do miliona.
+
+- **Czas**
+
+    **PostgreSQL**
+    | Zapytanie | subquery  | join  | window function |
+    | ---       | ---       | ---   |---              |
+    | Czas      | > 1m      | > 1m  | 741ms           |
+
+    **SQL Server**
+    | Zapytanie | subquery  | join  | window function |
+    | ---       | ---       | ---   |---              |
+    | Czas      | 280ms     | 350ms | 250ms           |
+
+    **SQLite**
+    | Zapytanie | subquery  | join  | window function |
+    | ---       | ---       | ---   |---              |
+    | Czas      | > 1m      | > 1m  | 692ms           |
+
+    W przypadku PostgreSQL oraz SQLite tylko zapytania wykorzystujące funkcje okna liczyły się w rozsądnym czasie. Pozostałe zajmowały ponad kilka minut, więc zdecydowaliśmy się je przerwać. 
+    W przypadku SQLServer każde zapytanie liczyło się szybko i nie było między nimi dużych różnic czasowych.
+
+- **Plany wykonania**
+    **PostgreSQL**
+    ![alt text](./_img/zad6_1.png)
+    ![alt text](./_img/zad6_2.png)
+
+    Plan wykonania zapytań jest prosty i przejrzysty.
+
+    **SQL Server**
+    ![alt text](./_img/zad6_3.png)
+    ![alt text](./_img/zad6_4.png)
+    ![alt text](./_img/zad6_5.png)
+    ![alt text](./_img/zad6_6.png)
+    ![alt text](./_img/zad6_7.png)
+    ![alt text](./_img/zad6_8.png)
+
+    Koszt zapytań jest najlepszy w przypadku funkcji okna.
+
+    **SQLite**
+    Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 ---
 # Zadanie 7
@@ -558,10 +633,106 @@ Porównaj czasy oraz plany wykonania zapytań.
 
 Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
+### Wyniki
 
 ```sql
---- wyniki ...
+SELECT
+    ph.productid,
+    ph.ProductName,
+    ph.date,
+    ph.unitprice,
+    (SELECT AVG(unitprice) FROM product_history WHERE CategoryID = ph.CategoryID) AS avgPrice,
+    (SELECT SUM(value) FROM product_history WHERE CategoryID = ph.CategoryID) AS total,
+    (SELECT AVG(unitprice) FROM product_history WHERE productid = ph.productid AND YEAR(date) = YEAR(ph.date)) AS avgYear
+FROM
+    product_history ph
+WHERE
+    ph.UnitPrice > (SELECT AVG(unitprice) FROM product_history WHERE CategoryID = ph.CategoryID)
+ORDER BY
+    ph.productid, ph.date;
 ```
+
+```sql
+SELECT
+    ph1.productid,
+    ph1.ProductName,
+    ph1.unitprice,
+    ph1.date,
+    AVG(ph2.UnitPrice) AS avgPrice,
+    SUM(ph2.value) AS total,
+    AVG(ph3.UnitPrice) AS avgYear
+FROM product_history ph1
+JOIN product_history ph2 ON ph2.CategoryID = ph1.CategoryID
+JOIN product_history ph3 ON ph3.productid = ph1.productid AND YEAR(ph1.date) = YEAR(ph3.date)
+GROUP BY
+    ph1.productid,
+    ph1.ProductName,
+    ph1.unitprice,
+    ph1.date
+HAVING ph1.unitprice > AVG(ph2.UnitPrice)
+ORDER BY ph1.productid, ph1.date;
+```
+
+```sql
+SELECT
+    nph1.productid,
+    nph1.ProductName,
+    nph1.unitprice,
+    nph1.date,
+    nph1.avgPrice,
+    nph1.total,
+    nph1.avgYear
+FROM (
+    SELECT
+        ph.productid,
+        ph.ProductName,
+        ph.unitprice,
+        ph.date,
+        AVG(ph.unitprice) OVER w1 AS avgPrice,
+        SUM(ph.value) OVER w1 AS total,
+        AVG(ph.unitprice) OVER w2 AS avgYear
+    FROM product_history ph
+    WINDOW w1 AS (PARTITION BY ph.CategoryID),
+    w2 AS (PARTITION BY ph.productid, YEAR(ph.date))
+) AS nph1
+ORDER BY nph1.productid, nph1.date;
+```
+
+- **Czas**
+
+    **PostgreSQL**
+    | Zapytanie | subquery  | join  | window function |
+    | ---       | ---       | ---   |---              |
+    | Czas      | > 1m      | > 1m  | 3 s 822 ms      |
+
+    **SQL Server**
+    | Zapytanie | subquery  | join  | window function |
+    | ---       | ---       | ---   |---              |
+    | Czas      | 439ms     | 357ms | 331ms           |
+
+    **SQLite**
+    | Zapytanie | subquery  | join  | window function |
+    | ---       | ---       | ---   |---              |
+    | Czas      | > 1m      | > 1m  | 534ms           |
+
+    W przypadku PostgreSQL oraz SQLite tylko zapytania wykorzystujące funkcje okna liczyły się w rozsądnym czasie. Pozostałe zajmowały ponad kilka minut, więc zdecydowaliśmy się je przerwać. 
+    W przypadku SQLServer każde zapytanie liczyło się szybko i nie było między nimi dużych różnic czasowych.
+
+- **Plany wykonania**
+    **PostgreSQL**
+    ![alt text](./_img/zad7_1.png)
+
+    Plan wykonania zapytań jest prosty i przejrzyste.
+
+    **SQL Server**
+    ![alt text](./_img/zad7_2.png)
+    ![alt text](./_img/zad7_3.png)
+    ![alt text](./_img/zad7_4.png)
+
+    Koszt zapytań jest najlepszy w przypadku funkcji okna.
+
+    **SQLite**
+    Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 ---
 # Zadanie 8 - obserwacja
@@ -615,18 +786,74 @@ Dla każdego produktu, podaj 4 najwyższe ceny tego produktu w danym roku. Zbió
 - datę (datę uzyskania przez produkt takiej ceny)
 - pozycję w rankingu
 
-Uporządkuj wynik wg roku, nr produktu, pozycji w rankingu
+Uporządkuj wynik wg roku, nr produktu, pozycji w rankingu.
+
+### Wyniki
 
 ```sql
---- wyniki ...
+with RankedPrice as (
+    select
+        year(PH.Date) as Year,
+        P.ProductID,
+        P.ProductName,
+        PH.UnitPrice,
+        row_number() over (partition by P.ProductID, year(PH.Date) order by PH.UnitPrice desc) as PriceRank
+    from Products P
+    join product_history PH
+        on PH.ProductID = P.ProductID
+)
+select
+    *
+from
+    RankedPrice
+where
+    PriceRank <= 4
+order by
+    Year, ProductID, PriceRank;
 ```
-
 
 Spróbuj uzyskać ten sam wynik bez użycia funkcji okna, porównaj wyniki, czasy i plany zapytań. Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
-
 ```sql
---- wyniki ...
+select
+	year(PH.Date) as HistDate, P.ProductID, P.ProductName, PH.UnitPrice, PH.Date, (
+		select
+			count(*) + 1
+		from
+			(select top 4
+				PH2.UnitPrice
+			from
+				product_history PH2
+			where
+				PH2.ProductID = P.ProductID
+				and year(PH2.Date) = year(PH.Date)
+			order by 
+				PH2.UnitPrice desc) as Highest
+		where PH.UnitPrice < Highest.UnitPrice)
+from
+	Products P
+join product_history PH
+	on PH.ProductID = P.ProductID
+where
+	(PH.ID) in (
+		select top 4
+			PH2.ID
+		from
+			product_history PH2
+		where
+			PH2.ProductID = P.ProductID
+			and year(PH2.Date) = year(PH.Date)
+		order by 
+			PH2.UnitPrice desc)
+group by
+	P.ProductID,
+	PH.Date,
+	P.ProductName,
+	PH.UnitPrice
+order by
+	year(PH.Date),
+	P.ProductID,
+	PH.UnitPrice desc
 ```
 
 ---
@@ -658,17 +885,59 @@ where productid = 1 and year(date) = 2022
 order by date;
 ```
 
+### Wyniki
+
 ```sql
 -- wyniki ...
 ```
-
 
 Zadanie
 
 Spróbuj uzyskać ten sam wynik bez użycia funkcji okna, porównaj wyniki, czasy i plany zapytań. Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
 ```sql
--- wyniki ...
+select PH.productid, PH.productname, PH.categoryid, PH.date, PH.unitprice, (
+    select
+        PH2.unitprice
+    from
+        product_history PH2
+    where
+        PH2.productid = PH.productid and
+        PH2.date = dateadd(day, -1, PH.date) and
+        year(dateadd(day, -1, PH.date)) = 2022
+) as previousprodprice, (
+           select
+               PH2.unitprice
+           from
+               product_history PH2
+           where
+               PH2.productid = PH.productid and
+               PH2.date = dateadd(day, 1, PH.date)
+       ) as nextprodprice
+from product_history PH
+where PH.productid = 1 and year(PH.date) = 2022
+order by PH.date;
+
+select PH.productid, PH.productname, PH.categoryid, PH.date, PH.unitprice, (
+    select
+        PH2.unitprice
+    from
+        product_history PH2
+    where
+        PH2.productid = PH.productid and
+        PH2.date = dateadd(day, -1, PH.date)
+) as previousprodprice, (
+           select
+               PH2.unitprice
+           from
+               product_history PH2
+           where
+               PH2.productid = PH.productid and
+               PH2.date = dateadd(day, 1, PH.date)
+       ) as nextprodprice
+from product_history PH
+where PH.productid = 1 and year(PH.date) = 2022
+order by PH.date;
 ```
 
 ---
@@ -686,8 +955,37 @@ Zbiór wynikowy powinien zawierać:
 - datę poprzedniego zamówienia danego klienta,
 - wartość poprzedniego zamówienia danego klienta.
 
+### Wyniki
+
 ```sql
--- wyniki ...
+with Data as (select
+    O.OrderID,
+    C.CompanyName,
+    O.OrderDate,
+    O.Freight + sum(OD.UnitPrice * OD.Quantity * (1 - OD.Discount)) as Cost,
+    lag(O.OrderID) over (partition by C.CustomerID order by O.OrderDate) as PrevOrderID,
+    lag(O.OrderDate) over (partition by C.CustomerID order by O.OrderDate) as PrevOrderDate
+from
+    Orders O
+join Customers C
+    on O.CustomerID = C.CustomerID
+join [Order Details] OD
+    on O.OrderID = OD.OrderID
+group by
+    O.OrderID, C.CustomerID, C.CompanyName, O.OrderDate, O.Freight)
+select
+    Data.*,
+    O.Freight + sum(OD.UnitPrice * OD.Quantity * (1 - OD.Discount)) as PrevCost
+from
+    Data
+left join Orders O
+    on O.OrderID = PrevOrderID
+left join [Order Details] OD
+    on O.OrderID = OD.OrderID
+group by
+    O.Freight, Data.OrderID, Data.CompanyName, Data.OrderDate, Data.Cost, Data.PrevOrderID, Data.PrevOrderDate
+order by
+    Data.OrderID;
 ```
 
 
@@ -708,6 +1006,8 @@ from products
 order by categoryid, unitprice desc;
 ```
 
+### Wyniki
+
 ```sql
 -- wyniki ...
 ```
@@ -717,7 +1017,11 @@ Zadanie
 Spróbuj uzyskać ten sam wynik bez użycia funkcji okna, porównaj wyniki, czasy i plany zapytań. Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
 ```sql
--- wyniki ...
+select p.productid, p.productname, p.unitprice, p.categoryid,  
+    (select top 1 p2.productname from products p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice desc)first,
+	(select top 1 p2.productname from products p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice)last
+from products  p
+order by p.categoryid, p.unitprice desc;
 ```
 
 ---
@@ -741,8 +1045,20 @@ Zbiór wynikowy powinien zawierać:
 	- datę tego zamówienia
 	- wartość tego zamówienia
 
+### Wyniki
+
 ```sql
---- wyniki ...
+with Data as
+         (
+         select o.CustomerID as CustomerID, o.OrderID, o.OrderDate, o.Freight+od.UnitPrice*od.Quantity-od.Discount as value
+         from orders o
+         join [Order Details] od
+            on od.OrderID = o.OrderID)
+select
+    d.CustomerID, d.OrderDate,d.OrderDate,d.value,
+    last_value(concat(d.OrderID,' ', d.OrderDate,' ', d.value)) over (partition by d.CustomerID order by d.value desc rows between unbounded preceding and unbounded following ) min_value_order,
+    first_value(concat(d.OrderID,' ', d.OrderDate,' ', d.value)) over (partition by d.CustomerID order by d.value desc ) max_value_order
+from Data d
 ```
 
 ---
@@ -759,14 +1075,44 @@ Zbiór wynikowy powinien zawierać:
 - wartość sprzedaży produktu w danym dniu
 - wartość sprzedaży produktu narastające od początku miesiąca
 
+### Wyniki
+
 ```sql
--- wyniki ...
+with Data as 
+(select
+	id, productid, date,
+	sum(unitprice*quantity) over(partition by productid,convert(date,date)) dayValue
+from product_history)
+select 
+	d.*,
+	sum(d.dayValue) over(partition by d.productid, datepart(year,d.date),datepart(month,d.date) order by convert(date,date))
+from Data d
 ```
 
 Spróbuj wykonać zadanie bez użycia funkcji okna. Spróbuj uzyskać ten sam wynik bez użycia funkcji okna, porównaj wyniki, czasy i plany zapytań. Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
 ```sql
--- wyniki ...
+select
+	ph1.id,
+	ph1.productid,
+	ph1.date
+	,(select SUM(ph2.unitprice*ph2.quantity)  from product_history ph2 where convert(date,ph2.date) = convert(date,ph1.date) and ph1.productid=ph2.productid) dayValue
+	,(select
+		SUM(ph3.tDayValue) 
+	from 
+		(select 
+			SUM(ph4.unitprice*ph4.quantity) as tDayValue,
+			ph4.date as tDate
+		from product_history ph4 
+		where ph1.productid=ph4.productid
+		group by ph4.date
+		) as ph3 
+	where datepart(year,ph3.tDate) =datepart(year,ph1.date) 
+	and  datepart(month,ph3.tDate) =datepart(month,ph1.date) 
+	and datepart(day,ph3.tDate)<=datepart(day,ph1.date)
+	) as aggregatedValue
+from product_history ph1
+order by ph1.productid, ph1.date
 ```
 
 ---
@@ -774,10 +1120,45 @@ Spróbuj wykonać zadanie bez użycia funkcji okna. Spróbuj uzyskać ten sam wy
 
 Wykonaj kilka "własnych" przykładowych analiz. Czy są jeszcze jakieś ciekawe/przydatne funkcje okna (z których nie korzystałeś w ćwiczeniu)? Spróbuj ich użyć w zaprezentowanych przykładach.
 
-```sql
--- wyniki ...
-```
+### Wyniki
 
+**Klauzula `RANGE`**
+```sql
+SELECT 
+    productid, 
+    productname, 
+    unitprice, 
+    categoryid,
+    FIRST_VALUE(productname) OVER (PARTITION BY categoryid
+        ORDER BY unitprice DESC RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS first,
+    LAST_VALUE(productname) OVER (PARTITION BY categoryid
+        ORDER BY unitprice DESC RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS last
+FROM 
+    products
+ORDER BY 
+    categoryid, 
+    unitprice DESC;
+```
+Za pomocą klauzuli `RANGE`, możemy określić zakres danych, który ma być uwzględniony w analizie. W tym przypadku analiza odbywa się dla każdej kategorii produktu, a zakres danych obejmuje wszystkie wartości od początku do bieżącego wiersza. W rezultacie, dla każdej kategorii produktów uzyskujemy pierwszą i ostatnią wartość produktu na podstawie sortowania według jednostkowej ceny w kolejności malejącej.
+
+**Klauzula `ROWS`**
+```sql
+SELECT 
+    productid, 
+    productname, 
+    unitprice, 
+    categoryid,
+    FIRST_VALUE(productname) OVER (PARTITION BY categoryid
+        ORDER BY unitprice DESC) AS first,
+    LAST_VALUE(productname) OVER (PARTITION BY categoryid
+        ORDER BY unitprice DESC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS last
+FROM 
+    products
+ORDER BY 
+    categoryid, 
+    unitprice DESC;
+```
+Za pomocą klauzuli `ROWS`, również analiza jest przeprowadzana dla każdej kategorii produktu, ale zakres danych jest definiowany w sposób bardziej szczegółowy. Funkcja FIRST_VALUE obejmuje cały zakres danych, ale LAST_VALUE jest ograniczona do zakresu od początku do bieżącego wiersza. Oznacza to, że dla każdej kategorii produktów uzyskujemy pierwszą wartość produktu dla całego zakresu, ale ostatnią wartość tylko dla danego wiersza.
 
 Punktacja
 
