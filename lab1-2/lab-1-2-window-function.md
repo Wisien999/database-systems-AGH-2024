@@ -978,58 +978,169 @@ order by date;
 
 ### Wyniki
 
-```sql
--- wyniki ...
-```
+- **Działanie**
+
+    Funkcja *lag(unitprice)* zwraca cenę produktu z poprzedniego rekordu (uporządkowanego według daty), natomiast *lead(unitprice)* zwraca cenę produktu z następnego rekordu.
+    Funkcje te pozwalają na porównywanie bieżących wartości z poprzednimi lub następnymi wartościami w uporządkowanym zestawie danych.
+
+- **Czas**
+
+    **PostgreSQL**
+    | Zapytanie | zapytanie 1  | zapytanie 2  |
+    | ---       | ---          | ---          |
+    | Czas      | 846 ms       | 726 ms       | 
+
+    **SQL Server**
+    | Zapytanie | zapytanie 1  | zapytanie 2  |
+    | ---       | ---          | ---          |
+    | Czas      | 281 ms       | 284 ms       | 
+
+    **SQLite**
+    | Zapytanie | zapytanie 1  | zapytanie 2  |
+    | ---       | ---          | ---          |
+    | Czas      | 374 ms       | 397 ms       | 
+
+    Zdecydowanie najszybszy okazał się SQL Server, niewiele wolniejszy był SQLite, a dużo wolniejszy od nich był PostgreSQL.
+
+- **Plany wykonania**
+
+    **PostgreSQL**
+    ![alt text](./_img/zad10_1.png)
+    ![alt text](./_img/zad10_2.png)
+
+    **SQL Server**
+    ![alt text](./_img/zad10_3.png)
+    ![alt text](./_img/zad10_4.png)
+
+    Koszt jest znacznie mniejszy niż w przypadku PostgreSQL, a jego plan wykonanie jest znacznie bardziej rozległy niż w przypadku PostgreSQL.
+
+    **SQLite**
+    Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 Zadanie
 
 Spróbuj uzyskać ten sam wynik bez użycia funkcji okna, porównaj wyniki, czasy i plany zapytań. Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
-```sql
-select PH.productid, PH.productname, PH.categoryid, PH.date, PH.unitprice, (
-    select
-        PH2.unitprice
-    from
-        product_history PH2
-    where
-        PH2.productid = PH.productid and
-        PH2.date = dateadd(day, -1, PH.date) and
-        year(dateadd(day, -1, PH.date)) = 2022
-) as previousprodprice, (
-           select
-               PH2.unitprice
-           from
-               product_history PH2
-           where
-               PH2.productid = PH.productid and
-               PH2.date = dateadd(day, 1, PH.date)
-       ) as nextprodprice
-from product_history PH
-where PH.productid = 1 and year(PH.date) = 2022
-order by PH.date;
+### Wyniki
 
-select PH.productid, PH.productname, PH.categoryid, PH.date, PH.unitprice, (
-    select
-        PH2.unitprice
-    from
-        product_history PH2
-    where
-        PH2.productid = PH.productid and
-        PH2.date = dateadd(day, -1, PH.date)
-) as previousprodprice, (
-           select
-               PH2.unitprice
-           from
-               product_history PH2
-           where
-               PH2.productid = PH.productid and
-               PH2.date = dateadd(day, 1, PH.date)
-       ) as nextprodprice
-from product_history PH
-where PH.productid = 1 and year(PH.date) = 2022
-order by PH.date;
+```sql
+--- Zapytanie 1
+SELECT
+    ph1.productid,
+    ph1.productname,
+    ph1.categoryid,
+    ph1.date,
+    ph1.unitprice AS currentprodprice,
+    ph2.unitprice AS previousprodprice,
+    ph3.unitprice AS nextprodprice
+FROM
+    product_history ph1
+LEFT JOIN
+    product_history ph2 ON ph1.productid = ph2.productid
+                       AND ph1.date > ph2.date
+                       AND year(ph1.date) = 2022
+                       AND ph2.date = (
+                           SELECT MAX(date)
+                           FROM product_history
+                           WHERE productid = ph1.productid
+                             AND date < ph1.date
+                             AND year(date) = 2022
+                       )
+LEFT JOIN
+    product_history ph3 ON ph1.productid = ph3.productid
+                       AND ph1.date < ph3.date
+                       AND year(ph1.date) = 2022
+                       AND ph3.date = (
+                           SELECT MIN(date)
+                           FROM product_history
+                           WHERE productid = ph1.productid
+                             AND date > ph1.date
+                             AND year(date) = 2022
+                       )
+WHERE
+    ph1.productid = 1
+    AND year(ph1.date) = 2022
+ORDER BY
+    ph1.date;
+
+--- Zapytanie 2
+WITH t AS (
+    SELECT
+        ph1.productid,
+        ph1.productname,
+        ph1.categoryid,
+        ph1.date,
+        ph1.unitprice AS currentprodprice,
+        ph2.unitprice AS previousprodprice,
+        ph3.unitprice AS nextprodprice
+    FROM
+        product_history ph1
+    LEFT JOIN
+        product_history ph2 ON ph1.productid = ph2.productid
+                           AND ph1.date > ph2.date
+                           AND year(ph1.date) = 2022
+                           AND ph2.date = (
+                               SELECT MAX(date)
+                               FROM product_history
+                               WHERE productid = ph1.productid
+                                 AND date < ph1.date
+                                 AND year(date) = 2022
+                           )
+    LEFT JOIN
+        product_history ph3 ON ph1.productid = ph3.productid
+                           AND ph1.date < ph3.date
+                           AND year(ph1.date) = 2022
+                           AND ph3.date = (
+                               SELECT MIN(date)
+                               FROM product_history
+                               WHERE productid = ph1.productid
+                                 AND date > ph1.date
+                                 AND year(date) = 2022
+                           )
+)
+SELECT *
+FROM t
+WHERE productid = 1
+    AND year(date) = 2022
+ORDER BY date;
 ```
+
+- **Czas**
+
+    **PostgreSQL**
+    | Zapytanie | zapytanie 1  | zapytanie 2  |
+    | ---       | ---          | ---          |
+    | Czas      | 761 ms       | 803 ms       | 
+
+    **SQL Server**
+    | Zapytanie | zapytanie 1  | zapytanie 2  |
+    | ---       | ---          | ---          |
+    | Czas      | 248 ms       | 223 ms       | 
+
+    **SQLite**
+    | Zapytanie | zapytanie 1  | zapytanie 2  |
+    | ---       | ---          | ---          |
+    | Czas      | 388 ms       | 324 ms       | 
+
+    Tutaj również najszybsze okazały się SQL Server oraz SQLite.
+    W porównaniu do wykorzystania funkcji okna, skorzystanie z joinów okazało się niewiele korzystniejsze.
+
+- **Plany wykonania**
+
+    **PostgreSQL**
+    ![alt text](./_img/zad10_5.png)
+    ![alt text](./_img/zad10_6.png)
+
+    **SQL Server**
+    ![alt text](./_img/zad10_7.png)
+    ![alt text](./_img/zad10_8.png)
+
+    Tutaj również koszt jest znacznie mniejszy niż w przypadku PostgreSQL, a jego plan wykonanie jest znacznie bardziej rozległy niż w przypadku PostgreSQL.
+
+    **SQLite**
+    Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
+
+    Koszty wykonania dla każdego z serwerów bazo danych są większe niż korzystając z funkcji okna.
 
 ---
 # Zadanie 11
