@@ -791,70 +791,168 @@ Uporządkuj wynik wg roku, nr produktu, pozycji w rankingu.
 ### Wyniki
 
 ```sql
-with RankedPrice as (
-    select
-        year(PH.Date) as Year,
-        P.ProductID,
-        P.ProductName,
+--- PostgreSQL
+WITH RankedPrice AS (
+    SELECT
+        EXTRACT(year from PH.date) AS Year,
+        PH.ProductID,
+        PH.ProductName,
         PH.UnitPrice,
-        row_number() over (partition by P.ProductID, year(PH.Date) order by PH.UnitPrice desc) as PriceRank
-    from Products P
-    join product_history PH
-        on PH.ProductID = P.ProductID
+        ROW_NUMBER() OVER (PARTITION BY PH.ProductID, EXTRACT(year from PH.date) ORDER BY PH.UnitPrice DESC) AS PriceRank
+    FROM
+        product_history PH
 )
-select
+
+SELECT
     *
-from
+FROM
     RankedPrice
-where
-    PriceRank <= 4
-order by
+ORDER BY
+    Year, ProductID, PriceRank;
+
+--- SQLServer
+WITH RankedPrice AS (
+    SELECT
+        YEAR(PH.Date) AS Year,
+        PH.ProductID,
+        PH.ProductName,
+        PH.UnitPrice,
+        ROW_NUMBER() OVER (PARTITION BY PH.ProductID, YEAR(PH.Date) ORDER BY PH.UnitPrice DESC) AS PriceRank
+    FROM
+        product_history PH
+)
+
+SELECT
+    *
+FROM
+    RankedPrice
+ORDER BY
+    Year, ProductID, PriceRank;
+
+--- SQLite
+WITH RankedPrice AS (
+    SELECT
+        strftime('%Y', PH.date) AS Year,
+        PH.ProductID,
+        PH.ProductName,
+        PH.UnitPrice,
+        ROW_NUMBER() OVER (PARTITION BY PH.ProductID, strftime('%Y', PH.date) ORDER BY PH.UnitPrice DESC) AS PriceRank
+    FROM
+        product_history PH
+)
+
+SELECT
+    *
+FROM
+    RankedPrice
+ORDER BY
     Year, ProductID, PriceRank;
 ```
 
+- **Czas**
+
+    | Serwer | PostgreSQL  | SQLServer  | SQLite     |
+    | ---    | ---         | ---        |---         |
+    | Czas   | 14 s 448 ms | 2 s 778 ms | 16 s 16 ms |
+
+    Najwolniejszy okazał się SQLite mając czas zbliżony do PostgreSQL, a najszybszy mający wielokrotnie lepszy czas okazał się SQL Server.
+
+- **Plany wykonania**
+
+    **PostgreSQL**
+    ![alt text](./_img/zad9_1.png)
+
+    **SQL Server**
+    ![alt text](./_img/zad9_2.png)
+
+    Koszt jest znacznie mniejszy niż w przypadku PostgreSQL.
+
+    **SQLite**
+    Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
+
 Spróbuj uzyskać ten sam wynik bez użycia funkcji okna, porównaj wyniki, czasy i plany zapytań. Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
+### Wyniki
+
 ```sql
-select
-	year(PH.Date) as HistDate, P.ProductID, P.ProductName, PH.UnitPrice, PH.Date, (
-		select
-			count(*) + 1
-		from
-			(select top 4
-				PH2.UnitPrice
-			from
-				product_history PH2
-			where
-				PH2.ProductID = P.ProductID
-				and year(PH2.Date) = year(PH.Date)
-			order by 
-				PH2.UnitPrice desc) as Highest
-		where PH.UnitPrice < Highest.UnitPrice)
-from
-	Products P
-join product_history PH
-	on PH.ProductID = P.ProductID
-where
-	(PH.ID) in (
-		select top 4
-			PH2.ID
-		from
-			product_history PH2
-		where
-			PH2.ProductID = P.ProductID
-			and year(PH2.Date) = year(PH.Date)
-		order by 
-			PH2.UnitPrice desc)
-group by
-	P.ProductID,
-	PH.Date,
-	P.ProductName,
-	PH.UnitPrice
-order by
-	year(PH.Date),
-	P.ProductID,
-	PH.UnitPrice desc
+--- PostgreSQL
+SELECT
+    EXTRACT(year from PH.date) AS Year,
+    PH.ProductID,
+    PH.ProductName,
+    PH.UnitPrice,
+    (
+        SELECT
+            COUNT(DISTINCT PH2.UnitPrice) + 1
+        FROM
+            product_history PH2
+        WHERE
+            EXTRACT(year from PH2.date) = EXTRACT(year from PH.date)
+            AND PH2.ProductID = PH.ProductID
+            AND PH2.UnitPrice > PH.UnitPrice
+    ) AS PriceRank
+FROM
+    product_history PH
+ORDER BY
+    Year, ProductID, PriceRank;
+
+--- SQLServer
+SELECT
+    YEAR(PH.date) AS Year,
+    PH.ProductID,
+    PH.ProductName,
+    PH.UnitPrice,
+    (
+        SELECT
+            COUNT(DISTINCT PH2.UnitPrice) + 1
+        FROM
+            product_history PH2
+        WHERE
+            YEAR(PH2.date) = YEAR(PH.date)
+          AND PH2.ProductID = PH.ProductID
+          AND PH2.UnitPrice > PH.UnitPrice
+    ) AS PriceRank
+FROM
+    product_history PH
+ORDER BY
+    Year, ProductID, PriceRank;
+
+--- SQLite
+SELECT
+    strftime('%Y', PH.date) AS Year,
+    PH.ProductID,
+    PH.ProductName,
+    PH.UnitPrice,
+    (
+        SELECT
+            COUNT(DISTINCT PH2.UnitPrice) + 1
+        FROM
+            product_history PH2
+        WHERE
+            strftime('%Y', PH2.date) = strftime('%Y', PH.date)
+          AND PH2.ProductID = PH.ProductID
+          AND PH2.UnitPrice > PH.UnitPrice
+    ) AS PriceRank
+FROM
+    product_history PH
+ORDER BY
+    Year, ProductID, PriceRank;
 ```
+
+- **Czas**
+
+    | Serwer | PostgreSQL  | SQLServer  | SQLite     |
+    | ---    | ---         | ---        |---         |
+    | Czas   |  |  |  |
+
+
+- **Plany wykonania**
+
+    **PostgreSQL**
+
+    **SQL Server**
+
+    **SQLite**
 
 ---
 # Zadanie 10 - obserwacja
