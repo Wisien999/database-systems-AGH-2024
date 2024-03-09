@@ -941,18 +941,11 @@ ORDER BY
 
 - **Czas**
 
-    | Serwer | PostgreSQL  | SQLServer  | SQLite     |
-    | ---    | ---         | ---        |---         |
-    | Czas   |  |  |  |
+    | Serwer | PostgreSQL | SQLServer | SQLite  |
+    | ---    | ---        | ---       |---      |
+    | Czas   | > 10 min   | > 10min   | > 10min |
 
-
-- **Plany wykonania**
-
-    **PostgreSQL**
-
-    **SQL Server**
-
-    **SQLite**
+    Nie używając funkcji okna nie udało nam się uzyskać wyników w akceptowalnym czasie dla żadnego z serwerów bazodanowych.
 
 ---
 # Zadanie 10 - obserwacja
