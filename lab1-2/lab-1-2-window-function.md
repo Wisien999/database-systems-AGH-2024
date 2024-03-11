@@ -542,11 +542,14 @@ Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
 ### Wyniki
 
+#### Zapytania
+
 ```sql
 -- subquery
 select productid, productname, unitprice, (select AVG(unitprice) FROM product_history AS P2 where P2.categoryid = P1.categoryid) AS avg_price FROM product_history AS P1
 where unitprice > (select AVG(unitprice) FROM product_history AS P2 where P2.categoryid = P1.categoryid);
-
+```
+```sql
 -- join
 SELECT
     P1.productid,
@@ -560,7 +563,8 @@ FROM
 GROUP BY
     P1.productid, P1.productname, P1.unitprice
 HAVING P1.unitprice > AVG(P2.unitprice);
-
+```
+```sql
 -- window function
 SELECT productid, productname, unitprice, avg
 FROM
@@ -570,47 +574,56 @@ FROM
 WHERE unitprice > avg;
 ```
 
-Dla dwóch milionów rekordów w tabelach `product_history` wykonanie zapytań trwało bardzo długo. Po kilku minutach zdecydowaliśmy się zmniejszyć ilość rekordów w tabelach do miliona.
+Dla dwóch milionów rekordów w tabelach `product_history` wykonanie zapytań trwało bardzo długo. Po kilku minutach zdecydowaliśmy się zmniejszyć ilość rekordów w tabelach do 25000.
 
-- **Czas**
+#### Czasy
 
-    **PostgreSQL**
-    | Zapytanie | subquery  | join  | window function |
-    | ---       | ---       | ---   |---              |
-    | Czas      | > 1m      | > 1m  | 741ms           |
+**PostgreSQL**
+| Zapytanie | subquery  | join  | window function |
+| ---       | ---       | ---   |---              |
+| Czas      | 4m 15s    | 42s   | 298ms           |
 
-    **SQL Server**
-    | Zapytanie | subquery  | join  | window function |
-    | ---       | ---       | ---   |---              |
-    | Czas      | 280ms     | 350ms | 250ms           |
+**SQL Server**
+| Zapytanie | subquery  | join  | window function |
+| ---       | ---       | ---   |---              |
+| Czas      | 1s 932ms  | 319ms | 165ms           |
 
-    **SQLite**
-    | Zapytanie | subquery  | join  | window function |
-    | ---       | ---       | ---   |---              |
-    | Czas      | > 1m      | > 1m  | 692ms           |
+**SQLite**
+| Zapytanie | subquery  | join   | window function |
+| ---       | ---       | ---    |---              |
+| Czas      | 3s        | 1m 48s | 103ms           |
 
-    W przypadku PostgreSQL oraz SQLite tylko zapytania wykorzystujące funkcje okna liczyły się w rozsądnym czasie. Pozostałe zajmowały ponad kilka minut, więc zdecydowaliśmy się je przerwać. 
-    W przypadku SQLServer każde zapytanie liczyło się szybko i nie było między nimi dużych różnic czasowych.
+SQL Server wykazuje znacznie lepszą wydajność w porównaniu do PostgreSQL i SQLite we wszystkich rodzajach zapytań, zwłaszcza w przypadku subquery i join. PostgreSQL daje najgorsze czasy, podczas gdy SQLite wyróżnia się wyjątkowo szybkim czasem wykonywania window function oraz subquery, lecz traci na wydajności w przypadku join.
 
-- **Plany wykonania**
-    **PostgreSQL**
-    ![alt text](./_img/zad6_1.png)
-    ![alt text](./_img/zad6_2.png)
+#### Plany wykonania
+**PostgreSQL**
 
-    Plan wykonania zapytań jest prosty i przejrzysty.
+- Subquery
+  Mimo długiego czasu oczekiwanie nieudało się uzyskać wyniku.
+  ![alt text](./_img/zad6_1.png)
 
-    **SQL Server**
-    ![alt text](./_img/zad6_3.png)
-    ![alt text](./_img/zad6_4.png)
-    ![alt text](./_img/zad6_5.png)
-    ![alt text](./_img/zad6_6.png)
-    ![alt text](./_img/zad6_7.png)
-    ![alt text](./_img/zad6_8.png)
+- Join
+  ![alt text](./_img/zad6_2.png)
 
-    Koszt zapytań jest najlepszy w przypadku funkcji okna.
+- Window function
+  ![alt text](./_img/zad6_3.png)
 
-    **SQLite**
-    Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
+Plan wykonania w przypadku funkcji okna jest znacznie krótszy i bardziej przejrzysty. Koszt zapytań w przypadku funkcji okna jest wielokrotnie niższy.
+
+**SQL Server**
+- Subquery
+  ![alt text](./_img/zad6_4.png)
+
+- Join
+  ![alt text](./_img/zad6_5.png)
+
+- Window function
+  ![alt text](./_img/zad6_6.png)
+
+W tym przypadku udało się uzyskać plan wykonania dla każdego z zapytań. Plany wykonania dla tego systemu są bardziej skomplikowane w porównaniu do PostgreSQL. Koszty zapytań są dużo mniejsze niż w przypadku PostgreSQL. Tutaj również najniższy koszt zapytań występuje podczas wykorzystania funkcji okna.
+
+**SQLite**
+Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 ---
 # Zadanie 7
