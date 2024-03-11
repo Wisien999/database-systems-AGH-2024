@@ -1208,7 +1208,7 @@ select productid, productname, unitprice, categoryid,
     first_value(productname) over (partition by categoryid   
 order by unitprice desc) first,  
     last_value(productname) over (partition by categoryid   
-order by unitprice desc) last  
+order by unitprice desc) last
 from products  
 order by categoryid, unitprice desc;
 ```
@@ -1217,16 +1217,16 @@ order by categoryid, unitprice desc;
 
 ![alt text](./_img/zad12_1.png)
 
-Jako wynik otrzymujemy ...
+Domyślne okno dla funkcji `first_value` oraz `last_value` to `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`, które bierze odpowiednio pierwszą albo ostatnią wartość dotychczas.
 
-Aby funkcja `last_value` pokazywała najtańszy produkt w danej kategorii należy użyć `ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING`. Trzeba zmodyfikować nasze zapytanie w sposób następujący:
+Aby funkcja `last_value` pokazywała najtańszy produkt w danej kategorii należy zamienić domyślny zakres funkcji z `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW` na `ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING`. Trzeba zmodyfikować nasze zapytanie w sposób następujący:
 ```sql
-select productid, productname, unitprice, categoryid,  
-    first_value(productname) over (partition by categoryid   
-order by unitprice desc) first,  
-    last_value(productname) over (partition by categoryid   
-order by unitprice desc ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) last  
-from products  
+select productid, productname, unitprice, categoryid,
+       first_value(productname) over (partition by categoryid
+           order by unitprice desc ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) first,
+       last_value(productname) over (partition by categoryid
+           order by unitprice desc ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) last
+from products
 order by categoryid, unitprice desc;
 ```
 ![alt text](./_img/zad12_2.png)
@@ -1302,7 +1302,7 @@ Zbiór wynikowy powinien zawierać:
 with Data as 
 (select
 	id, productid, date,
-	sum(unitprice*quantity) over(partition by productid,convert(date,date)) dayValue
+	sum(unitprice*quantity) over(partition by productid, convert(date,date)) dayValue
 from product_history)
 select 
 	d.*,
