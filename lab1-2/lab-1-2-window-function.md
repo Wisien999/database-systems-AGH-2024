@@ -1237,13 +1237,78 @@ Spróbuj uzyskać ten sam wynik bez użycia funkcji okna, porównaj wyniki, czas
 
 ### Wyniki
 
+#### Zapytania
 ```sql
-select p.productid, p.productname, p.unitprice, p.categoryid,  
-    (select top 1 p2.productname from products p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice desc)first,
-	(select top 1 p2.productname from products p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice)last
-from products  p
+--- PostgreSQL
+select p.productid, p.productname, p.unitprice, p.categoryid,
+       (select p2.productname from product_history p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice desc limit 1) first,
+       (select p2.productname from product_history p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice limit 1) last
+from product_history p
 order by p.categoryid, p.unitprice desc;
 ```
+
+```sql
+--- SQLServer
+select p.productid, p.productname, p.unitprice, p.categoryid,
+       (select top 1 p2.productname from product_history p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice desc) first,
+       (select top 1 p2.productname from product_history p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice) last
+from product_history p
+order by p.categoryid, p.unitprice desc;
+```
+
+```sql
+--- SQLite
+select p.productid, p.productname, p.unitprice, p.categoryid,
+       (select p2.productname from product_history p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice desc limit 1) first,
+       (select p2.productname from product_history p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice limit 1) last
+from product_history p
+order by p.categoryid, p.unitprice desc;
+```
+
+Ze względu na długie czasy oczekiwania na wyniki w przypadku baz PostgreSQL oraz SQLite, zadanie zostało zrealizowane na tabeli `product_history` składającej się ze 25000 rekordów.
+
+#### Czasy
+
+**PostgreSQL**
+| Zapytanie | funkcja okna | bez funkcji okna  |
+| ---       | ---          | ---               |
+| Czas      | 299 ms       | 2m 17s            | 
+
+**SQL Server**
+| Zapytanie | funkcja okna | bez funkcji okna  |
+| ---       | ---          | ---               |
+| Czas      | 87 ms        | 177 ms            | 
+
+**SQLite**
+| Zapytanie | funkcja okna | bez funkcji okna  |
+| ---       | ---          | ---               |
+| Czas      | 224 ms       | 1m 2s             | 
+
+W każdym przypadku wykorzystując funkcje okna otrzymujemy znacznie lepszy czas. Widoczna różnica jest dla PostgreSQL oraz dla SQLite. W przypadku SQLServera oba zapytania są szybkie.
+Najwolniejszą bazą okazał się PostgreSQL.
+
+#### Plany wykonania
+
+**PostgreSQL**
+- Funkcja okna
+    ![alt text](./_img/zad12_6.png)
+
+- Bez funkji okna
+    ![alt text](./_img/zad12_7.png)
+
+Mimo 22 minut czekania nie udało się uzyskać planu wykonania dla rozwiązania bez funkcji okna.
+
+**SQL Server**
+- Funkcja okna
+    ![alt text](./_img/zad12_8.png)
+
+- Bez funkji okna
+    ![alt text](./_img/zad12_9.png)
+
+Koszt w przypadku wykorzystania funkcji okna jest znacznie niższy.
+
+**SQLite**
+Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 ---
 # Zadanie 13
