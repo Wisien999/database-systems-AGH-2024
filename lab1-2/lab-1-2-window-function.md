@@ -1196,7 +1196,7 @@ order by
 
 Funkcje `first_value()`, `last_value()`
 
-Wykonaj polecenia, zaobserwuj wynik. Jak działają funkcje `first_value()`, `last_value()`. Skomentuj uzyskane wyniki. Czy funkcja `first_value` pokazuje w tym przypadku najdroższy produkt w danej kategorii, czy funkcja `last_value()` pokazuje najtańszy produkt? Co jest przyczyną takiego działania funkcji `last_value`. Co trzeba zmienić żeby funkcja last_value pokazywała najtańszy produkt w danej kategorii
+Wykonaj polecenia, zaobserwuj wynik. Jak działają funkcje `first_value()`, `last_value()`. Skomentuj uzyskane wyniki. Czy funkcja `first_value` pokazuje w tym przypadku najdroższy produkt w danej kategorii, czy funkcja `last_value()` pokazuje najtańszy produkt? Co jest przyczyną takiego działania funkcji `last_value`? Co trzeba zmienić żeby funkcja last_value pokazywała najtańszy produkt w danej kategorii?
 
 ```sql
 select productid, productname, unitprice, categoryid,  
@@ -1210,13 +1210,27 @@ order by categoryid, unitprice desc;
 
 ### Wyniki
 
+![alt text](./_img/zad12_1.png)
+
+Jako wynik otrzymujemy ...
+
+Aby funkcja `last_value` pokazywała najtańszy produkt w danej kategorii należy użyć `ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING`. Trzeba zmodyfikować nasze zapytanie w sposób następujący:
 ```sql
--- wyniki ...
+select productid, productname, unitprice, categoryid,  
+    first_value(productname) over (partition by categoryid   
+order by unitprice desc) first,  
+    last_value(productname) over (partition by categoryid   
+order by unitprice desc ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) last  
+from products  
+order by categoryid, unitprice desc;
 ```
+![alt text](./_img/zad12_2.png)
 
 Zadanie
 
 Spróbuj uzyskać ten sam wynik bez użycia funkcji okna, porównaj wyniki, czasy i plany zapytań. Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
+
+### Wyniki
 
 ```sql
 select p.productid, p.productname, p.unitprice, p.categoryid,  
