@@ -170,8 +170,6 @@ Natomiast w tym zapytaniu średnia liczona jest z produktów gdzie **productId**
 
 #### Równoważne 1
 
-(spróbować z with)
-
 ```sql
 select distinct p.productid, p.ProductName, p.unitprice,  
     avg(sp.unitprice) over () as avgprice  
@@ -1159,6 +1157,7 @@ Zbiór wynikowy powinien zawierać:
 
 ### Wyniki
 
+
 ```sql
 with Data as (select
     O.OrderID,
@@ -1189,6 +1188,12 @@ group by
 order by
     Data.OrderID;
 ```
+
+![[Pasted image 20240311192916.png]]
+
+Komentarz:
+
+Zapytanie zostało przetestowane zarówno na bazie msSql i postgresSql. W obu przypadkach czas wykonania wynosił mniej niż 500ms. Analiza planu wykonania także nie wskazała żadnych znaczących różnic pomiędzy sbzd.
 
 
 ---
