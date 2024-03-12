@@ -1205,7 +1205,6 @@ Zbiór wynikowy powinien zawierać:
 
 ### Wyniki
 
-
 ```sql
 with Data as (select
     O.OrderID,
@@ -1240,9 +1239,7 @@ order by
 ![[Pasted image 20240311192916.png]]
 
 Komentarz:
-
 Zapytanie zostało przetestowane zarówno na bazie msSql i postgresSql. W obu przypadkach czas wykonania wynosił mniej niż 500ms. Analiza planu wykonania także nie wskazała żadnych znaczących różnic pomiędzy sbzd.
-
 
 ---
 # Zadanie 12 - obserwacja
