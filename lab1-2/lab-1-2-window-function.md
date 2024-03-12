@@ -1032,50 +1032,17 @@ order by date;
 
 ### Wyniki
 
-- **Działanie**
-
-    Funkcja *lag(unitprice)* zwraca cenę produktu z poprzedniego rekordu (uporządkowanego według daty), natomiast *lead(unitprice)* zwraca cenę produktu z następnego rekordu.
-    Funkcje te pozwalają na porównywanie bieżących wartości z poprzednimi lub następnymi wartościami w uporządkowanym zestawie danych.
-
-- **Czas**
-
-    **PostgreSQL**
-    | Zapytanie | zapytanie 1  | zapytanie 2  |
-    | ---       | ---          | ---          |
-    | Czas      | 846 ms       | 726 ms       | 
-
-    **SQL Server**
-    | Zapytanie | zapytanie 1  | zapytanie 2  |
-    | ---       | ---          | ---          |
-    | Czas      | 281 ms       | 284 ms       | 
-
-    **SQLite**
-    | Zapytanie | zapytanie 1  | zapytanie 2  |
-    | ---       | ---          | ---          |
-    | Czas      | 374 ms       | 397 ms       | 
-
-    Zdecydowanie najszybszy okazał się SQL Server, niewiele wolniejszy był SQLite, a dużo wolniejszy od nich był PostgreSQL.
-
-- **Plany wykonania**
-
-    **PostgreSQL**
-    ![alt text](./_img/zad10_1.png)
-    ![alt text](./_img/zad10_2.png)
-
-    **SQL Server**
-    ![alt text](./_img/zad10_3.png)
-    ![alt text](./_img/zad10_4.png)
-
-    Koszt jest znacznie mniejszy niż w przypadku PostgreSQL, a jego plan wykonanie jest znacznie bardziej rozległy niż w przypadku PostgreSQL.
-
-    **SQLite**
-    Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
+#### Komentarz
+Funkcja *lag(unitprice)* zwraca cenę produktu z poprzedniego rekordu (uporządkowanego według daty), natomiast *lead(unitprice)* zwraca cenę produktu z następnego rekordu.
+Funkcje te pozwalają na porównywanie bieżących wartości z poprzednimi lub następnymi wartościami w uporządkowanym zestawie danych.
 
 Zadanie
 
 Spróbuj uzyskać ten sam wynik bez użycia funkcji okna, porównaj wyniki, czasy i plany zapytań. Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
 ### Wyniki
+
+#### Zapytania
 
 ```sql
 --- Zapytanie 1
@@ -1116,7 +1083,9 @@ WHERE
     AND year(ph1.date) = 2022
 ORDER BY
     ph1.date;
+```
 
+```sql
 --- Zapytanie 2
 WITH t AS (
     SELECT
@@ -1159,42 +1128,65 @@ WHERE productid = 1
 ORDER BY date;
 ```
 
-- **Czas**
+Zapytania z funkcjami okna są znacznie krótsze, bardziej zwięzłe i czytelne niż równoważne zapytania bez funkcji okna.
 
-    **PostgreSQL**
-    | Zapytanie | zapytanie 1  | zapytanie 2  |
-    | ---       | ---          | ---          |
-    | Czas      | 761 ms       | 803 ms       | 
+Tutaj również użyto tabeli `product_history` z liczbą rekordów równą 25000.
 
-    **SQL Server**
-    | Zapytanie | zapytanie 1  | zapytanie 2  |
-    | ---       | ---          | ---          |
-    | Czas      | 248 ms       | 223 ms       | 
+#### Czasy
 
-    **SQLite**
-    | Zapytanie | zapytanie 1  | zapytanie 2  |
-    | ---       | ---          | ---          |
-    | Czas      | 388 ms       | 324 ms       | 
+**PostgreSQL**
+| Zapytanie | zapytanie 1 z window function  | zapytanie 2 z window function | zapytanie 1 bez window function  | zapytanie 2 bez window function |
+| ---       | ---                            | ---                           | ---                              | ---                             |
+| Czas      | 380ms                          | 321ms                         | 394ms                            | 340ms                           |
 
-    Tutaj również najszybsze okazały się SQL Server oraz SQLite.
-    W porównaniu do wykorzystania funkcji okna, skorzystanie z joinów okazało się niewiele korzystniejsze.
+**SQL Server**
+| Zapytanie | zapytanie 1 z window function  | zapytanie 2 z window function | zapytanie 1 bez window function  | zapytanie 2 bez window function |
+| ---       | ---                            | ---                           | ---                              | ---                             |
+| Czas      | 135ms                          | 189ms                         | 142ms                            | 184ms                           |
 
-- **Plany wykonania**
+**SQLite**
+| Zapytanie | zapytanie 1 z window function  | zapytanie 2 z window function | zapytanie 1 bez window function  | zapytanie 2 bez window function |
+| ---       | ---                            | ---                           | ---                              | ---                             |
+| Czas      | 118ms                          | 106ms                         | 135ms                            | 114ms                           |
 
-    **PostgreSQL**
-    ![alt text](./_img/zad10_5.png)
-    ![alt text](./_img/zad10_6.png)
+W przypadku PostgreSQL i SQLite, zapytania z funkcjami okna są nieznacznie szybsze niż równoważne zapytania bez funkcji okna.
+W przypadku SQL Server, zapytania bez funkcji okna są nieco szybsze niż z funkcjami okna.
 
-    **SQL Server**
-    ![alt text](./_img/zad10_7.png)
-    ![alt text](./_img/zad10_8.png)
+#### Plany wykonania
 
-    Tutaj również koszt jest znacznie mniejszy niż w przypadku PostgreSQL, a jego plan wykonanie jest znacznie bardziej rozległy niż w przypadku PostgreSQL.
+**PostgreSQL**
+- Zapytanie 1 z window function
+  ![alt text](./_img/zad10_1.png)
 
-    **SQLite**
-    Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
+- Zapytanie 2 z window function
+  ![alt text](./_img/zad10_2.png)
 
-    Koszty wykonania dla każdego z serwerów bazo danych są większe niż korzystając z funkcji okna.
+- Zapytanie 1 bez window function
+  ![alt text](./_img/zad10_3.png)
+
+- Zapytanie 2 bez window function
+  ![alt text](./_img/zad10_4.png)
+
+Zapytania wykorzystujące funkcje okna mają wielokrotnie mniejszy koszt wykonania, a ich plan wykonania jest prosty i przejrzysty, gdzie w przypadku zapytania niewykorzystującego funkcji okna mamy bardziej skomplikowany.
+
+**SQL Server**
+- Zapytanie 1 z window function
+  ![alt text](./_img/zad10_5.png)
+
+- Zapytanie 2 z window function
+  ![alt text](./_img/zad10_6.png)
+
+- Zapytanie 1 bez window function
+  ![alt text](./_img/zad10_7.png)
+
+- Zapytanie 2 bez window function
+  ![alt text](./_img/zad10_8.png)
+
+W tym przypadk również zapytania wykorzystujące funkcje okna mają wielokrotnie mniejszy koszt wykonania i prostszy plan.
+W porównaniu do PostgreSQL mamy trochę więcej elementów planu.
+
+**SQLite**
+Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 ---
 # Zadanie 11
