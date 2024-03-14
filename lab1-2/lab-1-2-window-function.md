@@ -5,7 +5,7 @@
 
 ---
 **Imię i nazwisko:**
-
+Mateusz Skowron, Bartłomiej Wiśniewski, Karol Wrona
 --- 
 
 
@@ -1455,41 +1455,107 @@ Wykonaj kilka "własnych" przykładowych analiz. Czy są jeszcze jakieś ciekawe
 
 **Klauzula `RANGE`**
 ```sql
-SELECT 
-    productid, 
-    productname, 
-    unitprice, 
-    categoryid,
-    FIRST_VALUE(productname) OVER (PARTITION BY categoryid
-        ORDER BY unitprice DESC RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS first,
-    LAST_VALUE(productname) OVER (PARTITION BY categoryid
-        ORDER BY unitprice DESC RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS last
-FROM 
-    products
-ORDER BY 
-    categoryid, 
-    unitprice DESC;
+WITH sums AS (  
+    SELECT o.customerid,  
+           o.orderdate,  
+        SUM(od.unitprice * od.quantity) as sum  
+        FROM orders o  
+        LEFT JOIN orderdetails od  
+        ON o.orderid = od.orderid  
+        GROUP BY o.customerid, o.orderdate  
+)  
+SELECT customerid,  
+       orderdate,  
+       sum,  
+       AVG(sum) OVER (  
+           PARTITION BY customerid  
+           ORDER BY orderdate ASC  
+           RANGE BETWEEN INTERVAL '31' DAY PRECEDING AND CURRENT ROW  
+           ) AS moving_avg  
+FROM sums
 ```
-Za pomocą klauzuli `RANGE`, możemy określić zakres danych, który ma być uwzględniony w analizie. W tym przypadku analiza odbywa się dla każdej kategorii produktu, a zakres danych obejmuje wszystkie wartości od początku do bieżącego wiersza. W rezultacie, dla każdej kategorii produktów uzyskujemy pierwszą i ostatnią wartość produktu na podstawie sortowania według jednostkowej ceny w kolejności malejącej.
+Za pomocą klauzuli `RANGE`, możemy określić zakres danych, który ma być uwzględniony w analizie. W powyższym przykładzie używamy tej klauzuli do obliczenia tzw. **Moving Average** czyli średniej liczonej z ostatnich 31 dni. Dodatkowo użyliśmy specjalnej konstrukcji wspieranej przez niektóre silniki bazodanowe: 
+```sql
+INTERVAL '31' DAY PRECEDING
+```
+Postgres (w przeciwieństwie do MsSql) wspiera używanie typów numerycznych i dat w klauzuli range, zatem powyższa konstrukcja tworzy ramkę z tych wierszy dla których zamówienie miało miejsce najwyżej 31 dni przed datą zamówienia obecnego wiersza. 
+
+Wynik:
+![[Pasted image 20240314224050.png]]
+
 
 **Klauzula `ROWS`**
 ```sql
-SELECT 
-    productid, 
-    productname, 
-    unitprice, 
-    categoryid,
-    FIRST_VALUE(productname) OVER (PARTITION BY categoryid
-        ORDER BY unitprice DESC) AS first,
-    LAST_VALUE(productname) OVER (PARTITION BY categoryid
-        ORDER BY unitprice DESC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS last
-FROM 
-    products
-ORDER BY 
-    categoryid, 
-    unitprice DESC;
+WITH sums AS (  
+    SELECT  
+        o.orderdate,  
+        SUM(od.unitprice * od.quantity) as sum  
+        FROM orders o  
+        LEFT JOIN orderdetails od  
+        ON o.orderid = od.orderid  
+        GROUP BY o.orderdate  
+) SELECT orderdate,  
+         SUM(sum) OVER (  
+             ORDER BY orderdate  
+             ROWS BETWEEN UNBOUNDED PRECEDING AND 1 FOLLOWING  
+             ) as sum_till_this_date  
+FROM sums
 ```
-Za pomocą klauzuli `ROWS`, również analiza jest przeprowadzana dla każdej kategorii produktu, ale zakres danych jest definiowany w sposób bardziej szczegółowy. Funkcja FIRST_VALUE obejmuje cały zakres danych, ale LAST_VALUE jest ograniczona do zakresu od początku do bieżącego wiersza. Oznacza to, że dla każdej kategorii produktów uzyskujemy pierwszą wartość produktu dla całego zakresu, ale ostatnią wartość tylko dla danego wiersza.
+Za pomocą klauzuli `ROWS`, również analiza jest przeprowadzana dla każdej kategorii produktu, ale zakres danych jest definiowany w trochę inny sposób o czym mowa w następnym podpunkcie. Powyższa funkcja liczy sumę zamówień z wszystkich poprzednich dni oraz następnego dnia dla danego wiersza.
+![[Pasted image 20240314230002.png]]
+
+Warto zaznaczyć że jeśli nie używamy klauzuli **ORDER BY** to przetwarzana ramka jest równa:
+```sql
+ROWS BETWEEN UNBOUNDED PRECEDING AND UNOBUNDED FOLLOWING
+```
+Natomiast jeśli użyjemy klauzuli **ORDER BY** to przetwarzana ramka jest równa:
+```sql
+ROWS BETWEEN UNBOUNDED PREEDING AND CURRENT ROW
+```
+Zatem poniższe zapytania są równoważne
+```sql
+WITH sums AS (  
+    SELECT  
+        o.orderdate,  
+        SUM(od.unitprice * od.quantity) as sum  
+        FROM orders o  
+        LEFT JOIN orderdetails od  
+        ON o.orderid = od.orderid  
+        GROUP BY o.orderdate  
+) SELECT orderdate,  
+         SUM(sum) OVER (  
+             ORDER BY orderdate  
+             ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW  
+             ) as sum_till_this_date  
+FROM sums
+
+--AND
+
+WITH sums AS (  
+    SELECT  
+        o.orderdate,  
+        SUM(od.unitprice * od.quantity) as sum  
+        FROM orders o  
+        LEFT JOIN orderdetails od  
+        ON o.orderid = od.orderid  
+        GROUP BY o.orderdate  
+) SELECT orderdate,  
+         SUM(sum) OVER (  
+             ORDER BY orderdate  
+             ) as sum_till_this_date  
+FROM sums
+```
+### RANGE vs ROWS
+
+Cytując dokumentacje postgresa (https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS):
+
+> In `ROWS` mode, the _`offset`_ must yield a non-null, non-negative integer, and the option means that the frame starts or ends the specified number of rows before or after the current row.
+
+>In `RANGE` mode, these options require that the `ORDER BY` clause specify exactly one column. The _`offset`_ specifies the maximum difference between the value of that column in the current row and its value in preceding or following rows of the frame. The data type of the _`offset`_ expression varies depending on the data type of the ordering column. For numeric ordering columns it is typically of the same type as the ordering column, but for datetime ordering columns it is an `interval`. For example, if the ordering column is of type `date` or `timestamp`, one could write `RANGE BETWEEN '1 day' PRECEDING AND '10 days' FOLLOWING`. The _`offset`_ is still required to be non-null and non-negative, though the meaning of “non-negative” depends on its data type.
+
+Zatem klauzula **ROWS** pozwala na ustawianie zakresu za pomocą **ilości wierszy** które następują lub poprzedzają obecny wiersz.
+
+Klauzula **RANGE**, z kolei pozwala na określenie ramki przy pomocy **wartości wierszy** które następują lub poprzedzają obecny wiersz. Z tego też powodu **RANGE** wymaga podania dokładnie jednej kolumny bo której będziemy sortować tabele.
 
 Punktacja
 
