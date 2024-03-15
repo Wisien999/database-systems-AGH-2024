@@ -1187,7 +1187,7 @@ Zapytania z funkcjami okna są znacznie krótsze, bardziej zwięzłe i czytelne 
 
 ### Czasy
 
-Tutaj również użyto tabeli `product_history` z liczbą rekordów równą 2500.
+Tutaj użyto tabeli `product_history` z liczbą rekordów równą 25000.
 
 #### PostgreSQL
 | Zapytanie | zapytanie 1 z window function  | zapytanie 2 z window function | zapytanie 1 bez window function  | zapytanie 2 bez window function |
@@ -1312,7 +1312,7 @@ order by categoryid, unitprice desc;
 
 ### Wyniki
 
-![alt text](./_img/zad12_1.png)
+![alt text](./_img/zad12_01.png)
 
 Domyślne okno dla funkcji `first_value` oraz `last_value` to `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`, które bierze odpowiednio pierwszą albo ostatnią wartość dotychczas.
 
@@ -1326,7 +1326,7 @@ select productid, productname, unitprice, categoryid,
 from products
 order by categoryid, unitprice desc;
 ```
-![alt text](./_img/zad12_2.png)
+![alt text](image.png)
 
 Zadanie
 
@@ -1362,49 +1362,48 @@ from product_history p
 order by p.categoryid, p.unitprice desc;
 ```
 
-Ze względu na długie czasy oczekiwania na wyniki w przypadku baz PostgreSQL oraz SQLite, zadanie zostało zrealizowane na tabeli `product_history` składającej się ze 25000 rekordów.
+### Czasy
 
-#### Czasy
+Tutaj użyto tabeli `product_history` z liczbą rekordów równą 2500.
 
-**PostgreSQL**
+#### PostgreSQL
 | Zapytanie | funkcja okna | bez funkcji okna  |
 | ---       | ---          | ---               |
-| Czas      | 299 ms       | 2m 17s            | 
+| Czas      | 70 ms        | 1m 36s            | 
 
-**SQL Server**
+#### SQL Server
 | Zapytanie | funkcja okna | bez funkcji okna  |
 | ---       | ---          | ---               |
-| Czas      | 87 ms        | 177 ms            | 
+| Czas      | 71ms         | 100 ms            | 
 
-**SQLite**
+#### SQLite
 | Zapytanie | funkcja okna | bez funkcji okna  |
 | ---       | ---          | ---               |
-| Czas      | 224 ms       | 1m 2s             | 
+| Czas      | 60 ms        | 150ms              | 
 
-W każdym przypadku wykorzystując funkcje okna otrzymujemy znacznie lepszy czas. Widoczna różnica jest dla PostgreSQL oraz dla SQLite. W przypadku SQLServera oba zapytania są szybkie.
-Najwolniejszą bazą okazał się PostgreSQL.
+W każdym przypadku wykorzystując funkcje okna otrzymujemy najniższy czas. Widoczna różnica jest dla PostgreSQL oraz dla SQLite. W przypadku SQLServera oba zapytania są szybkie. Najwolniejszą bazą okazał się PostgreSQL.
 
-#### Plany wykonania
+### Plany wykonania
 
-**PostgreSQL**
-- Funkcja okna
-    ![alt text](./_img/zad12_6.png)
+#### PostgreSQL - funkcja okna
+![alt text](./_img/zad12_1.png)
 
-- Bez funkji okna
-    ![alt text](./_img/zad12_7.png)
+#### PostgreSQL - bez funkji okna
+![alt text](./_img/zad12_2.png)
 
-Mimo 22 minut czekania nie udało się uzyskać planu wykonania dla rozwiązania bez funkcji okna.
+Koszt w przypadku wykorzystującym funkcje okna jest wielokrotnie niższy.
 
-**SQL Server**
-- Funkcja okna
-    ![alt text](./_img/zad12_8.png)
+#### SQL Server - funkcja okna
+![alt text](./_img/zad12_3.png)
 
-- Bez funkji okna
-    ![alt text](./_img/zad12_9.png)
+#### SQL Server - bez funkji okna
+![alt text](./_img/zad12_4.png)
 
-Koszt w przypadku wykorzystania funkcji okna jest znacznie niższy.
+W przypadku SQL Servera również koszt w przypadku wykorzystującym funkcje okna jest wielokrotnie niższy.
 
-**SQLite**
+W przypadku SQL Servera plan zapytań jest bardziej rozgałęziony przez co jest łatwiejszy do zwrównoleglenia, co może być przyczyną szybszego czasu wykonania.
+
+#### SQLite
 Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 ---
