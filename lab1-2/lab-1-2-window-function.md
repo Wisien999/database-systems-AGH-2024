@@ -700,7 +700,7 @@ Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
 ### Wyniki
 
-#### Zapytania
+### Zapytania
 
 ```sql
 --- subquery
@@ -753,69 +753,71 @@ SELECT
     nph1.total,
     nph1.avgYear
 FROM (
-    SELECT
-        ph.productid,
-        ph.ProductName,
-        ph.unitprice,
-        ph.date,
-        AVG(ph.unitprice) OVER w1 AS avgPrice,
-        SUM(ph.value) OVER w1 AS total,
-        AVG(ph.unitprice) OVER w2 AS avgYear
-    FROM product_history ph
-    WINDOW w1 AS (PARTITION BY ph.CategoryID),
-    w2 AS (PARTITION BY ph.productid, YEAR(ph.date))
-) AS nph1
+         SELECT
+             ph.productid,
+             ph.ProductName,
+             ph.unitprice,
+             ph.date,
+             AVG(ph.unitprice) OVER(PARTITION BY ph.CategoryID) AS avgPrice,
+             SUM(ph.value) OVER(PARTITION BY ph.CategoryID) AS total,
+             AVG(ph.unitprice) OVER(PARTITION BY ph.productid, YEAR(ph.date)) AS avgYear
+         FROM product_history ph
+     ) AS nph1
 ORDER BY nph1.productid, nph1.date;
 ```
 
-Zapytanie oparte na funkcji okna jest bardziej zwięzłe i czytelne niż zapytania z subzapytaniami i złączeniami. Funkcje okna umożliwiają bardziej elastyczne obliczenia agregacyjne bez konieczności tworzenia wielu połączeń i subzapytań.
+Mimo, że każde z zapytań jest długie, to zapytanie oparte na funkcji okna jest bardziej czytelne niż zapytania z subzapytaniami i złączeniami. Funkcje okna umożliwiają bardziej elastyczne obliczenia agregacyjne bez konieczności tworzenia wielu połączeń i subzapytań.
 
-Dla dwóch milionów rekordów w tabelach `product_history` wykonanie zapytań trwało bardzo długo. Tutaj również zdecydowaliśmy się zmniejszyć ilość rekordów w tabelach do 25000.
+### Czasy
 
-#### Czasy
+Dla dwóch milionów rekordów w tabelach `product_history` wykonanie zapytań szczególnie w przypadku PostgreSQL trwało bardzo długo. Po kilku minutach zdecydowaliśmy się zmniejszyć ilość rekordów w tabelach. Dopiero po zmniejszeniu ich do 1000 można było uzyskać wyniki w rozsądnym czasie.
 
-**PostgreSQL**
-| Zapytanie | subquery  | join  | window function |
-| ---       | ---       | ---   |---              |
-| Czas      | >5min     | >5min | 688ms           |
+#### PostgreSQL
+| Zapytanie | subquery  | join     | window function |
+| ---       | ---       | ---      |---              |
+| Czas      | 3min 25s  | 2s 156ms | 235ms           |
 
-**SQL Server**
-| Zapytanie | subquery  | join  | window function |
-| ---       | ---       | ---   |---              |
-| Czas      | 2s 979ms  | >5min | 453ms           |
+#### SQL Server
+| Zapytanie | subquery  | join     | window function |
+| ---       | ---       | ---      |---              |
+| Czas      | 104ms     | 1s 802ms | 118ms           |
 
-**SQLite**
-| Zapytanie | subquery  | join  | window function |
-| ---       | ---       | ---   |---              |
-| Czas      | >5min     | >5min | 372ms           |
+#### SQLite
+| Zapytanie | subquery  | join     | window function |
+| ---       | ---       | ---      |---              |
+| Czas      | 151ms     | 411ms    | 83ms            |
 
- W większościach zapytań nie udało się uzyskać wyniku mimo długiego czekania. SQL Server wyróżnia się krótszym czasem wykonania subquery oraz stosunkowo krótkim czasem window function. SQLite natomiast osiąga najkrótszy czas w przypadku window function. PostgreSQL wydaje się być mniej efektywny w przypadku subquery i join, jednak window function wykonuje się stosunkowo szybko w porównaniu do pozostałych operacji.
+SQL Server wyróżnia się najkrótszym czasem wykonania funkcji okna oraz podzapytania, natomiast traci sporo czasu w przypadku zapytań korzystających z join. SQLite osiąga najkrótszy czas w przypadku funkcji okna i również niski czas przy podzapytaniu. PostgreSQL jest najmniej efektywny w przypadku podzapytań oraz join, jednak funkcje okna wykonują się stosunkowo szybko w porównaniu do pozostałych operacji.
 
-#### Plany wykonania
-**PostgreSQL**
+Na podstawie otrzymanych wyników widać, jak bardzo funkcje okna potrafią przyspieszyć zapytania.
 
-- Subquery
-    Nie udało się uzyskać wyniku w rozsądnym czasie.
+### Plany wykonania
 
-- Join
-    Nie udało się uzyskać wyniku w rozsądnym czasie.
+#### PostgreSQL - subquery
+![alt text](./_img/zad7_1.png)
 
-- Window function
-  ![alt text](./_img/zad7_1.png)
+#### PostgreSQL - join
+![alt text](./_img/zad7_2.png)
 
-**SQL Server**
-- Subquery
-  ![alt text](./_img/zad7_2.png)
+#### PostgreSQL - window function
+![alt text](./_img/zad7_3.png)
 
-- Join
-    Nie udało się uzyskać wyniku w rozsądnym czasie.
+Najniższy koszt zapytania jest w przypadku wykorzystującym funkcje okna. Różnica jest kilkukrotna.
 
-- Window function
-  ![alt text](./_img/zad7_3.png)
+#### SQL Server - subquery
+![alt text](./_img/zad7_4.png)
 
-W tym przypadku udało się uzyskać plan wykonania dla dwóch zapytań. Plany wykonania dla tego systemu są bardziej skomplikowane w porównaniu do PostgreSQL. Koszty zapytań są dużo mniejsze niż w przypadku PostgreSQL. Najniższy koszt zapytań występuje podczas wykorzystania funkcji okna.
+#### SQL Server - join
+![alt text](./_img/zad7_5.png)
 
-**SQLite**
+#### SQL Server - window function
+![alt text](./_img/zad7_6.png)
+
+W przypadku SQL Server również najniższy koszt zapytania jest w przypadku wykorzystującym funkcje okna.
+
+W porównaniu do PostgreSQL plany zapytań serwera SQL Server są dużo bardziej rozbudowane, co jest szczególnie widoczne w przypadku zapytania wykorzystującego podzapytania. Patrząc jednak na liczbę równoległych ścieżek wykonania operacji dla serwera SQL Server można stwierdzić, że więcej operacji wykonuje on równolegle, gdzie PostgreSQL raczej stara się je sprowadzić do obliczeń sekwencyjnych.
+
+#### SQLite
 Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 ---
