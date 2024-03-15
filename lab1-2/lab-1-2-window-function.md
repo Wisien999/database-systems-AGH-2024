@@ -941,7 +941,7 @@ Spróbuj uzyskać ten sam wynik bez użycia funkcji okna, porównaj wyniki, czas
 
 ### Wyniki
 
-#### Zapytania
+### Zapytania
 
 ```sql
 --- PostgreSQL
@@ -1012,47 +1012,48 @@ ORDER BY
     Year, ProductID, PriceRank;
 ```
 
-Tutaj również użyto tabeli `product_history` z liczbą rekordów równą 25000.
+W tym zadaniu również wykorzystano tabelę `product_history` z liczbą rekordów równą 2500.
 
-#### Czasy
+### Czasy
 
-**PostgreSQL**
+#### PostgreSQL
 | Zapytanie | bez window function  | z window function |
 | ---       | ---                  | ---               |
-| Czas      | 1m 35s               | 428ms             |
+| Czas      | 49s                  | 195ms             |
 
-**SQL Server**
+#### SQL Server
 | Zapytanie | bez window function  | z window function |
 | ---       | ---                  | ---               |
-| Czas      | 1s 816ms             | 230ms             |
+| Czas      | 152ms                | 71ms              |
 
-**SQLite**
+#### SQLite
 | Zapytanie | bez window function  | z window function |
 | ---       | ---                  | ---               |
-| Czas      | 5m 56s               | 252ms             |
+| Czas      | 448ms                | 66ms              |
 
-Wyniki testów pokazują znaczącą różnicę w czasie wykonania zapytań pomiędzy użyciem funkcji okna a alternatywnym podejściem bez ich wykorzystania. W każdym systemie zarządzania bazą danych (SZBD), użycie funkcji okna znacznie przyspiesza wykonanie zapytania w porównaniu do alternatywnego podejścia bez ich wykorzystania. W szczególności w PostgreSQL i SQL Server różnica jest ogromna, podczas gdy w SQLite różnica również jest znacząca, ale mniej wyraźna w porównaniu z pozostałymi dwoma systemami.
+Wyniki testów pokazują znaczącą różnicę w czasie wykonania zapytań pomiędzy użyciem funkcji okna a alternatywnym podejściem bez ich wykorzystania. W każdym systemie zarządzania bazą danych (SZBD), użycie funkcji okna znacznie przyspiesza wykonanie zapytania w porównaniu do alternatywnego podejścia bez ich wykorzystania. W szczególności w PostgreSQL różnica jest ogromna, podczas gdy w SQLite i SQL Server różnica również jest, ale mniej wyraźna w porównaniu z pozostałymi dwoma systemami.
 
-#### Plany wykonania
+### Plany wykonania
 
-**PostgreSQL**
-- Bez window function
-  ![alt text](./_img/zad9_1.png)
-  Mimo długiego czasu oczekiwania nie udało się uzyskać wyniku.
+#### PostgreSQL - bez window function
+![alt text](./_img/zad9_1.png)
 
-- Z window function
-  ![alt text](./_img/zad9_2.png)
+#### PostgreSQL - z window function
+![alt text](./_img/zad9_2.png)
 
-**SQL Server**
-- Bez window function
-  ![alt text](./_img/zad9_3.png)
+Koszt w przypadku wykorzystującym funkcje okna jest znacznie niższy.
 
-- Z window function
-  ![alt text](./_img/zad9_4.png)
+#### SQL Server - bez window function
+![alt text](./_img/zad9_3.png)
 
-Widzimy,że koszt jest najniższy podczas wykorzystania funkcji okna.
+#### SQL Server - z window function
+![alt text](./_img/zad9_4.png)
 
-**SQLite**
+Koszt w przypadku wykorzystującym funkcje okna jest znacznie niższy.
+
+Plany wykonań dla obu serwerów bazodanowych są proste i podobne do siebie.
+
+#### SQLite
 Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 ---
