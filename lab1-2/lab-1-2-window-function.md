@@ -1278,44 +1278,107 @@ Zbiór wynikowy powinien zawierać:
 - wartość sprzedaży produktu narastające od początku miesiąca
 
 ### Wyniki
+![w:700](_img/zad14-result.png)
+
+#### MS SQL Server
 
 ```sql
-with Data as 
-(select
-	id, productid, date,
-	sum(unitprice*quantity) over(partition by productid,convert(date,date)) dayValue
-from product_history)
-select 
-	d.*,
-	sum(d.dayValue) over(partition by d.productid, datepart(year,d.date),datepart(month,d.date) order by convert(date,date))
+with Data as (
+    select
+        id,
+        productid,
+        date,
+        sum(unitprice*quantity) over(partition by productid,convert(date,date)) dayValue
+    from product_history
+)
+select distinct
+    d.*,
+    sum(d.dayValue) over(partition by d.productid, year(d.date), month(d.date) order by day(d.date) rows between unbounded preceding and current row) as accumulated
 from Data d
+order by d.date
 ```
+Czas wykonania: 12s
+![w:700](_img/zad14-mssql-window.png)
 
-Spróbuj wykonać zadanie bez użycia funkcji okna. Spróbuj uzyskać ten sam wynik bez użycia funkcji okna, porównaj wyniki, czasy i plany zapytań. Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
+
+Wersja bez funkcji okna. Wykonanie trwało bardzo długo więc dodatkowo dodałem filtrowanie po ProductId.
 
 ```sql
-select
-	ph1.id,
-	ph1.productid,
-	ph1.date
-	,(select SUM(ph2.unitprice*ph2.quantity)  from product_history ph2 where convert(date,ph2.date) = convert(date,ph1.date) and ph1.productid=ph2.productid) dayValue
-	,(select
-		SUM(ph3.tDayValue) 
-	from 
-		(select 
-			SUM(ph4.unitprice*ph4.quantity) as tDayValue,
-			ph4.date as tDate
-		from product_history ph4 
-		where ph1.productid=ph4.productid
-		group by ph4.date
-		) as ph3 
-	where datepart(year,ph3.tDate) =datepart(year,ph1.date) 
-	and  datepart(month,ph3.tDate) =datepart(month,ph1.date) 
-	and datepart(day,ph3.tDate)<=datepart(day,ph1.date)
-	) as aggregatedValue
-from product_history ph1
-order by ph1.productid, ph1.date
+-- MS SQL Server)
+with Data as (
+    select
+        id,
+        productid,
+        date,
+        sum(unitprice*quantity) as dayValue
+    from product_history
+    where productid=1
+    group by productid, convert(date, date), id
+)
+select distinct
+    d.*,
+    (select sum(d2.dayValue)
+     from Data d2
+     where d2.productid = d.productid and
+           year(d2.date) = year(d.date) and
+           month(d2.date) = month(d.date) and
+           day(d2.date) <= day(d.date)
+        ) as accumulated
+from Data d
+order by d.date
 ```
+Czas wykonania: 14min
+![w:700](_img/zad14-mssql-no-window.png)
+
+#### PostreSQL
+Wersja z funkcją okna:
+```sql
+with Data as (
+    select
+        id,
+        productid,
+        date,
+        sum(value) over(partition by productid, date) dayValue
+    from product_history
+)
+select distinct
+    d.*,
+    sum(d.dayValue) over(
+        partition by d.productid, date_part('Year', d.date), date_part('Month', d.date)
+        order by date_part('Day', d.date)
+        rows between unbounded preceding and current row
+        ) as accumulated
+from Data d
+order by d.productid, d.date
+;
+```
+Czas wykonania: 9s
+![w:700](_img/zad14-postgresql-window.png)
+
+Wersja bez funkcji okna:
+```sql
+with Data as (
+    select
+        id,
+        productid,
+        date,
+        sum(unitprice*quantity) as dayValue
+    from product_history
+    group by productid, date, id
+)
+select distinct
+    d.*,
+    sum(d2.dayValue) over(partition by d.productid, date_part('Year', d.date), date_part('Month', d.date) order by date_part('Day', d.date) ) as accumulated
+from Data d join Data d2
+    on d.productid = d2.productid and
+       date_part('Year', d.date) = date_part('Year', d2.date) and
+       date_part('Month', d.date) = date_part('Month', d2.date) and
+       date_part('Day', d.date) >= date_part('Day', d2.date)
+order by d.date;
+```
+Czas wykonania: 6m35s
+![w:700](_img/zad14-postgresql-no-window.png)
+
 
 ---
 # Zadanie 15
