@@ -5,7 +5,7 @@
 
 ---
 **Imię i nazwisko:**
-
+Mateusz Skowron, Bartłomiej Wiśniewski, Karol Wrona
 --- 
 
 
@@ -169,8 +169,6 @@ where productid < 10
 Natomiast w tym zapytaniu średnia liczona jest z produktów gdzie **productId** < 10
 
 #### Równoważne 1
-
-(spróbować z with)
 
 ```sql
 select distinct p.productid, p.ProductName, p.unitprice,  
@@ -544,11 +542,14 @@ Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
 ### Wyniki
 
+#### Zapytania
+
 ```sql
 -- subquery
 select productid, productname, unitprice, (select AVG(unitprice) FROM product_history AS P2 where P2.categoryid = P1.categoryid) AS avg_price FROM product_history AS P1
 where unitprice > (select AVG(unitprice) FROM product_history AS P2 where P2.categoryid = P1.categoryid);
-
+```
+```sql
 -- join
 SELECT
     P1.productid,
@@ -562,7 +563,8 @@ FROM
 GROUP BY
     P1.productid, P1.productname, P1.unitprice
 HAVING P1.unitprice > AVG(P2.unitprice);
-
+```
+```sql
 -- window function
 SELECT productid, productname, unitprice, avg
 FROM
@@ -572,47 +574,58 @@ FROM
 WHERE unitprice > avg;
 ```
 
-Dla dwóch milionów rekordów w tabelach `product_history` wykonanie zapytań trwało bardzo długo. Po kilku minutach zdecydowaliśmy się zmniejszyć ilość rekordów w tabelach do miliona.
+Zapytanie wykorzystujące podzapytanie i join są bardziej skomplikowane, podczas gdy zapytanie wykorzystujące funkcje oknaj jest bardziej zwięzłe i czytalne.
 
-- **Czas**
+Dla dwóch milionów rekordów w tabelach `product_history` wykonanie zapytań trwało bardzo długo. Po kilku minutach zdecydowaliśmy się zmniejszyć ilość rekordów w tabelach do 25000.
 
-    **PostgreSQL**
-    | Zapytanie | subquery  | join  | window function |
-    | ---       | ---       | ---   |---              |
-    | Czas      | > 1m      | > 1m  | 741ms           |
+#### Czasy
 
-    **SQL Server**
-    | Zapytanie | subquery  | join  | window function |
-    | ---       | ---       | ---   |---              |
-    | Czas      | 280ms     | 350ms | 250ms           |
+**PostgreSQL**
+| Zapytanie | subquery  | join  | window function |
+| ---       | ---       | ---   |---              |
+| Czas      | 4m 15s    | 42s   | 298ms           |
 
-    **SQLite**
-    | Zapytanie | subquery  | join  | window function |
-    | ---       | ---       | ---   |---              |
-    | Czas      | > 1m      | > 1m  | 692ms           |
+**SQL Server**
+| Zapytanie | subquery  | join  | window function |
+| ---       | ---       | ---   |---              |
+| Czas      | 1s 932ms  | 319ms | 165ms           |
 
-    W przypadku PostgreSQL oraz SQLite tylko zapytania wykorzystujące funkcje okna liczyły się w rozsądnym czasie. Pozostałe zajmowały ponad kilka minut, więc zdecydowaliśmy się je przerwać. 
-    W przypadku SQLServer każde zapytanie liczyło się szybko i nie było między nimi dużych różnic czasowych.
+**SQLite**
+| Zapytanie | subquery  | join   | window function |
+| ---       | ---       | ---    |---              |
+| Czas      | 3s        | 1m 48s | 103ms           |
 
-- **Plany wykonania**
-    **PostgreSQL**
-    ![alt text](./_img/zad6_1.png)
-    ![alt text](./_img/zad6_2.png)
+SQL Server wykazuje znacznie lepszą wydajność w porównaniu do PostgreSQL i SQLite we wszystkich rodzajach zapytań, zwłaszcza w przypadku subquery i join. PostgreSQL daje najgorsze czasy, podczas gdy SQLite wyróżnia się wyjątkowo szybkim czasem wykonywania window function oraz subquery, lecz traci na wydajności w przypadku join.
 
-    Plan wykonania zapytań jest prosty i przejrzysty.
+#### Plany wykonania
+**PostgreSQL**
 
-    **SQL Server**
-    ![alt text](./_img/zad6_3.png)
-    ![alt text](./_img/zad6_4.png)
-    ![alt text](./_img/zad6_5.png)
-    ![alt text](./_img/zad6_6.png)
-    ![alt text](./_img/zad6_7.png)
-    ![alt text](./_img/zad6_8.png)
+- Subquery
+  Mimo długiego czasu oczekiwanie nieudało się uzyskać wyniku.
+  ![alt text](./_img/zad6_1.png)
 
-    Koszt zapytań jest najlepszy w przypadku funkcji okna.
+- Join
+  ![alt text](./_img/zad6_2.png)
 
-    **SQLite**
-    Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
+- Window function
+  ![alt text](./_img/zad6_3.png)
+
+Plan wykonania w przypadku funkcji okna jest znacznie krótszy i bardziej przejrzysty. Koszt zapytań w przypadku funkcji okna jest wielokrotnie niższy.
+
+**SQL Server**
+- Subquery
+  ![alt text](./_img/zad6_4.png)
+
+- Join
+  ![alt text](./_img/zad6_5.png)
+
+- Window function
+  ![alt text](./_img/zad6_6.png)
+
+W tym przypadku udało się uzyskać plan wykonania dla każdego z zapytań. Plany wykonania dla tego systemu są bardziej skomplikowane w porównaniu do PostgreSQL. Koszty zapytań są dużo mniejsze niż w przypadku PostgreSQL. Tutaj również najniższy koszt zapytań występuje podczas wykorzystania funkcji okna.
+
+**SQLite**
+Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 ---
 # Zadanie 7
@@ -635,7 +648,10 @@ Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
 ### Wyniki
 
+#### Zapytania
+
 ```sql
+--- subquery
 SELECT
     ph.productid,
     ph.ProductName,
@@ -653,6 +669,7 @@ ORDER BY
 ```
 
 ```sql
+--- join
 SELECT
     ph1.productid,
     ph1.ProductName,
@@ -674,6 +691,7 @@ ORDER BY ph1.productid, ph1.date;
 ```
 
 ```sql
+--- window function
 SELECT
     nph1.productid,
     nph1.ProductName,
@@ -698,41 +716,55 @@ FROM (
 ORDER BY nph1.productid, nph1.date;
 ```
 
-- **Czas**
+Zapytanie oparte na funkcji okna jest bardziej zwięzłe i czytelne niż zapytania z subzapytaniami i złączeniami. Funkcje okna umożliwiają bardziej elastyczne obliczenia agregacyjne bez konieczności tworzenia wielu połączeń i subzapytań.
 
-    **PostgreSQL**
-    | Zapytanie | subquery  | join  | window function |
-    | ---       | ---       | ---   |---              |
-    | Czas      | > 1m      | > 1m  | 3 s 822 ms      |
+Dla dwóch milionów rekordów w tabelach `product_history` wykonanie zapytań trwało bardzo długo. Tutaj również zdecydowaliśmy się zmniejszyć ilość rekordów w tabelach do 25000.
 
-    **SQL Server**
-    | Zapytanie | subquery  | join  | window function |
-    | ---       | ---       | ---   |---              |
-    | Czas      | 439ms     | 357ms | 331ms           |
+#### Czasy
 
-    **SQLite**
-    | Zapytanie | subquery  | join  | window function |
-    | ---       | ---       | ---   |---              |
-    | Czas      | > 1m      | > 1m  | 534ms           |
+**PostgreSQL**
+| Zapytanie | subquery  | join  | window function |
+| ---       | ---       | ---   |---              |
+| Czas      | >5min     | >5min | 688ms           |
 
-    W przypadku PostgreSQL oraz SQLite tylko zapytania wykorzystujące funkcje okna liczyły się w rozsądnym czasie. Pozostałe zajmowały ponad kilka minut, więc zdecydowaliśmy się je przerwać. 
-    W przypadku SQLServer każde zapytanie liczyło się szybko i nie było między nimi dużych różnic czasowych.
+**SQL Server**
+| Zapytanie | subquery  | join  | window function |
+| ---       | ---       | ---   |---              |
+| Czas      | 2s 979ms  | >5min | 453ms           |
 
-- **Plany wykonania**
-    **PostgreSQL**
-    ![alt text](./_img/zad7_1.png)
+**SQLite**
+| Zapytanie | subquery  | join  | window function |
+| ---       | ---       | ---   |---              |
+| Czas      | >5min     | >5min | 372ms           |
 
-    Plan wykonania zapytań jest prosty i przejrzyste.
+ W większościach zapytań nie udało się uzyskać wyniku mimo długiego czekania. SQL Server wyróżnia się krótszym czasem wykonania subquery oraz stosunkowo krótkim czasem window function. SQLite natomiast osiąga najkrótszy czas w przypadku window function. PostgreSQL wydaje się być mniej efektywny w przypadku subquery i join, jednak window function wykonuje się stosunkowo szybko w porównaniu do pozostałych operacji.
 
-    **SQL Server**
-    ![alt text](./_img/zad7_2.png)
-    ![alt text](./_img/zad7_3.png)
-    ![alt text](./_img/zad7_4.png)
+#### Plany wykonania
+**PostgreSQL**
 
-    Koszt zapytań jest najlepszy w przypadku funkcji okna.
+- Subquery
+    Nie udało się uzyskać wyniku w rozsądnym czasie.
 
-    **SQLite**
-    Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
+- Join
+    Nie udało się uzyskać wyniku w rozsądnym czasie.
+
+- Window function
+  ![alt text](./_img/zad7_1.png)
+
+**SQL Server**
+- Subquery
+  ![alt text](./_img/zad7_2.png)
+
+- Join
+    Nie udało się uzyskać wyniku w rozsądnym czasie.
+
+- Window function
+  ![alt text](./_img/zad7_3.png)
+
+W tym przypadku udało się uzyskać plan wykonania dla dwóch zapytań. Plany wykonania dla tego systemu są bardziej skomplikowane w porównaniu do PostgreSQL. Koszty zapytań są dużo mniejsze niż w przypadku PostgreSQL. Najniższy koszt zapytań występuje podczas wykorzystania funkcji okna.
+
+**SQLite**
+Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 ---
 # Zadanie 8 - obserwacja
@@ -790,6 +822,7 @@ Uporządkuj wynik wg roku, nr produktu, pozycji w rankingu.
 
 ### Wyniki
 
+#### Zapytania
 ```sql
 --- PostgreSQL
 WITH RankedPrice AS (
@@ -802,14 +835,15 @@ WITH RankedPrice AS (
     FROM
         product_history PH
 )
-
 SELECT
     *
 FROM
     RankedPrice
 ORDER BY
     Year, ProductID, PriceRank;
+```
 
+```sql
 --- SQLServer
 WITH RankedPrice AS (
     SELECT
@@ -821,14 +855,15 @@ WITH RankedPrice AS (
     FROM
         product_history PH
 )
-
 SELECT
     *
 FROM
     RankedPrice
 ORDER BY
     Year, ProductID, PriceRank;
+```
 
+```sql
 --- SQLite
 WITH RankedPrice AS (
     SELECT
@@ -840,7 +875,6 @@ WITH RankedPrice AS (
     FROM
         product_history PH
 )
-
 SELECT
     *
 FROM
@@ -849,30 +883,11 @@ ORDER BY
     Year, ProductID, PriceRank;
 ```
 
-- **Czas**
-
-    | Serwer | PostgreSQL  | SQLServer  | SQLite     |
-    | ---    | ---         | ---        |---         |
-    | Czas   | 14 s 448 ms | 2 s 778 ms | 16 s 16 ms |
-
-    Najwolniejszy okazał się SQLite mając czas zbliżony do PostgreSQL, a najszybszy mający wielokrotnie lepszy czas okazał się SQL Server.
-
-- **Plany wykonania**
-
-    **PostgreSQL**
-    ![alt text](./_img/zad9_1.png)
-
-    **SQL Server**
-    ![alt text](./_img/zad9_2.png)
-
-    Koszt jest znacznie mniejszy niż w przypadku PostgreSQL.
-
-    **SQLite**
-    Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
-
 Spróbuj uzyskać ten sam wynik bez użycia funkcji okna, porównaj wyniki, czasy i plany zapytań. Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
 ### Wyniki
+
+#### Zapytania
 
 ```sql
 --- PostgreSQL
@@ -895,7 +910,9 @@ FROM
     product_history PH
 ORDER BY
     Year, ProductID, PriceRank;
+```
 
+```sql
 --- SQLServer
 SELECT
     YEAR(PH.date) AS Year,
@@ -916,7 +933,9 @@ FROM
     product_history PH
 ORDER BY
     Year, ProductID, PriceRank;
+```
 
+```sql
 --- SQLite
 SELECT
     strftime('%Y', PH.date) AS Year,
@@ -939,13 +958,48 @@ ORDER BY
     Year, ProductID, PriceRank;
 ```
 
-- **Czas**
+Tutaj również użyto tabeli `product_history` z liczbą rekordów równą 25000.
 
-    | Serwer | PostgreSQL | SQLServer | SQLite  |
-    | ---    | ---        | ---       |---      |
-    | Czas   | > 10 min   | > 10min   | > 10min |
+#### Czasy
 
-    Nie używając funkcji okna nie udało nam się uzyskać wyników w akceptowalnym czasie dla żadnego z serwerów bazodanowych.
+**PostgreSQL**
+| Zapytanie | bez window function  | z window function |
+| ---       | ---                  | ---               |
+| Czas      | 1m 35s               | 428ms             |
+
+**SQL Server**
+| Zapytanie | bez window function  | z window function |
+| ---       | ---                  | ---               |
+| Czas      | 1s 816ms             | 230ms             |
+
+**SQLite**
+| Zapytanie | bez window function  | z window function |
+| ---       | ---                  | ---               |
+| Czas      | 5m 56s               | 252ms             |
+
+Wyniki testów pokazują znaczącą różnicę w czasie wykonania zapytań pomiędzy użyciem funkcji okna a alternatywnym podejściem bez ich wykorzystania. W każdym systemie zarządzania bazą danych (SZBD), użycie funkcji okna znacznie przyspiesza wykonanie zapytania w porównaniu do alternatywnego podejścia bez ich wykorzystania. W szczególności w PostgreSQL i SQL Server różnica jest ogromna, podczas gdy w SQLite różnica również jest znacząca, ale mniej wyraźna w porównaniu z pozostałymi dwoma systemami.
+
+#### Plany wykonania
+
+**PostgreSQL**
+- Bez window function
+  ![alt text](./_img/zad9_1.png)
+  Mimo długiego czasu oczekiwania nie udało się uzyskać wyniku.
+
+- Z window function
+  ![alt text](./_img/zad9_2.png)
+
+**SQL Server**
+- Bez window function
+  ![alt text](./_img/zad9_3.png)
+
+- Z window function
+  ![alt text](./_img/zad9_4.png)
+
+Widzimy,że koszt jest najniższy podczas wykorzystania funkcji okna.
+
+**SQLite**
+Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 ---
 # Zadanie 10 - obserwacja
@@ -978,50 +1032,17 @@ order by date;
 
 ### Wyniki
 
-- **Działanie**
-
-    Funkcja *lag(unitprice)* zwraca cenę produktu z poprzedniego rekordu (uporządkowanego według daty), natomiast *lead(unitprice)* zwraca cenę produktu z następnego rekordu.
-    Funkcje te pozwalają na porównywanie bieżących wartości z poprzednimi lub następnymi wartościami w uporządkowanym zestawie danych.
-
-- **Czas**
-
-    **PostgreSQL**
-    | Zapytanie | zapytanie 1  | zapytanie 2  |
-    | ---       | ---          | ---          |
-    | Czas      | 846 ms       | 726 ms       | 
-
-    **SQL Server**
-    | Zapytanie | zapytanie 1  | zapytanie 2  |
-    | ---       | ---          | ---          |
-    | Czas      | 281 ms       | 284 ms       | 
-
-    **SQLite**
-    | Zapytanie | zapytanie 1  | zapytanie 2  |
-    | ---       | ---          | ---          |
-    | Czas      | 374 ms       | 397 ms       | 
-
-    Zdecydowanie najszybszy okazał się SQL Server, niewiele wolniejszy był SQLite, a dużo wolniejszy od nich był PostgreSQL.
-
-- **Plany wykonania**
-
-    **PostgreSQL**
-    ![alt text](./_img/zad10_1.png)
-    ![alt text](./_img/zad10_2.png)
-
-    **SQL Server**
-    ![alt text](./_img/zad10_3.png)
-    ![alt text](./_img/zad10_4.png)
-
-    Koszt jest znacznie mniejszy niż w przypadku PostgreSQL, a jego plan wykonanie jest znacznie bardziej rozległy niż w przypadku PostgreSQL.
-
-    **SQLite**
-    Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
+#### Komentarz
+Funkcja *lag(unitprice)* zwraca cenę produktu z poprzedniego rekordu (uporządkowanego według daty), natomiast *lead(unitprice)* zwraca cenę produktu z następnego rekordu.
+Funkcje te pozwalają na porównywanie bieżących wartości z poprzednimi lub następnymi wartościami w uporządkowanym zestawie danych.
 
 Zadanie
 
 Spróbuj uzyskać ten sam wynik bez użycia funkcji okna, porównaj wyniki, czasy i plany zapytań. Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
 ### Wyniki
+
+#### Zapytania
 
 ```sql
 --- Zapytanie 1
@@ -1062,7 +1083,9 @@ WHERE
     AND year(ph1.date) = 2022
 ORDER BY
     ph1.date;
+```
 
+```sql
 --- Zapytanie 2
 WITH t AS (
     SELECT
@@ -1105,42 +1128,65 @@ WHERE productid = 1
 ORDER BY date;
 ```
 
-- **Czas**
+Zapytania z funkcjami okna są znacznie krótsze, bardziej zwięzłe i czytelne niż równoważne zapytania bez funkcji okna.
 
-    **PostgreSQL**
-    | Zapytanie | zapytanie 1  | zapytanie 2  |
-    | ---       | ---          | ---          |
-    | Czas      | 761 ms       | 803 ms       | 
+Tutaj również użyto tabeli `product_history` z liczbą rekordów równą 25000.
 
-    **SQL Server**
-    | Zapytanie | zapytanie 1  | zapytanie 2  |
-    | ---       | ---          | ---          |
-    | Czas      | 248 ms       | 223 ms       | 
+#### Czasy
 
-    **SQLite**
-    | Zapytanie | zapytanie 1  | zapytanie 2  |
-    | ---       | ---          | ---          |
-    | Czas      | 388 ms       | 324 ms       | 
+**PostgreSQL**
+| Zapytanie | zapytanie 1 z window function  | zapytanie 2 z window function | zapytanie 1 bez window function  | zapytanie 2 bez window function |
+| ---       | ---                            | ---                           | ---                              | ---                             |
+| Czas      | 380ms                          | 321ms                         | 394ms                            | 340ms                           |
 
-    Tutaj również najszybsze okazały się SQL Server oraz SQLite.
-    W porównaniu do wykorzystania funkcji okna, skorzystanie z joinów okazało się niewiele korzystniejsze.
+**SQL Server**
+| Zapytanie | zapytanie 1 z window function  | zapytanie 2 z window function | zapytanie 1 bez window function  | zapytanie 2 bez window function |
+| ---       | ---                            | ---                           | ---                              | ---                             |
+| Czas      | 135ms                          | 189ms                         | 142ms                            | 184ms                           |
 
-- **Plany wykonania**
+**SQLite**
+| Zapytanie | zapytanie 1 z window function  | zapytanie 2 z window function | zapytanie 1 bez window function  | zapytanie 2 bez window function |
+| ---       | ---                            | ---                           | ---                              | ---                             |
+| Czas      | 118ms                          | 106ms                         | 135ms                            | 114ms                           |
 
-    **PostgreSQL**
-    ![alt text](./_img/zad10_5.png)
-    ![alt text](./_img/zad10_6.png)
+W przypadku PostgreSQL i SQLite, zapytania z funkcjami okna są nieznacznie szybsze niż równoważne zapytania bez funkcji okna.
+W przypadku SQL Server, zapytania bez funkcji okna są nieco szybsze niż z funkcjami okna.
 
-    **SQL Server**
-    ![alt text](./_img/zad10_7.png)
-    ![alt text](./_img/zad10_8.png)
+#### Plany wykonania
 
-    Tutaj również koszt jest znacznie mniejszy niż w przypadku PostgreSQL, a jego plan wykonanie jest znacznie bardziej rozległy niż w przypadku PostgreSQL.
+**PostgreSQL**
+- Zapytanie 1 z window function
+  ![alt text](./_img/zad10_1.png)
 
-    **SQLite**
-    Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
+- Zapytanie 2 z window function
+  ![alt text](./_img/zad10_2.png)
 
-    Koszty wykonania dla każdego z serwerów bazo danych są większe niż korzystając z funkcji okna.
+- Zapytanie 1 bez window function
+  ![alt text](./_img/zad10_3.png)
+
+- Zapytanie 2 bez window function
+  ![alt text](./_img/zad10_4.png)
+
+Zapytania wykorzystujące funkcje okna mają wielokrotnie mniejszy koszt wykonania, a ich plan wykonania jest prosty i przejrzysty, gdzie w przypadku zapytania niewykorzystującego funkcji okna mamy bardziej skomplikowany.
+
+**SQL Server**
+- Zapytanie 1 z window function
+  ![alt text](./_img/zad10_5.png)
+
+- Zapytanie 2 z window function
+  ![alt text](./_img/zad10_6.png)
+
+- Zapytanie 1 bez window function
+  ![alt text](./_img/zad10_7.png)
+
+- Zapytanie 2 bez window function
+  ![alt text](./_img/zad10_8.png)
+
+W tym przypadk również zapytania wykorzystujące funkcje okna mają wielokrotnie mniejszy koszt wykonania i prostszy plan.
+W porównaniu do PostgreSQL mamy trochę więcej elementów planu.
+
+**SQLite**
+Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 ---
 # Zadanie 11
@@ -1190,41 +1236,124 @@ order by
     Data.OrderID;
 ```
 
+![[Pasted image 20240311192916.png]]
+
+Komentarz:
+Zapytanie zostało przetestowane zarówno na bazie msSql i postgresSql. W obu przypadkach czas wykonania wynosił mniej niż 500ms. Analiza planu wykonania także nie wskazała żadnych znaczących różnic pomiędzy sbzd.
 
 ---
 # Zadanie 12 - obserwacja
 
 Funkcje `first_value()`, `last_value()`
 
-Wykonaj polecenia, zaobserwuj wynik. Jak działają funkcje `first_value()`, `last_value()`. Skomentuj uzyskane wyniki. Czy funkcja `first_value` pokazuje w tym przypadku najdroższy produkt w danej kategorii, czy funkcja `last_value()` pokazuje najtańszy produkt? Co jest przyczyną takiego działania funkcji `last_value`. Co trzeba zmienić żeby funkcja last_value pokazywała najtańszy produkt w danej kategorii
+Wykonaj polecenia, zaobserwuj wynik. Jak działają funkcje `first_value()`, `last_value()`. Skomentuj uzyskane wyniki. Czy funkcja `first_value` pokazuje w tym przypadku najdroższy produkt w danej kategorii, czy funkcja `last_value()` pokazuje najtańszy produkt? Co jest przyczyną takiego działania funkcji `last_value`? Co trzeba zmienić żeby funkcja last_value pokazywała najtańszy produkt w danej kategorii?
 
 ```sql
 select productid, productname, unitprice, categoryid,  
     first_value(productname) over (partition by categoryid   
 order by unitprice desc) first,  
     last_value(productname) over (partition by categoryid   
-order by unitprice desc) last  
+order by unitprice desc) last
 from products  
 order by categoryid, unitprice desc;
 ```
 
 ### Wyniki
 
+![alt text](./_img/zad12_1.png)
+
+Domyślne okno dla funkcji `first_value` oraz `last_value` to `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`, które bierze odpowiednio pierwszą albo ostatnią wartość dotychczas.
+
+Aby funkcja `last_value` pokazywała najtańszy produkt w danej kategorii należy zamienić domyślny zakres funkcji z `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW` na `ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING`. Trzeba zmodyfikować nasze zapytanie w sposób następujący:
 ```sql
--- wyniki ...
+select productid, productname, unitprice, categoryid,
+       first_value(productname) over (partition by categoryid
+           order by unitprice desc ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) first,
+       last_value(productname) over (partition by categoryid
+           order by unitprice desc ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) last
+from products
+order by categoryid, unitprice desc;
 ```
+![alt text](./_img/zad12_2.png)
 
 Zadanie
 
 Spróbuj uzyskać ten sam wynik bez użycia funkcji okna, porównaj wyniki, czasy i plany zapytań. Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
+### Wyniki
+
+#### Zapytania
 ```sql
-select p.productid, p.productname, p.unitprice, p.categoryid,  
-    (select top 1 p2.productname from products p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice desc)first,
-	(select top 1 p2.productname from products p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice)last
-from products  p
+--- PostgreSQL
+select p.productid, p.productname, p.unitprice, p.categoryid,
+       (select p2.productname from product_history p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice desc limit 1) first,
+       (select p2.productname from product_history p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice limit 1) last
+from product_history p
 order by p.categoryid, p.unitprice desc;
 ```
+
+```sql
+--- SQLServer
+select p.productid, p.productname, p.unitprice, p.categoryid,
+       (select top 1 p2.productname from product_history p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice desc) first,
+       (select top 1 p2.productname from product_history p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice) last
+from product_history p
+order by p.categoryid, p.unitprice desc;
+```
+
+```sql
+--- SQLite
+select p.productid, p.productname, p.unitprice, p.categoryid,
+       (select p2.productname from product_history p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice desc limit 1) first,
+       (select p2.productname from product_history p2 where p2.CategoryID=p.CategoryID order by p2.UnitPrice limit 1) last
+from product_history p
+order by p.categoryid, p.unitprice desc;
+```
+
+Ze względu na długie czasy oczekiwania na wyniki w przypadku baz PostgreSQL oraz SQLite, zadanie zostało zrealizowane na tabeli `product_history` składającej się ze 25000 rekordów.
+
+#### Czasy
+
+**PostgreSQL**
+| Zapytanie | funkcja okna | bez funkcji okna  |
+| ---       | ---          | ---               |
+| Czas      | 299 ms       | 2m 17s            | 
+
+**SQL Server**
+| Zapytanie | funkcja okna | bez funkcji okna  |
+| ---       | ---          | ---               |
+| Czas      | 87 ms        | 177 ms            | 
+
+**SQLite**
+| Zapytanie | funkcja okna | bez funkcji okna  |
+| ---       | ---          | ---               |
+| Czas      | 224 ms       | 1m 2s             | 
+
+W każdym przypadku wykorzystując funkcje okna otrzymujemy znacznie lepszy czas. Widoczna różnica jest dla PostgreSQL oraz dla SQLite. W przypadku SQLServera oba zapytania są szybkie.
+Najwolniejszą bazą okazał się PostgreSQL.
+
+#### Plany wykonania
+
+**PostgreSQL**
+- Funkcja okna
+    ![alt text](./_img/zad12_6.png)
+
+- Bez funkji okna
+    ![alt text](./_img/zad12_7.png)
+
+Mimo 22 minut czekania nie udało się uzyskać planu wykonania dla rozwiązania bez funkcji okna.
+
+**SQL Server**
+- Funkcja okna
+    ![alt text](./_img/zad12_8.png)
+
+- Bez funkji okna
+    ![alt text](./_img/zad12_9.png)
+
+Koszt w przypadku wykorzystania funkcji okna jest znacznie niższy.
+
+**SQLite**
+Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 ---
 # Zadanie 13
@@ -1389,41 +1518,107 @@ Wykonaj kilka "własnych" przykładowych analiz. Czy są jeszcze jakieś ciekawe
 
 **Klauzula `RANGE`**
 ```sql
-SELECT 
-    productid, 
-    productname, 
-    unitprice, 
-    categoryid,
-    FIRST_VALUE(productname) OVER (PARTITION BY categoryid
-        ORDER BY unitprice DESC RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS first,
-    LAST_VALUE(productname) OVER (PARTITION BY categoryid
-        ORDER BY unitprice DESC RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS last
-FROM 
-    products
-ORDER BY 
-    categoryid, 
-    unitprice DESC;
+WITH sums AS (  
+    SELECT o.customerid,  
+           o.orderdate,  
+        SUM(od.unitprice * od.quantity) as sum  
+        FROM orders o  
+        LEFT JOIN orderdetails od  
+        ON o.orderid = od.orderid  
+        GROUP BY o.customerid, o.orderdate  
+)  
+SELECT customerid,  
+       orderdate,  
+       sum,  
+       AVG(sum) OVER (  
+           PARTITION BY customerid  
+           ORDER BY orderdate ASC  
+           RANGE BETWEEN INTERVAL '31' DAY PRECEDING AND CURRENT ROW  
+           ) AS moving_avg  
+FROM sums
 ```
-Za pomocą klauzuli `RANGE`, możemy określić zakres danych, który ma być uwzględniony w analizie. W tym przypadku analiza odbywa się dla każdej kategorii produktu, a zakres danych obejmuje wszystkie wartości od początku do bieżącego wiersza. W rezultacie, dla każdej kategorii produktów uzyskujemy pierwszą i ostatnią wartość produktu na podstawie sortowania według jednostkowej ceny w kolejności malejącej.
+Za pomocą klauzuli `RANGE`, możemy określić zakres danych, który ma być uwzględniony w analizie. W powyższym przykładzie używamy tej klauzuli do obliczenia tzw. **Moving Average** czyli średniej liczonej z ostatnich 31 dni. Dodatkowo użyliśmy specjalnej konstrukcji wspieranej przez niektóre silniki bazodanowe: 
+```sql
+INTERVAL '31' DAY PRECEDING
+```
+Postgres (w przeciwieństwie do MsSql) wspiera używanie typów numerycznych i dat w klauzuli range, zatem powyższa konstrukcja tworzy ramkę z tych wierszy dla których zamówienie miało miejsce najwyżej 31 dni przed datą zamówienia obecnego wiersza. 
+
+Wynik:
+![[Pasted image 20240314224050.png]]
+
 
 **Klauzula `ROWS`**
 ```sql
-SELECT 
-    productid, 
-    productname, 
-    unitprice, 
-    categoryid,
-    FIRST_VALUE(productname) OVER (PARTITION BY categoryid
-        ORDER BY unitprice DESC) AS first,
-    LAST_VALUE(productname) OVER (PARTITION BY categoryid
-        ORDER BY unitprice DESC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS last
-FROM 
-    products
-ORDER BY 
-    categoryid, 
-    unitprice DESC;
+WITH sums AS (  
+    SELECT  
+        o.orderdate,  
+        SUM(od.unitprice * od.quantity) as sum  
+        FROM orders o  
+        LEFT JOIN orderdetails od  
+        ON o.orderid = od.orderid  
+        GROUP BY o.orderdate  
+) SELECT orderdate,  
+         SUM(sum) OVER (  
+             ORDER BY orderdate  
+             ROWS BETWEEN UNBOUNDED PRECEDING AND 1 FOLLOWING  
+             ) as sum_till_this_date  
+FROM sums
 ```
-Za pomocą klauzuli `ROWS`, również analiza jest przeprowadzana dla każdej kategorii produktu, ale zakres danych jest definiowany w sposób bardziej szczegółowy. Funkcja FIRST_VALUE obejmuje cały zakres danych, ale LAST_VALUE jest ograniczona do zakresu od początku do bieżącego wiersza. Oznacza to, że dla każdej kategorii produktów uzyskujemy pierwszą wartość produktu dla całego zakresu, ale ostatnią wartość tylko dla danego wiersza.
+Za pomocą klauzuli `ROWS`, również analiza jest przeprowadzana dla każdej kategorii produktu, ale zakres danych jest definiowany w trochę inny sposób o czym mowa w następnym podpunkcie. Powyższa funkcja liczy sumę zamówień z wszystkich poprzednich dni oraz następnego dnia dla danego wiersza.
+![[Pasted image 20240314230002.png]]
+
+Warto zaznaczyć że jeśli nie używamy klauzuli **ORDER BY** to przetwarzana ramka jest równa:
+```sql
+ROWS BETWEEN UNBOUNDED PRECEDING AND UNOBUNDED FOLLOWING
+```
+Natomiast jeśli użyjemy klauzuli **ORDER BY** to przetwarzana ramka jest równa:
+```sql
+ROWS BETWEEN UNBOUNDED PREEDING AND CURRENT ROW
+```
+Zatem poniższe zapytania są równoważne
+```sql
+WITH sums AS (  
+    SELECT  
+        o.orderdate,  
+        SUM(od.unitprice * od.quantity) as sum  
+        FROM orders o  
+        LEFT JOIN orderdetails od  
+        ON o.orderid = od.orderid  
+        GROUP BY o.orderdate  
+) SELECT orderdate,  
+         SUM(sum) OVER (  
+             ORDER BY orderdate  
+             ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW  
+             ) as sum_till_this_date  
+FROM sums
+
+--AND
+
+WITH sums AS (  
+    SELECT  
+        o.orderdate,  
+        SUM(od.unitprice * od.quantity) as sum  
+        FROM orders o  
+        LEFT JOIN orderdetails od  
+        ON o.orderid = od.orderid  
+        GROUP BY o.orderdate  
+) SELECT orderdate,  
+         SUM(sum) OVER (  
+             ORDER BY orderdate  
+             ) as sum_till_this_date  
+FROM sums
+```
+### RANGE vs ROWS
+
+Cytując dokumentacje postgresa (https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS):
+
+> In `ROWS` mode, the _`offset`_ must yield a non-null, non-negative integer, and the option means that the frame starts or ends the specified number of rows before or after the current row.
+
+>In `RANGE` mode, these options require that the `ORDER BY` clause specify exactly one column. The _`offset`_ specifies the maximum difference between the value of that column in the current row and its value in preceding or following rows of the frame. The data type of the _`offset`_ expression varies depending on the data type of the ordering column. For numeric ordering columns it is typically of the same type as the ordering column, but for datetime ordering columns it is an `interval`. For example, if the ordering column is of type `date` or `timestamp`, one could write `RANGE BETWEEN '1 day' PRECEDING AND '10 days' FOLLOWING`. The _`offset`_ is still required to be non-null and non-negative, though the meaning of “non-negative” depends on its data type.
+
+Zatem klauzula **ROWS** pozwala na ustawianie zakresu za pomocą **ilości wierszy** które następują lub poprzedzają obecny wiersz.
+
+Klauzula **RANGE**, z kolei pozwala na określenie ramki przy pomocy **wartości wierszy** które następują lub poprzedzają obecny wiersz. Z tego też powodu **RANGE** wymaga podania dokładnie jednej kolumny bo której będziemy sortować tabele.
 
 Punktacja
 
