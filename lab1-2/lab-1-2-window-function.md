@@ -1479,7 +1479,6 @@ select distinct
     ) as accumulated
 from Data d
 order by d.productid, d.date
-;
 ```
 Czas wykonania: 9s
 ![w:700](_img/zad14-postgresql-window.png)
@@ -1503,7 +1502,7 @@ from Data d join Data d2
        date_part('Year', d.date) = date_part('Year', d2.date) and
        date_part('Month', d.date) = date_part('Month', d2.date) and
        date_part('Day', d.date) >= date_part('Day', d2.date)
-order by d.date;
+order by d.date
 ```
 Czas wykonania: 6m35s
 ![w:700](_img/zad14-postgresql-no-window.png)
@@ -1556,11 +1555,15 @@ from Data d join Data d2
                     strftime('%d', d.date) >= strftime('%d', d2.date)
 order by d.date
 ```
-Czas wykonania: 20min+, zatrzymałem po 20minutach
+Czas wykonania: 20min+, zatrzymałem po 20 minutach
 
 ![w:700](_img/zad14-sqlite-no-window.png)
 
 
+W każdym z przypadków wersja query z użyciem funkcji okna jest przytłaczająco szybsza od wersji unikającej tej funkcji. Jest ona też zdecydowanie czytelniejsza.
+Dla query bez funkcji okna PostgreSQL wydaje się lepiej od SQL Server'a zrównoleglać operacje w planie wykonania co rzutuje na rzeczywisty czas wykonania.
+Zarówno w przypadku SQL Server jak i PostgreSQL plan wykonania query z funkcją okna jest w pełni liniowy, ale w przypadku PostgreSQL jest on nieco krótszy.
+SQLite w tym przypadku nie poradził sobie dobrze z zapytaniem o tym stopniu skomplikowania i tak wielu wierszach.
 
 ---
 # Zadanie 15
