@@ -371,7 +371,7 @@ Najszybszym rozwiązaniem pod względem czasu okazał się SQLite, jednakże lic
 ![alt text](./_img/zad4_5.png)
 ![alt text](./_img/zad4_6.png)
 
-Jak widać koszt zapytań jest najniższy w przypadku funkcji okna.
+Koszt zapytań jest najniższy w przypadku funkcji okna.
 
 #### SQL Server - subquery
 ![alt text](./_img/zad4_7.png)
@@ -569,13 +569,28 @@ Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
 ### Wyniki
 
-#### Zapytania
-
+### Zapytania
 ```sql
 -- subquery
-select productid, productname, unitprice, (select AVG(unitprice) FROM product_history AS P2 where P2.categoryid = P1.categoryid) AS avg_price FROM product_history AS P1
-where unitprice > (select AVG(unitprice) FROM product_history AS P2 where P2.categoryid = P1.categoryid);
+SELECT 
+    productid, 
+    productname, 
+    unitprice, 
+    (
+        SELECT AVG(unitprice) 
+        FROM product_history AS P2 
+        WHERE P2.categoryid = P1.categoryid
+    ) AS avg_price 
+FROM 
+    product_history AS P1
+WHERE 
+    unitprice > (
+        SELECT AVG(unitprice) 
+        FROM product_history AS P2 
+        WHERE P2.categoryid = P1.categoryid
+    );
 ```
+
 ```sql
 -- join
 SELECT
@@ -593,65 +608,75 @@ HAVING P1.unitprice > AVG(P2.unitprice);
 ```
 ```sql
 -- window function
-SELECT productid, productname, unitprice, avg
-FROM
-    (SELECT productid, productname, unitprice, AVG(unitprice) over (partition by categoryid) AS avg
-     FROM product_history
-    ) AS ss
-WHERE unitprice > avg;
+WITH ProductsWithAvg AS (
+    SELECT 
+        productid, 
+        productname, 
+        unitprice, 
+        AVG(unitprice) OVER (PARTITION BY categoryid) AS avg
+    FROM 
+        product_history
+)
+SELECT 
+    productid, 
+    productname, 
+    unitprice, 
+    avg
+FROM 
+    ProductsWithAvg
+WHERE 
+    unitprice > avg;
 ```
 
-Zapytanie wykorzystujące podzapytanie i join są bardziej skomplikowane, podczas gdy zapytanie wykorzystujące funkcje oknaj jest bardziej zwięzłe i czytalne.
+Zapytanie z wykorzystaniem funkcji okna jest krótkie i najprostsze do zrozumienia.
 
-Dla dwóch milionów rekordów w tabelach `product_history` wykonanie zapytań trwało bardzo długo. Po kilku minutach zdecydowaliśmy się zmniejszyć ilość rekordów w tabelach do 25000.
+### Czasy
+Dla dwóch milionów rekordów w tabelach `product_history` wykonanie zapytań szczególnie w przypadku PostgreSQL trwało bardzo długo. Po kilku minutach zdecydowaliśmy się zmniejszyć ilość rekordów w tabelach. Dopiero po zmniejszeniu ich do 2500 można było uzyskać wyniki w rozsądnym czasie.
 
-#### Czasy
-
-**PostgreSQL**
-| Zapytanie | subquery  | join  | window function |
-| ---       | ---       | ---   |---              |
-| Czas      | 4m 15s    | 42s   | 298ms           |
-
-**SQL Server**
-| Zapytanie | subquery  | join  | window function |
-| ---       | ---       | ---   |---              |
-| Czas      | 1s 932ms  | 319ms | 165ms           |
-
-**SQLite**
+#### PostgreSQL
 | Zapytanie | subquery  | join   | window function |
 | ---       | ---       | ---    |---              |
-| Czas      | 3s        | 1m 48s | 103ms           |
+| Czas      | 3m 46s    | 607ms  | 210ms           |
 
-SQL Server wykazuje znacznie lepszą wydajność w porównaniu do PostgreSQL i SQLite we wszystkich rodzajach zapytań, zwłaszcza w przypadku subquery i join. PostgreSQL daje najgorsze czasy, podczas gdy SQLite wyróżnia się wyjątkowo szybkim czasem wykonywania window function oraz subquery, lecz traci na wydajności w przypadku join.
+#### SQL Server
+| Zapytanie | subquery  | join  | window function |
+| ---       | ---       | ---   |---              |
+| Czas      | 1s 659ms  | 207ms | 148ms           |
 
-#### Plany wykonania
-**PostgreSQL**
+#### SQLite
+| Zapytanie | subquery  | join   | window function |
+| ---       | ---       | ---    |---              |
+| Czas      | 3s        | 1m 23s | 127ms           |
 
-- Subquery
-  Mimo długiego czasu oczekiwanie nieudało się uzyskać wyniku.
+SQL Server wykazuje znacznie lepszą wydajność w porównaniu do PostgreSQL i SQLite w zapytaniach wykorzystujących podzapytania oraz joiny. SQLite wyróżnia się wyjątkowo szybkim czasem wykonywania window function oraz subquery, lecz znacznie traci na wydajności w przypadku join. PostgreSQL daje najgorsze wyniki w każdym przypadku.
+
+### Plany wykonania
+
+#### PostgreSQL - subquery
   ![alt text](./_img/zad6_1.png)
 
-- Join
+#### PostgreSQL - join
   ![alt text](./_img/zad6_2.png)
 
-- Window function
+#### PostgreSQL - window function
   ![alt text](./_img/zad6_3.png)
 
-Plan wykonania w przypadku funkcji okna jest znacznie krótszy i bardziej przejrzysty. Koszt zapytań w przypadku funkcji okna jest wielokrotnie niższy.
+Koszt zapytań jest najniższy w przypadku funkcji okna.
 
-**SQL Server**
-- Subquery
+#### SQL Server - subquery
   ![alt text](./_img/zad6_4.png)
 
-- Join
+#### SQL Server - join
   ![alt text](./_img/zad6_5.png)
 
-- Window function
+#### SQL Server - window function
   ![alt text](./_img/zad6_6.png)
 
-W tym przypadku udało się uzyskać plan wykonania dla każdego z zapytań. Plany wykonania dla tego systemu są bardziej skomplikowane w porównaniu do PostgreSQL. Koszty zapytań są dużo mniejsze niż w przypadku PostgreSQL. Tutaj również najniższy koszt zapytań występuje podczas wykorzystania funkcji okna.
+W przypadku PostgreSQL koszt zapytań jest również najniższy w przypadku funkcji okna.
 
-**SQLite**
+W porównaniu do PostgreSQL plany zapytań serwera SQL Server są dużo bardziej rozbudowane, co jest szczególnie widoczne w przypadku zapytania wykorzystującego podzapytania. Patrząc jednak na liczbę równoległych ścieżek wykonania operacji dla serwera SQL Server można stwierdzić, że więcej operacji wykonuje on równolegle, gdzie PostgreSQL raczej stara się je sprowadzić do obliczeń sekwencyjnych.
+
+#### SQLite
 Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 ---
