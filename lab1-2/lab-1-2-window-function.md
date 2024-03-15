@@ -1563,7 +1563,7 @@ Czas wykonania: 20min+, zatrzymałem po 20 minutach
 W każdym z przypadków wersja query z użyciem funkcji okna jest przytłaczająco szybsza od wersji unikającej tej funkcji. Jest ona też zdecydowanie czytelniejsza.
 Dla query bez funkcji okna PostgreSQL wydaje się lepiej od SQL Server'a zrównoleglać operacje w planie wykonania co rzutuje na rzeczywisty czas wykonania.
 Zarówno w przypadku SQL Server jak i PostgreSQL plan wykonania query z funkcją okna jest w pełni liniowy, ale w przypadku PostgreSQL jest on nieco krótszy.
-SQLite w tym przypadku nie poradził sobie dobrze z zapytaniem o tym stopniu skomplikowania i tak wielu wierszach.
+SQLite w tym przypadku nie poradził sobie dobrze z zapytaniem o tym stopniu skomplikowania i tak wielu wierszach. Wynik czasowy dla query z funkcją okna może być tolerowany, ale ten bez niej już nie.
 
 ---
 # Zadanie 15
