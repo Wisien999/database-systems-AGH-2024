@@ -1012,9 +1012,9 @@ ORDER BY
     Year, ProductID, PriceRank;
 ```
 
-W tym zadaniu również wykorzystano tabelę `product_history` z liczbą rekordów równą 2500.
-
 ### Czasy
+
+W tym zadaniu również wykorzystano tabelę `product_history` z liczbą rekordów równą 2500.
 
 #### PostgreSQL
 | Zapytanie | bez window function  | z window function |
@@ -1185,21 +1185,21 @@ ORDER BY date;
 
 Zapytania z funkcjami okna są znacznie krótsze, bardziej zwięzłe i czytelne niż równoważne zapytania bez funkcji okna.
 
-Tutaj również użyto tabeli `product_history` z liczbą rekordów równą 25000.
+### Czasy
 
-#### Czasy
+Tutaj również użyto tabeli `product_history` z liczbą rekordów równą 2500.
 
-**PostgreSQL**
+#### PostgreSQL
 | Zapytanie | zapytanie 1 z window function  | zapytanie 2 z window function | zapytanie 1 bez window function  | zapytanie 2 bez window function |
 | ---       | ---                            | ---                           | ---                              | ---                             |
 | Czas      | 380ms                          | 321ms                         | 394ms                            | 340ms                           |
 
-**SQL Server**
+#### SQL Server
 | Zapytanie | zapytanie 1 z window function  | zapytanie 2 z window function | zapytanie 1 bez window function  | zapytanie 2 bez window function |
 | ---       | ---                            | ---                           | ---                              | ---                             |
 | Czas      | 135ms                          | 189ms                         | 142ms                            | 184ms                           |
 
-**SQLite**
+#### SQLite
 | Zapytanie | zapytanie 1 z window function  | zapytanie 2 z window function | zapytanie 1 bez window function  | zapytanie 2 bez window function |
 | ---       | ---                            | ---                           | ---                              | ---                             |
 | Czas      | 118ms                          | 106ms                         | 135ms                            | 114ms                           |
@@ -1209,36 +1209,33 @@ W przypadku SQL Server, zapytania bez funkcji okna są nieco szybsze niż z funk
 
 #### Plany wykonania
 
-**PostgreSQL**
-- Zapytanie 1 z window function
+#### PostgreSQL - zapytanie 1 z window function
   ![alt text](./_img/zad10_1.png)
 
-- Zapytanie 2 z window function
-  ![alt text](./_img/zad10_2.png)
-
-- Zapytanie 1 bez window function
+#### PostgreSQL - zapytanie 1 bez window function
   ![alt text](./_img/zad10_3.png)
 
-- Zapytanie 2 bez window function
+#### PostgreSQL - zapytanie 2 z window function
+  ![alt text](./_img/zad10_2.png)
+
+#### PostgreSQL - zapytanie 2 bez window function
   ![alt text](./_img/zad10_4.png)
 
 Zapytania wykorzystujące funkcje okna mają wielokrotnie mniejszy koszt wykonania, a ich plan wykonania jest prosty i przejrzysty, gdzie w przypadku zapytania niewykorzystującego funkcji okna mamy bardziej skomplikowany.
 
-**SQL Server**
-- Zapytanie 1 z window function
+#### SQL Server - zapytanie 1 z window function
   ![alt text](./_img/zad10_5.png)
 
-- Zapytanie 2 z window function
-  ![alt text](./_img/zad10_6.png)
-
-- Zapytanie 1 bez window function
+#### SQL Server - zapytanie 1 bez window function
   ![alt text](./_img/zad10_7.png)
 
-- Zapytanie 2 bez window function
+#### SQL Server - zapytanie 2 z window function
+  ![alt text](./_img/zad10_6.png)
+
+#### SQL Server - zapytanie 2 bez window function
   ![alt text](./_img/zad10_8.png)
 
-W tym przypadk również zapytania wykorzystujące funkcje okna mają wielokrotnie mniejszy koszt wykonania i prostszy plan.
-W porównaniu do PostgreSQL mamy trochę więcej elementów planu.
+W tym przypadku również zapytania wykorzystujące funkcje okna mają wielokrotnie mniejszy koszt wykonania i prostszy plan.
 
 **SQLite**
 Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
