@@ -331,6 +331,9 @@ FROM
 WHERE 
     unitprice > avg;
 ```
+
+### Wyniki
+
 ### Zapytania
 
 Zapytanie z wykorzystaniem funkcji okna jest krótkie i najprostsze do zrozumienia.
@@ -536,6 +539,8 @@ SET value = unitprice * quantity;
 ```
 
 Wykonaj polecenia: `select count(*) from product_history`,  potwierdzające wykonanie zadania
+
+### Wyniki
 
 ```sql
 select count(*) from product_history
