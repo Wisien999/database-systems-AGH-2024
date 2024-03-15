@@ -287,8 +287,15 @@ Przetestuj działanie w różnych SZBD (MS SQL Server, PostgreSql, SQLite)
 
 ```sql
 -- subquery
-select productid, productname, unitprice, (select AVG(unitprice) FROM products AS P2 where P2.categoryid = P1.categoryid) AS avg_price FROM products AS P1
-where unitprice > (select AVG(unitprice) FROM products AS P2 where P2.categoryid = P1.categoryid);
+SELECT 
+    productid, 
+    productname, 
+    unitprice, 
+    (SELECT AVG(unitprice) FROM products AS P2 WHERE P2.categoryid = P1.categoryid) AS avg_price 
+FROM 
+    products AS P1
+WHERE 
+    unitprice > (SELECT AVG(unitprice) FROM products AS P2 WHERE P2.categoryid = P1.categoryid);
 
 -- join
 SELECT
@@ -305,67 +312,82 @@ GROUP BY
 HAVING P1.unitprice > AVG(P2.unitprice);
 
 -- window function
-SELECT productid, productname, unitprice, avg
-FROM
-    (SELECT productid, productname, unitprice, AVG(unitprice) over (partition by categoryid) AS avg
-     FROM products
-    ) AS ss
-WHERE unitprice > avg;
+WITH ProductsWithAvg AS (
+    SELECT 
+        productid, 
+        productname, 
+        unitprice, 
+        AVG(unitprice) OVER (PARTITION BY categoryid) AS avg
+    FROM 
+        products
+)
+SELECT 
+    productid, 
+    productname, 
+    unitprice, 
+    avg
+FROM 
+    ProductsWithAvg
+WHERE 
+    unitprice > avg;
 ```
-- **Zapytania**
+### Zapytania
 
-    ***Subquery*** wykorzystuje podzapytanie do uzyskania średniej ceny dla danej kategorii, a następnie porównuje jednostkową cenę produktu z tą średnią.
+Zapytanie z wykorzystaniem funkcji okna jest krótkie i najprostsze do zrozumienia.
 
-    ***Join*** wykorzystuje operację JOIN oraz GROUP BY do uzyskania średniej ceny dla danej kategorii, a następnie porównuje jednostkową cenę produktu z tą średnią.
+### Czasy
 
-    ***Window Function*** wykorzystuje funkcję okna do uzyskania średniej ceny dla danej kategorii, a następnie porównuje jednostkową cenę produktu z tą średnią.
+#### PostgreSQL
+| Zapytanie | subquery  | join  | window function |
+| ---       | ---       | ---   |---              |
+| Czas      | 91ms      | 20ms  | 12ms            |
 
-- **Czas**
+#### SQL Server
+| Zapytanie | subquery  | join  | window function |
+| ---       | ---       | ---   |---              |
+| Czas      | 91ms      | 14ms  | 19ms             |
 
-    **PostgreSQL**
-    | Zapytanie | subquery  | join  | window function |
-    | ---       | ---       | ---   |---              |
-    | Czas      | 91ms      | 20ms  | 12ms            |
+#### SQLite
+| Zapytanie | subquery  | join  | window function |
+| ---       | ---       | ---   |---              |
+| Czas      | 42ms      | 10ms  | 8ms            |
 
-    **SQL Server**
-    | Zapytanie | subquery  | join  | window function |
-    | ---       | ---       | ---   |---              |
-    | Czas      | 91ms      | 14ms  | 19ms             |
+Najszybszym rozwiązaniem pod względem czasu okazał się SQLite, jednakże liczba wierszy jest na tyle mała, że nie można na tej podstawie nic wywnioskować.
 
-    **SQLite**
-    | Zapytanie | subquery  | join  | window function |
-    | ---       | ---       | ---   |---              |
-    | Czas      | 42ms      | 10ms  | 8ms            |
+### Plany wykonania
 
-    Jak wynika z wyników, najszybszym rozwiązaniem okazał się SQLite, a najszybszym zapytaniem zapytanie wykorzystujące funkcje okna.
+#### PostgreSQL - subquery
+![alt text](./_img/zad4_1.png)
+![alt text](./_img/zad4_2.png)
 
-- **Plany wykonania**
-    **PostgreSQL**
-    ![alt text](./_img/zad4_1.png)
-    ![alt text](./_img/zad4_2.png)
-    ![alt text](./_img/zad4_3.png)
-    ![alt text](./_img/zad4_4.png)
-    ![alt text](./_img/zad4_5.png)
-    ![alt text](./_img/zad4_6.png)
+#### PostgreSQL - join
+![alt text](./_img/zad4_3.png)
+![alt text](./_img/zad4_4.png)
 
-    Jak widać koszt oraz czas zapytań jest najlepszy w przypadku funkcji okna.
+#### PostgreSQL - window function
+![alt text](./_img/zad4_5.png)
+![alt text](./_img/zad4_6.png)
 
-    Plany wykonania zapytań są proste i przejrzyste.
+Jak widać koszt zapytań jest najniższy w przypadku funkcji okna.
 
-    **SQL Server**
-    ![alt text](./_img/zad4_7.png)
-    ![alt text](./_img/zad4_8.png)
-    ![alt text](./_img/zad4_9.png)
-    ![alt text](./_img/zad4_10.png)
-    ![alt text](./_img/zad4_11.png)
-    ![alt text](./_img/zad4_12.png)
+#### SQL Server - subquery
+![alt text](./_img/zad4_7.png)
+![alt text](./_img/zad4_8.png)
 
-    Koszt zapytań jest najlepszy w przypadku funkcji okna i wykorzystania join'a. Oba wyniki są sobie bliskie. 
+#### SQL Server - join
+![alt text](./_img/zad4_9.png)
+![alt text](./_img/zad4_10.png)
+
+#### SQL Server - window function
+![alt text](./_img/zad4_11.png)
+![alt text](./_img/zad4_12.png)
+
+Koszt zapytań jest również najniższy w przypadku funkcji okna, ale podobny wynik otrzymaliśnmy w przypadu wykorzystania join'a. Oba wyniki są sobie bardzo bliskie. 
     
-    Plany wykonania zapytań są dużo bardziej skomplikowane niż w przypadku PostgreSQL.
+W porównaniu do PostgreSQL plany zapytań serwera SQL Server są dużo bardziej rozbudowane, co jest szczególnie widoczne w przypadku zapytania wykorzystującego podzapytania. Patrząc jednak na liczbę równoległych ścieżek wykonania operacji dla serwera SQL Server można stwierdzić, że więcej operacji wykonuje on równolegle, gdzie PostgreSQL raczej stara się je sprowadzić do obliczeń sekwencyjnych.
 
-    **SQLite**
-    Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
+#### SQLite
+Dla tego serwera bazodanowego DataGrip nie pozwala zobaczyć analizy zapytań.
 
 ---
 # Zadanie 5 - przygotowanie
