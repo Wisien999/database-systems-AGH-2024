@@ -1431,18 +1431,27 @@ Zbiór wynikowy powinien zawierać:
 ### Wyniki
 
 ```sql
-with Data as
-         (
-         select o.CustomerID as CustomerID, o.OrderID, o.OrderDate, o.Freight+od.UnitPrice*od.Quantity-od.Discount as value
-         from orders o
-         join [Order Details] od
-            on od.OrderID = o.OrderID)
-select
-    d.CustomerID, d.OrderDate,d.OrderDate,d.value,
-    last_value(concat(d.OrderID,' ', d.OrderDate,' ', d.value)) over (partition by d.CustomerID order by d.value desc rows between unbounded preceding and unbounded following ) min_value_order,
-    first_value(concat(d.OrderID,' ', d.OrderDate,' ', d.value)) over (partition by d.CustomerID order by d.value desc ) max_value_order
+with Data as  
+         (  
+         select o.CustomerID as CustomerID, o.OrderID, o.OrderDate, o.Freight+od.UnitPrice*od.Quantity-od.Discount as value  
+         from orders o  
+         join orderdetails od  
+            on od.OrderID = o.OrderID)  
+select  
+    d.CustomerID, d.OrderDate,d.OrderDate,d.value,  
+    last_value(concat(d.OrderID,' ', d.OrderDate,' ', d.value)) over (partition by d.CustomerID order by d.value desc rows between unbounded preceding and unbounded following ) min_value_order,  
+    first_value(concat(d.OrderID,' ', d.OrderDate,' ', d.value)) over (partition by d.CustomerID order by d.value desc ) max_value_order  
 from Data d
 ```
+
+Rezultat:
+
+![[Pasted image 20240315194411.png]]
+
+Czas wykonania około 0.5 sekundy, zapytanie przetestowane dla MsSql, Postgres i SQLite. Nie znaleźliśmy żadnych znaczących różnic pomiędzy poszczególnymi sbzd.
+
+Plan wykonania: 
+![[Pasted image 20240315194348.png]]
 
 ---
 # Zadanie 14
