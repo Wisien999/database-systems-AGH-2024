@@ -540,13 +540,13 @@ Wykonaj polecenia: `select count(*) from product_history`,  potwierdzające wyko
 ```sql
 select count(*) from product_history
 ```
-**PostgreSQL**
+### PostgreSQL
 ![alt text](./_img/zad5_1.png)
 
-**SQL Server**
+### SQL Server
 ![alt text](./_img/zad5_2.png)
 
-**SQLite**
+### SQLite
 ![alt text](./_img/zad5_3.png)
 
 ---
