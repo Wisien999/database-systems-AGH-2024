@@ -1452,7 +1452,7 @@ select distinct
            year(d2.date) = year(d.date) and
            month(d2.date) = month(d.date) and
            day(d2.date) <= day(d.date)
-        ) as accumulated
+    ) as accumulated
 from Data d
 order by d.date
 ```
@@ -1476,7 +1476,7 @@ select distinct
         partition by d.productid, date_part('Year', d.date), date_part('Month', d.date)
         order by date_part('Day', d.date)
         rows between unbounded preceding and current row
-        ) as accumulated
+    ) as accumulated
 from Data d
 order by d.productid, d.date
 ;
@@ -1507,6 +1507,59 @@ order by d.date;
 ```
 Czas wykonania: 6m35s
 ![w:700](_img/zad14-postgresql-no-window.png)
+
+
+#### SQLite
+Wersja z funkcją okna:
+```sql
+with Data as (
+    select
+        id,
+        productid,
+        date,
+        sum(value) over(partition by productid, date) dayValue
+    from product_history
+)
+select distinct
+    d.*,
+    sum(d.dayValue) over(
+        partition by d.productid, strftime('%Y', d.date), strftime('%m', d.date)
+        order by strftime('%d', d.date)
+        rows between unbounded preceding and current row
+    ) as accumulated
+from Data d
+order by d.productid, d.date
+```
+Czas wykonania: 4m26s
+
+![w:700](_img/zad14-sqlite-window.png)
+
+
+Wersja bez funkcji okna. Ponownie dodałem filtrowanie po ProductId ze względu na długi czas wykonania.
+```sql
+with Data as (
+    select
+        id,
+        productid,
+        date,
+        sum(unitprice*quantity) as dayValue
+    from product_history
+    where productid=1
+    group by productid, date, id
+)
+select
+    d.*,
+    sum(d2.dayValue) over(partition by d.productid, strftime('%Y %m', d.date) order by strftime('%d', d.date) ) as accumulated
+from Data d join Data d2
+                 on d.productid = d2.productid and
+                    strftime('%Y %m', d.date) = strftime('%Y %m', d2.date) and
+                    strftime('%d', d.date) >= strftime('%d', d2.date)
+order by d.date
+```
+Czas wykonania: 20min+, zatrzymałem po 20minutach
+
+![w:700](_img/zad14-sqlite-no-window.png)
+
 
 
 ---
