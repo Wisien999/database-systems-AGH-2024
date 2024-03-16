@@ -87,7 +87,7 @@ select avg(unitprice) avgprice
 from products p;
 ```
 
- ![[Pasted-image-20240304183527.png]]
+ ![w:700](Pasted-image-20240304183527.png)
 
 To zapytanie policzyło średnią z **unitprice** z wszystkich wierszy w tabeli.
 #### Zapytanie 2
@@ -95,7 +95,7 @@ To zapytanie policzyło średnią z **unitprice** z wszystkich wierszy w tabeli.
 select avg(unitprice) over () as avgprice
 from products p;
 ```
-![[Pasted-image-20240304183602.png]]
+![w:700](Pasted-image-20240304183602.png)
 Funkcja okna bez Partition policzyła średnią **unitPrice** z wszystkich wierszów, następnie zwróciła tą wartość dla każdego wiersza w tabeli.
 #### Zapytanie 3
 ```sql
@@ -104,7 +104,7 @@ from products p
 group by categoryid
 ```
 
-![[Pasted-image-20240304183631.png]]
+![w:700](Pasted-image-20240304183631.png)
 Powyższe zapytanie pogrupowało produkty po **categoryId** a następnie dla każdej grupy policzyła średnią z **unitPrice**. Jako wynik zwróciła tabele pogrupowaną po **categoryId**
 
 #### Zapytanie 4
@@ -113,7 +113,7 @@ select avg(unitprice) over (partition by categoryid) as avgprice
 from products p;
 ```
 
-![[Pasted-image-20240304183652.png]]
+![w:700](Pasted-image-20240304183652.png)
 Funkcja okna z partition policzyła średnią dla każdej kategorii, następnie jako wynik zwróciła wszystkie wiersze z wartością odpowiadającej średniej dla kategorii do której dany wiersz należy
 
 ---
@@ -152,7 +152,7 @@ from products p
 where productid < 10
 ```
 
-![[Pasted-2image-20240304185604.png]]
+![w:700](Pasted-2image-20240304185604.png)
 
 To zapytanie najpierw liczy średnią dla wszystkich produktów, następnie ogranicza wynikową tabele do wierszy z **productId** < 10
 #### Zapytanie 2
@@ -164,7 +164,7 @@ from products p
 where productid < 10
 ```
 
-![[Pasted-image-20240304185721.png]]
+![w:700](Pasted-image-20240304185721.png)
 
 Natomiast w tym zapytaniu średnia liczona jest z produktów gdzie **productId** < 10
 
@@ -179,7 +179,7 @@ where p.productid < 10;
 
 Ponieważ funkcja okna wykonuje się po klauzuli **WHERE**, to dodaliśmy do zapytania kolejną tabele, która nie jest ograniczona przez **WHERE**  i to na niej policzyliśmy średnią
 
-![[Pasted-image-20240304194655.png]]
+![w:700](Pasted-image-20240304194655.png)
 #### Równoważne 2
 
 ```sql
@@ -191,7 +191,7 @@ where productid < 10;
 
 Sposobem na uniknięcie korzystania z funkcji okna jest policzenie średniej z tabeli już ograniczonej do **productId** < 10
 
-![[Pasted-image-20240304194034.png]]
+![w:700](Pasted-image-20240304194034.png)
 # Zadanie 3
 
 Baza: Northwind, tabela: products
@@ -1288,7 +1288,7 @@ order by
     Data.OrderID;
 ```
 
-![[Pasted-image-20240311192916.png]]
+![w:700](Pasted-image-20240311192916.png)
 
 Komentarz:
 Zapytanie zostało przetestowane zarówno na bazie msSql i postgresSql. W obu przypadkach czas wykonania wynosił mniej niż 500ms. Analiza planu wykonania także nie wskazała żadnych znaczących różnic pomiędzy sbzd.
@@ -1445,12 +1445,12 @@ from Data d
 
 Rezultat:
 
-![[Pasted-image-20240315194411.png]]
+![w:700](Pasted-image-20240315194411.png)
 
 Czas wykonania około 0.5 sekundy, zapytanie przetestowane dla MsSql, Postgres i SQLite. Nie znaleźliśmy żadnych znaczących różnic pomiędzy poszczególnymi sbzd.
 
 Plan wykonania: 
-![[Pasted-image-20240315194348.png]]
+![w:700](Pasted-image-20240315194348.png)
 
 ---
 # Zadanie 14
@@ -1661,7 +1661,7 @@ Postgres (w przeciwieństwie do MsSql) wspiera używanie typów numerycznych i d
 
 Wynik:
 
-![[Pasted-image-20240314224050.png]]
+![w:700](Pasted-image-20240314224050.png)
 
 
 **Klauzula `ROWS`**
