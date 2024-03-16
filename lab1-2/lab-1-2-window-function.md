@@ -1683,7 +1683,7 @@ FROM sums
 ```
 Za pomocą klauzuli `ROWS`, również analiza jest przeprowadzana dla każdej kategorii produktu, ale zakres danych jest definiowany w trochę inny sposób o czym mowa w następnym podpunkcie. Powyższa funkcja liczy sumę zamówień z wszystkich poprzednich dni oraz następnego dnia dla danego wiersza.
 
-![[_img/Pasted-image-20240314230002.png]]
+![w:700](_img/Pasted-image-20240314230002.png)
 
 Warto zaznaczyć że jeśli nie używamy klauzuli **ORDER BY** to przetwarzana ramka jest równa:
 ```sql
