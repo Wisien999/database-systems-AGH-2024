@@ -1326,7 +1326,7 @@ select productid, productname, unitprice, categoryid,
 from products
 order by categoryid, unitprice desc;
 ```
-![alt text](image.png)
+![alt text](./_img/zad12_02.png)
 
 Zadanie
 
