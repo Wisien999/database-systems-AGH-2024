@@ -1288,7 +1288,7 @@ order by
     Data.OrderID;
 ```
 
-![[Pasted image 20240311192916.png]]
+![[_img/Pasted image 20240311192916.png]]
 
 Komentarz:
 Zapytanie zostało przetestowane zarówno na bazie msSql i postgresSql. W obu przypadkach czas wykonania wynosił mniej niż 500ms. Analiza planu wykonania także nie wskazała żadnych znaczących różnic pomiędzy sbzd.
@@ -1445,12 +1445,12 @@ from Data d
 
 Rezultat:
 
-![[Pasted image 20240315194411.png]]
+![[_img/Pasted image 20240315194411.png]]
 
 Czas wykonania około 0.5 sekundy, zapytanie przetestowane dla MsSql, Postgres i SQLite. Nie znaleźliśmy żadnych znaczących różnic pomiędzy poszczególnymi sbzd.
 
 Plan wykonania: 
-![[Pasted image 20240315194348.png]]
+![[_img/Pasted image 20240315194348.png]]
 
 ---
 # Zadanie 14
@@ -1660,7 +1660,7 @@ INTERVAL '31' DAY PRECEDING
 Postgres (w przeciwieństwie do MsSql) wspiera używanie typów numerycznych i dat w klauzuli range, zatem powyższa konstrukcja tworzy ramkę z tych wierszy dla których zamówienie miało miejsce najwyżej 31 dni przed datą zamówienia obecnego wiersza. 
 
 Wynik:
-![[Pasted image 20240314224050.png]]
+![[_img/Pasted image 20240314224050.png]]
 
 
 **Klauzula `ROWS`**
@@ -1681,7 +1681,7 @@ WITH sums AS (
 FROM sums
 ```
 Za pomocą klauzuli `ROWS`, również analiza jest przeprowadzana dla każdej kategorii produktu, ale zakres danych jest definiowany w trochę inny sposób o czym mowa w następnym podpunkcie. Powyższa funkcja liczy sumę zamówień z wszystkich poprzednich dni oraz następnego dnia dla danego wiersza.
-![[Pasted image 20240314230002.png]]
+![[_img/Pasted image 20240314230002.png]]
 
 Warto zaznaczyć że jeśli nie używamy klauzuli **ORDER BY** to przetwarzana ramka jest równa:
 ```sql
