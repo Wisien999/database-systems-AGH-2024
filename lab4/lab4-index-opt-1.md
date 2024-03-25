@@ -148,11 +148,11 @@ Teraz wykonaj poszczególne zapytania (najlepiej każde analizuj oddzielnie). Co
 ---
 ## Zapytanie 1
 
-Zapytanie wybiera wszystkie kolumny z tabeli `salesorderheader` oraz `salesorderdetail`.
-Łączy te dwie tabele na podstawie kolumny `salesorderid`.
-Filtruje wyniki, zwracając tylko te rekordy, gdzie `orderdate` jest równe '2008-06-01 00:00:00.000'.
+#### Opis
 
-Wynik:
+Zapytanie pobiera wszystkie kolumny z tabeli `salesorderheader` oraz `salesorderdetail`, łącząc je na podstawie kolumny `salesorderid`. Następnie filtruje wyniki, zwracając tylko te rekordy, gdzie wartość kolumny `orderdate` wynosi '2008-06-01 00:00:00.000'.
+
+#### Wynik
 
 ![alt text](./_img/zad1_1.png)
 
@@ -160,26 +160,27 @@ Execution Plan:
 
 ![alt text](./_img/zad1_2.png)
 
-Wynik jest zbiorem pustym, ale żeby go uzyskać system bazy danych musiał i tak przeszukać całą drugą tabelę mimo, że w pierwszej nie otrzymał żadnych wyników, bo nie istnieją rekordy z taką datą. Koszt jest nieproporcjonalny do rozmiaru wyniku. 
+Zapytanie zwraca pusty zbiór wyników, jednakże proces jego wykonania generuje znaczący koszt związany z przeszukiwaniem całej drugiej tabeli, pomimo braku wyników w pierwszej.
 
-Można zoptymalizować to zapytanie poprzez utworzenie indeksu na kolumnie `orderdate` w tabeli `salesorderheader`, co przyspieszy wyszukiwanie rekordów według tej kolumny, bo wtedy system bazodanowy nie musiałby przeszukiwać całej drugiej tabeli, a natychmiast stwierdziłby, że wynikiem jest zbiór pusty. Warto zauważyć, że stworzenie tego indeksu jest także rekomendowane przez SSMS.
+#### Optymalizacja
+
+Można zoptymalizować to zapytanie poprzez stworzenie indeksu na kolumnie `orderdate` w tabeli `salesorderheader`. Pozwoli to na szybsze określenie, że zbiór wynikowy jest pusty bez konieczności przeszukiwania całej drugiej tabeli.
 
 Możemy utworzyć indeks na kolumnę `orderdate` w tabeli `salesorderheader` poniższą komendą:
 ```sql
 CREATE NONCLUSTERED INDEX [orderdate] ON [dbo].[salesorderheader] ([OrderDate])
 ```
 
-Po wykonaniu zapytania po utworzeniu indeksu można zauważyć, że czasy zapytania oraz koszt spadły do zera.
+Po utworzeniu indeksu koszt i czas zapytania spadają do zera.
 ![alt text](./_img/zad1_3.png)
 
 ## Zapytanie 2
 
-Zapytanie wybiera `orderdate`, `productid` oraz sumy `orderqty`, `unitpricediscount` i `linetotal`.
-Łączy tabele `salesorderheader` i `salesorderdetail` na podstawie kolumny `salesorderid`.
-Grupuje wyniki według `orderdate` i `productid`.
-Filtruje wyniki, zwracając tylko te grupy, gdzie suma `orderqty` jest większa lub równa 100.
+#### Opis
 
-Wynik:
+Zapytanie pobiera `orderdate`, `productid` oraz sumy `orderqty`, `unitpricediscount` i `linetotal`. Łączy tabele `salesorderheader` i `salesorderdetail` na podstawie kolumny `salesorderid`, grupując wyniki według `orderdate` i `productid`, a następnie filtrując grupy, gdzie suma `orderqty` jest większa lub równa 100.
+
+#### Wynik
 
 ![alt text](./_img/zad1_4.png)
 
@@ -187,14 +188,18 @@ Execution Plan:
 
 ![alt text](./_img/zad1_5.png)
 
-Indeksy na kolumnach `orderdate` w tabeli `salesorderheader` i `productid` w tabeli `salesorderdetail` mogą poprawić wydajność grupowania i filtrowania. W zapytaniu można zauważyć także, że, gdy wykonywane jest sumowanie kolumn robi to w sposób nieoptymalny. Aby wyliczyć sume musi ono pobierać całe rekordy, z których później wyciąga potrzebne wartości do sumy. Może to zostać zoptymalizowane tworząc indeks z `include` podając w nim kolumny, które sumujemy. Robiąc to wartości, których przechowujemy są przechowywane w liściach drzewa, które reprezentuje indeks, co powoduje, że są one od razu dostępne, bez dodatkowego ich wyciągania.
+Zapytanie zwraca poprawny zbiór wyników, jednak proces sumowania kolumn może być zoptymalizowany.
+
+#### Optymalizacja
+
+Aby zoptymalizować to zapytanie, można utworzyć indeksy na kolumnach `orderdate` w tabeli `salesorderheader` i `productid` w tabeli `salesorderdetail`. Dodatkowo, można skorzystać z indeksu z opcją `include`, aby szybciej uzyskać dostęp do kolumn sumowanych podczas agregacji.
 
 Potrzebny indeks można utworzyć poniższą komendą:
 ```sql
 CREATE NONCLUSTERED INDEX [orderid_include] ON [dbo].[salesorderdetail] ([SalesOrderID]) INCLUDE ([OrderQty], [ProductID], [UnitPriceDiscount], [LineTotal])
 ```
 
-Po utworzeniu indeksu koszt i czas zapytania znacznie się zmniejszył oraz wartość operacji wejścia/wyjścia dla operacji sumowania zmniejszyła się dwukrotnie. 
+Po utworzeniu indeksu koszt i czas zapytania znacznie się zmniejszają.
 
 Przed:
 ![alt text](./_img/zad1_6.png)
@@ -204,11 +209,11 @@ Po:
 
 ## Zapytanie 3
 
-Zapytanie wybiera kolumny `salesordernumber`, `purchaseordernumber`, `duedate`, `shipdate`.
-Łączy tabele `salesorderheader` i `salesorderdetail` na podstawie kolumny `salesorderid`.
-Filtruje wyniki, zwracając tylko te rekordy, gdzie `orderdate` jest jednym z dat: '2008-06-01', '2008-06-02', '2008-06-03', '2008-06-04', '2008-06-05'.
+#### Opis
 
-Wynik:
+Zapytanie pobiera kolumny `salesordernumber`, `purchaseordernumber`, `duedate`, `shipdate`, łącząc tabele `salesorderheader` i `salesorderdetail` na podstawie kolumny `salesorderid`. Następnie filtruje wyniki, zwracając tylko te rekordy, gdzie `orderdate` należy do określonych dat.
+
+#### Wynik:
 
 ![alt text](./_img/zad1_8.png)
 
@@ -216,24 +221,27 @@ Execution Plan:
 
 ![alt text](./_img/zad1_9.png)
 
-Sytuacja bardzo podobna do tej z zapytania 1. Zbiór wynikowy jest pusty, ale odkrycie tego było kosztowne. Indeks w tabeli `salesorderheader` na polu `OrderDate` pozwoli uniknąć zbędnych obliczeń i przyśpieszy zapytanie.
+Sytuacja bardzo podobna do tej z zapytania 1. Zbiór wynikowy jest pusty, ale odkrycie tego było kosztowne.
+
+#### Optymalizacja
+
+Stworzenie indeksu na kolumnie `orderdate` w tabeli `salesorderheader` przyspieszy zapytanie, eliminując zbędne obliczenia.
 
 Potrzebny indeks można utworzyć poniższa komendą:
 ```sql
 CREATE NONCLUSTERED INDEX [orderdate] ON [dbo].[salesorderheader] ([OrderDate])
 ```
 
-Po wykonaniu zapytania, po utworzeniu indeksu widzimy, że koszty i czasy spadły do zera:
+Po wykonaniu zapytania po utworzeniu indeksu, koszt i czas zapytania spadają do zera.
 ![alt text](./_img/zad1_10.png)
 
 ## Zapytanie 4
 
-Zapytanie wybiera kolumny `sh.salesorderid`, `salesordernumber`, `purchaseordernumber`, `duedate`, `shipdate`.
-Łączy tabele `salesorderheader` i `salesorderdetail` na podstawie kolumny `salesorderid`.
-Filtruje wyniki, zwracając tylko te rekordy, gdzie `carriertrackingnumber` jest jednym z wartości: 'ef67-4713-bd', '6c08-4c4c-b8'.
-Wyniki są sortowane rosnąco według `sh.salesorderid`.
+#### Opis
 
-Wynik:
+Zapytanie pobiera kolumny `sh.salesorderid`, `salesordernumber`, `purchaseordernumber`, `duedate`, `shipdate`, łącząc tabele `salesorderheader` i `salesorderdetail` na podstawie kolumny `salesorderid`. Następnie filtruje wyniki, zwracając tylko te rekordy, gdzie `carriertrackingnumber` należy do określonych wartości.
+
+#### Wynik
 
 ![alt text](./_img/zad1_11.png)
 
@@ -241,14 +249,18 @@ Execution Plan:
 
 ![alt text](./_img/zad1_12.png)
 
-Widzimy, że znaczną część kosztu zapytania powoduje zapytanie pochodzące z tabeli `salesorderdetail`, a to w niej wyszukiwany jest `carriertrackingnumber` z warunku `WHERE`. Pierwszym krokiem do optymalizacji tego zapytania jest utworzenie indeksu na kolumnie `carriertrackingnumber` w tabeli `salesorderdetail`. Indeks ten przyspieszy wyszukiwanie rekordów na podstawie wartości w tej kolumnie, co znacznie zwiększy wydajność zapytania. Można także skorzystać z `include`, aby szybciej uzyskać wartość kolumny `salesorderid`, co również pozwoli nam przyśpieszyć to zapytanie.
+Widzimy, że znaczną część kosztu zapytania powoduje zapytanie pochodzące z tabeli `salesorderdetail`, a to w niej wyszukiwany jest `carriertrackingnumber` z warunku `WHERE`. 
+
+#### Optymalizacja
+
+Pierwszym krokiem do optymalizacji tego zapytania jest utworzenie indeksu na kolumnie `carriertrackingnumber` w tabeli `salesorderdetail`. Indeks ten przyspieszy wyszukiwanie rekordów na podstawie wartości w tej kolumnie, co znacznie zwiększy wydajność zapytania. Można także skorzystać z `include`, aby szybciej uzyskać wartość kolumny `salesorderid`, co również pozwoli nam przyśpieszyć to zapytanie.
 
 Potrzebny indeks można utworzyć poniższą komendą:
 ```sql
 CREATE NONCLUSTERED INDEX [carriertrackingnumber] ON [dbo].[salesorderdetail] ([carriertrackingnumber]) INCLUDE ([salesorderid])
 ```
 
-Po wykonaniu zapytania, po utworzeniu indeksu widzimy, że czas i koszt każdego z etapów jak i całego zapytania znacznie spadł:
+Po wykonaniu zapytania po utworzeniu indeksu, czas i koszt każdego z etapów oraz całego zapytania znacznie spadają.
 ![alt text](./_img/zad1_13.png)
 
 ---
