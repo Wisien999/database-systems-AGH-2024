@@ -176,8 +176,18 @@ Execution Plan:
 
 ![alt text](./_img/kw1.png)
 
+
+```sql
+CREATE NONCLUSTERED INDEX [orderid_include] ON [dbo].[salesorderdetail] ([SalesOrderID]) INCLUDE ([OrderQty], [ProductID], [UnitPriceDiscount], [LineTotal])
+```
+
+Po utworzeniu indeksu koszt zapytania odpowiedzialnego za obliczanie wartości wartości zmniejszył się dwukrotnie oraz wartość operacji wejścia/wyjścia także zmniejszyła się dwukrotnie. 
+
+Przed:
 ![alt text](./_img/zad1-zap2-exec-details.png)
 
+Po:
+![alt text](./_img/zad1_6.png)
 
 ## Zapytanie 3
 
