@@ -239,9 +239,13 @@ Sprawdź zakładkę **Tuning Options**, co tam można skonfigurować?
 ---
 > Wyniki: 
 
-```sql
---  ...
-```
+![alt text](./_img/zad2.png)
+
+Można skonfiguraować takie parametry jak:
+- jak szeroką analizę w kwesti fizycznych struktur danych przeprowacdzić
+- czy zaproponować partycjonowanie tabeli
+- które typy struktur danych zachować, a które można usunąć
+- strategę optymalizacji (online/offline)
 
 ---
 
