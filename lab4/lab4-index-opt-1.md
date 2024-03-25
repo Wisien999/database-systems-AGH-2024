@@ -148,9 +148,9 @@ Teraz wykonaj poszczególne zapytania (najlepiej każde analizuj oddzielnie). Co
 ---
 ## Zapytanie 1
 
-Zapytanie wybiera wszystkie kolumny z tabeli salesorderheader oraz salesorderdetail.
-Łączy te dwie tabele na podstawie kolumny salesorderid.
-Filtruje wyniki, zwracając tylko te rekordy, gdzie orderdate jest równe '2008-06-01 00:00:00.000'.
+Zapytanie wybiera wszystkie kolumny z tabeli `salesorderheader` oraz `salesorderdetail`.
+Łączy te dwie tabele na podstawie kolumny `salesorderid`.
+Filtruje wyniki, zwracając tylko te rekordy, gdzie `orderdate` jest równe '2008-06-01 00:00:00.000'.
 
 Wynik:
 
@@ -174,10 +174,10 @@ Po wykonaniu zapytania po utworzeniu indeksu można zauważyć, że czasy zapyta
 
 ## Zapytanie 2
 
-Zapytanie wybiera orderdate, productid oraz sumy orderqty, unitpricediscount i linetotal.
-Łączy tabele salesorderheader i salesorderdetail na podstawie kolumny salesorderid.
-Grupuje wyniki według orderdate i productid.
-Filtruje wyniki, zwracając tylko te grupy, gdzie suma orderqty jest większa lub równa 100.
+Zapytanie wybiera `orderdate`, `productid` oraz sumy `orderqty`, `unitpricediscount` i `linetotal`.
+Łączy tabele `salesorderheader` i `salesorderdetail` na podstawie kolumny `salesorderid`.
+Grupuje wyniki według `orderdate` i `productid`.
+Filtruje wyniki, zwracając tylko te grupy, gdzie suma `orderqty` jest większa lub równa 100.
 
 Wynik:
 
@@ -204,9 +204,9 @@ Po:
 
 ## Zapytanie 3
 
-Zapytanie wybiera kolumny salesordernumber, purchaseordernumber, duedate, shipdate.
-Łączy tabele salesorderheader i salesorderdetail na podstawie kolumny salesorderid.
-Filtruje wyniki, zwracając tylko te rekordy, gdzie orderdate jest jednym z dat: '2008-06-01', '2008-06-02', '2008-06-03', '2008-06-04', '2008-06-05'.
+Zapytanie wybiera kolumny `salesordernumber`, `purchaseordernumber`, `duedate`, `shipdate`.
+Łączy tabele `salesorderheader` i `salesorderdetail` na podstawie kolumny `salesorderid`.
+Filtruje wyniki, zwracając tylko te rekordy, gdzie `orderdate` jest jednym z dat: '2008-06-01', '2008-06-02', '2008-06-03', '2008-06-04', '2008-06-05'.
 
 Wynik:
 
@@ -228,10 +228,10 @@ Po wykonaniu zapytania, po utworzeniu indeksu widzimy, że koszty i czasy spadł
 
 ## Zapytanie 4
 
-Zapytanie wybiera kolumny sh.salesorderid, salesordernumber, purchaseordernumber, duedate, shipdate.
-Łączy tabele salesorderheader i salesorderdetail na podstawie kolumny salesorderid.
-Filtruje wyniki, zwracając tylko te rekordy, gdzie carriertrackingnumber jest jednym z wartości: 'ef67-4713-bd', '6c08-4c4c-b8'.
-Wyniki są sortowane rosnąco według sh.salesorderid.
+Zapytanie wybiera kolumny `sh.salesorderid`, `salesordernumber`, `purchaseordernumber`, `duedate`, `shipdate`.
+Łączy tabele `salesorderheader` i `salesorderdetail` na podstawie kolumny `salesorderid`.
+Filtruje wyniki, zwracając tylko te rekordy, gdzie `carriertrackingnumber` jest jednym z wartości: 'ef67-4713-bd', '6c08-4c4c-b8'.
+Wyniki są sortowane rosnąco według `sh.salesorderid`.
 
 Wynik:
 
