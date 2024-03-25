@@ -156,7 +156,7 @@ Execution Plan:
 
 ![alt text](./_img/zad1_2.png)
 
-Wynik jest zbiorem pustym, ale żeby go uzyskać system bazy danych musiał i tak przeszukać całą drugą tabelę mimo, że w pierwszej nie otrzymał żadnych wyników, bo nie istnieją rekordy z taką datą. Koszt jest nieproporcjonalny do rozmiaru wyniku. Indeks na tej tabeli `salesorderheader` byłby przydatny, bo wtedy system bazodanowy nie musiałby przeszukiwać całej drugiej tabeli, a natychmiast stwierdziłby, że wynikiem jest zbiór pusty.
+Wynik jest zbiorem pustym, ale żeby go uzyskać system bazy danych musiał i tak przeszukać całą drugą tabelę mimo, że w pierwszej nie otrzymał żadnych wyników, bo nie istnieją rekordy z taką datą. Koszt jest nieproporcjonalny do rozmiaru wyniku. Indeks na tej tabeli `salesorderheader` byłby przydatny, bo wtedy system bazodanowy nie musiałby przeszukiwać całej drugiej tabeli, a natychmiast stwierdziłby, że wynikiem jest zbiór pusty. Warto zauważyć, że stworzenie tego indeksu jest także rekomendowane przez SSMS.
 
 Możemy utworzyć indeks na kolumnę `OrderDate` w tabeli `salesorderheader` poniższą komendą:
 ```sql
