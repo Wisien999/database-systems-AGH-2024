@@ -156,7 +156,7 @@ Execution Plan:
 
 ![alt text](./_img/kw-image2.png)
 
-Wynik jest zbiorem pustym, ale żeby go uzyskać system bazy danych musiał przeszukać całą tabelę. Koszt jest nieproporcjonalny do rozmiaru wyniku. Indeks na tej dabeli byłby przydatny, bo wtedy system bazodanowy nie musiałby przeszukiwać całej tabeli, a natychmiast stwierdziłby, że wynikiem jest zbiór pusty.
+Wynik jest zbiorem pustym, ale żeby go uzyskać system bazy danych musiał przeszukać całą tabelę. Koszt jest nieproporcjonalny do rozmiaru wyniku. Indeks na tej tabeli byłby przydatny, bo wtedy system bazodanowy nie musiałby przeszukiwać całej tabeli, a natychmiast stwierdziłby, że wynikiem jest zbiór pusty.
 
 
 Zapytanie 2:
@@ -168,6 +168,26 @@ Wynik:
 Execution Plan:
 
 ![alt text](./_img/kw1.png)
+
+
+Zapytanie 3:
+
+Wynik:
+
+![alt text](./_img/kw3.png)
+
+Execution Plan:
+
+![alt text](./_img/kw4.png)
+
+Zapytanie 4:
+
+Wynik:
+
+Execution Plan:
+
+
+
 ---
 
 
