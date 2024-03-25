@@ -156,14 +156,14 @@ Execution Plan:
 
 ![alt text](./_img/zad1_2.png)
 
-Wynik jest zbiorem pustym, ale żeby go uzyskać system bazy danych musiał przeszukać całą tabelę. Koszt jest nieproporcjonalny do rozmiaru wyniku. Indeks na tej tabeli byłby przydatny, bo wtedy system bazodanowy nie musiałby przeszukiwać całej tabeli, a natychmiast stwierdziłby, że wynikiem jest zbiór pusty.
+Wynik jest zbiorem pustym, ale żeby go uzyskać system bazy danych musiał i tak przeszukać całą drugą tabelę mimo, że w pierwszej nie otrzymał żadnych wyników, bo nie istnieją rekordy z taką datą. Koszt jest nieproporcjonalny do rozmiaru wyniku. Indeks na tej tabeli `salesorderheader` byłby przydatny, bo wtedy system bazodanowy nie musiałby przeszukiwać całej drugiej tabeli, a natychmiast stwierdziłby, że wynikiem jest zbiór pusty.
 
-Możemy utworzyć indeks na kolumnę `OrderDate` poniższą komendą:
+Możemy utworzyć indeks na kolumnę `OrderDate` w tabeli `salesorderheader` poniższą komendą:
 ```sql
 CREATE NONCLUSTERED INDEX [orderdate] ON [dbo].[salesorderheader] ([OrderDate])
 ```
 
-Po wykonaniu zapytania po utworzeniu indeksu można zauważyć, że czasy zapytania oraz koszt spadły do zera. 
+Po wykonaniu zapytania po utworzeniu indeksu można zauważyć, że czasy zapytania oraz koszt spadły do zera.
 ![alt text](./_img/zad1_3.png)
 
 Zapytanie 2:
