@@ -150,14 +150,21 @@ Zapytanie 1:
 
 Wynik:
 
-![alt text](./_img/kw-img1.png)
+![alt text](./_img/zad1_1.png)
 
 Execution Plan:
 
-![alt text](./_img/kw-image2.png)
+![alt text](./_img/zad1_2.png)
 
 Wynik jest zbiorem pustym, ale żeby go uzyskać system bazy danych musiał przeszukać całą tabelę. Koszt jest nieproporcjonalny do rozmiaru wyniku. Indeks na tej tabeli byłby przydatny, bo wtedy system bazodanowy nie musiałby przeszukiwać całej tabeli, a natychmiast stwierdziłby, że wynikiem jest zbiór pusty.
 
+Możemy utworzyć indeks na kolumnę `OrderDate` poniższą komendą:
+```sql
+CREATE NONCLUSTERED INDEX [orderdate] ON [dbo].[salesorderheader] ([OrderDate])
+```
+
+Po wykonaniu zapytania po utworzeniu indeksu można zauważyć, że czasy zapytania oraz koszt spadły do zera. 
+![alt text](./_img/zad1_3.png)
 
 Zapytanie 2:
 
