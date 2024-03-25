@@ -148,6 +148,10 @@ Teraz wykonaj poszczególne zapytania (najlepiej każde analizuj oddzielnie). Co
 ---
 ## Zapytanie 1
 
+Zapytanie wybiera wszystkie kolumny z tabeli salesorderheader oraz salesorderdetail.
+Łączy te dwie tabele na podstawie kolumny salesorderid.
+Filtruje wyniki, zwracając tylko te rekordy, gdzie orderdate jest równe '2008-06-01 00:00:00.000'.
+
 Wynik:
 
 ![alt text](./_img/zad1_1.png)
@@ -156,9 +160,11 @@ Execution Plan:
 
 ![alt text](./_img/zad1_2.png)
 
-Wynik jest zbiorem pustym, ale żeby go uzyskać system bazy danych musiał i tak przeszukać całą drugą tabelę mimo, że w pierwszej nie otrzymał żadnych wyników, bo nie istnieją rekordy z taką datą. Koszt jest nieproporcjonalny do rozmiaru wyniku. Indeks na tej tabeli `salesorderheader` na polu `OrderDate` byłby przydatny, bo wtedy system bazodanowy nie musiałby przeszukiwać całej drugiej tabeli, a natychmiast stwierdziłby, że wynikiem jest zbiór pusty. Warto zauważyć, że stworzenie tego indeksu jest także rekomendowane przez SSMS.
+Wynik jest zbiorem pustym, ale żeby go uzyskać system bazy danych musiał i tak przeszukać całą drugą tabelę mimo, że w pierwszej nie otrzymał żadnych wyników, bo nie istnieją rekordy z taką datą. Koszt jest nieproporcjonalny do rozmiaru wyniku. 
 
-Możemy utworzyć indeks na kolumnę `OrderDate` w tabeli `salesorderheader` poniższą komendą:
+Można zoptymalizować to zapytanie poprzez utworzenie indeksu na kolumnie `orderdate` w tabeli `salesorderheader`, co przyspieszy wyszukiwanie rekordów według tej kolumny, bo wtedy system bazodanowy nie musiałby przeszukiwać całej drugiej tabeli, a natychmiast stwierdziłby, że wynikiem jest zbiór pusty. Warto zauważyć, że stworzenie tego indeksu jest także rekomendowane przez SSMS.
+
+Możemy utworzyć indeks na kolumnę `orderdate` w tabeli `salesorderheader` poniższą komendą:
 ```sql
 CREATE NONCLUSTERED INDEX [orderdate] ON [dbo].[salesorderheader] ([OrderDate])
 ```
@@ -168,15 +174,20 @@ Po wykonaniu zapytania po utworzeniu indeksu można zauważyć, że czasy zapyta
 
 ## Zapytanie 2
 
-W zapytaniu można zauważyć, że, gdy wykonywane jest sumowanie kolumn robi to w sposób nieoptymalny. Aby wyliczyć sume musi ono pobierać całe rekordy, z których później wyciąga potrzebne wartości do sumy. Może to zostać zoptymalizowane tworząc indeks z `include` podając w nim kolumny, które sumujemy. Robiąc to wartości, których przechowujemy są przechowywane w liściach drzewa, które reprezentuje indeks, co powoduje, że są one od razu dostępne, bez dodatkowego ich wyciągania.
+Zapytanie wybiera orderdate, productid oraz sumy orderqty, unitpricediscount i linetotal.
+Łączy tabele salesorderheader i salesorderdetail na podstawie kolumny salesorderid.
+Grupuje wyniki według orderdate i productid.
+Filtruje wyniki, zwracając tylko te grupy, gdzie suma orderqty jest większa lub równa 100.
 
 Wynik:
 
-![alt text](./_img/kw.png)
+![alt text](./_img/zad1_4.png)
 
 Execution Plan:
 
-![alt text](./_img/kw1.png)
+![alt text](./_img/zad1_5.png)
+
+W zapytaniu można zauważyć, że, gdy wykonywane jest sumowanie kolumn robi to w sposób nieoptymalny. Aby wyliczyć sume musi ono pobierać całe rekordy, z których później wyciąga potrzebne wartości do sumy. Może to zostać zoptymalizowane tworząc indeks z `include` podając w nim kolumny, które sumujemy. Robiąc to wartości, których przechowujemy są przechowywane w liściach drzewa, które reprezentuje indeks, co powoduje, że są one od razu dostępne, bez dodatkowego ich wyciągania.
 
 Potrzebny indeks można utworzyć poniższą komendą:
 ```sql
@@ -193,6 +204,10 @@ Po:
 
 ## Zapytanie 3
 
+Zapytanie wybiera kolumny salesordernumber, purchaseordernumber, duedate, shipdate.
+Łączy tabele salesorderheader i salesorderdetail na podstawie kolumny salesorderid.
+Filtruje wyniki, zwracając tylko te rekordy, gdzie orderdate jest jednym z dat: '2008-06-01', '2008-06-02', '2008-06-03', '2008-06-04', '2008-06-05'.
+
 Wynik:
 
 ![alt text](./_img/kw3.png)
@@ -201,17 +216,22 @@ Execution Plan:
 
 ![alt text](./_img/kw4.png)
 
-Sytuacja bardzo podobna do tej z zapytania 1. Zbiór wynikowy jest pusty, ale odkrycie tego było kosztowne. Indeks w tabeli `salesorderdetail` na polu `salesorderid` pozwoliłby pominąć sporo pracy.
+Sytuacja bardzo podobna do tej z zapytania 1. Zbiór wynikowy jest pusty, ale odkrycie tego było kosztowne. Indeks w tabeli `salesorderheader` na polu `OrderDate` pozwoliłby pominąć sporo pracy.
 
 Potrzebny indeks można utworzyć poniższa komendą:
 ```sql
-CREATE NONCLUSTERED INDEX [salesorderid] ON [dbo].[salesorderdetail] ([SalesOrderID])
+CREATE NONCLUSTERED INDEX [orderdate] ON [dbo].[salesorderheader] ([OrderDate])
 ```
 
 Po wykonaniu zapytania, po utworzeniu indeksu widzimy, że koszty i czasy spadły do zera:
 ![alt text](./_img/zad1_7.png)
 
 ## Zapytanie 4
+
+Zapytanie wybiera kolumny sh.salesorderid, salesordernumber, purchaseordernumber, duedate, shipdate.
+Łączy tabele salesorderheader i salesorderdetail na podstawie kolumny salesorderid.
+Filtruje wyniki, zwracając tylko te rekordy, gdzie carriertrackingnumber jest jednym z wartości: 'ef67-4713-bd', '6c08-4c4c-b8'.
+Wyniki są sortowane rosnąco według sh.salesorderid.
 
 Wynik:
 
