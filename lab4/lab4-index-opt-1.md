@@ -168,6 +168,8 @@ Po wykonaniu zapytania po utworzeniu indeksu można zauważyć, że czasy zapyta
 
 ## Zapytanie 2
 
+W zapytaniu można zauważyć, że, gdy wykonywane jest sumowanie kolumn robi to w sposób nieoptymalny. Aby wyliczyć sume musi ono pobierać całe rekordy, z których później wyciąga potrzebne wartości do sumy. Może to zostać zoptymalizowane tworząc indeks z `include` podając w nim kolumny, które sumujemy. Robiąc to wartości, których przechowujemy są przechowywane w liściach drzewa, które reprezentuje indeks, co powoduje, że są one od razu dostępne, bez dodatkowego ich wyciągania.
+
 Wynik:
 
 ![alt text](./_img/kw.png)
