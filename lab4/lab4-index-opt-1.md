@@ -157,6 +157,16 @@ Execution Plan:
 ![alt text](./_img/kw-image2.png)
 
 
+Zapytanie 2:
+
+Wynik:
+
+![alt text](./_img/kw.png)
+
+Execution Plan:
+
+![alt text](./_img/kw1.png)
+
 ---
 
 
