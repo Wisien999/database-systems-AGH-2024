@@ -235,11 +235,21 @@ Wyniki są sortowane rosnąco według `sh.salesorderid`.
 
 Wynik:
 
-![alt text](./_img/zad1-zap4-results.png)
+![alt text](./_img/zad1_11.png)
 
 Execution Plan:
 
-![alt text](./_img/zad1-zap4.png)
+![alt text](./_img/zad1_12.png)
+
+Widzimy, że znaczną część kosztu zapytania powoduje zapytanie pochodzące z tabeli `salesorderdetail`, a to w niej wyszukiwany jest `carriertrackingnumber` z warunku `WHERE`. Pierwszym krokiem do optymalizacji tego zapytania jest utworzenie indeksu na kolumnie `carriertrackingnumber` w tabeli `salesorderdetail`. Indeks ten przyspieszy wyszukiwanie rekordów na podstawie wartości w tej kolumnie, co znacznie zwiększy wydajność zapytania. Można także skorzystać z `include`, aby szybciej uzyskać wartość kolumny `salesorderid`, co również pozwoli nam przyśpieszyć to zapytanie.
+
+Potrzebny indeks można utworzyć poniższą komendą:
+```sql
+CREATE NONCLUSTERED INDEX [carriertrackingnumber] ON [dbo].[salesorderdetail] ([carriertrackingnumber]) INCLUDE ([salesorderid])
+```
+
+Po wykonaniu zapytania, po utworzeniu indeksu widzimy, że czas i koszt każdego z etapów jak i całego zapytania znacznie spadł:
+![alt text](./_img/zad1_13.png)
 
 ---
 
