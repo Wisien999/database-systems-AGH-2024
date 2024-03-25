@@ -176,6 +176,8 @@ Execution Plan:
 
 ![alt text](./_img/kw1.png)
 
+![alt text](./_img/zad1-zap2-exec-details.png)
+
 
 Zapytanie 3:
 
@@ -190,9 +192,11 @@ Execution Plan:
 Zapytanie 4:
 
 Wynik:
+
 ![alt text](./_img/zad1-zap4-results.png)
 
 Execution Plan:
+
 ![alt text](./_img/zad1-zap4.png)
 
 
