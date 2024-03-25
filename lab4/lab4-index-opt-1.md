@@ -189,6 +189,9 @@ Execution Plan:
 
 ![alt text](./_img/kw4.png)
 
+
+Sytuacja bardzo podobna do tej z zapytania 1. Zbiór wynikowy jest pusty, ale odkrycie tego było kosztowne. Indeks w tabeli `salesorderdetail` na polu `salesorderid` pozwoliłby pominąć sporo pracy.
+
 ## Zapytanie 4
 
 Wynik:
