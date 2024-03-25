@@ -146,7 +146,7 @@ Teraz wykonaj poszczególne zapytania (najlepiej każde analizuj oddzielnie). Co
 (Hint: aby wykonać tylko fragment kodu SQL znajdującego się w edytorze, zaznacz go i naciśnij F5)
 
 ---
-Zapytanie 1:
+## Zapytanie 1
 
 Wynik:
 
@@ -166,7 +166,7 @@ CREATE NONCLUSTERED INDEX [orderdate] ON [dbo].[salesorderheader] ([OrderDate])
 Po wykonaniu zapytania po utworzeniu indeksu można zauważyć, że czasy zapytania oraz koszt spadły do zera.
 ![alt text](./_img/zad1_3.png)
 
-Zapytanie 2:
+## Zapytanie 2
 
 Wynik:
 
@@ -177,7 +177,7 @@ Execution Plan:
 ![alt text](./_img/kw1.png)
 
 
-Zapytanie 3:
+## Zapytanie 3
 
 Wynik:
 
@@ -187,7 +187,7 @@ Execution Plan:
 
 ![alt text](./_img/kw4.png)
 
-Zapytanie 4:
+## Zapytanie 4
 
 Wynik:
 ![alt text](./_img/zad1-zap4-results.png)
