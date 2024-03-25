@@ -146,11 +146,16 @@ Teraz wykonaj poszczególne zapytania (najlepiej każde analizuj oddzielnie). Co
 (Hint: aby wykonać tylko fragment kodu SQL znajdującego się w edytorze, zaznacz go i naciśnij F5)
 
 ---
-> Wyniki: 
+Zapytanie 1:
 
-```sql
---  ...
-```
+Wynik:
+
+![alt text](./_img/kw-img1.png)
+
+Execution Plan:
+
+![alt text](./_img/kw-image2.png)
+
 
 ---
 
