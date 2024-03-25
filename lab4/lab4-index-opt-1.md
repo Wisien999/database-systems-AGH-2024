@@ -156,7 +156,7 @@ Execution Plan:
 
 ![alt text](./_img/zad1_2.png)
 
-Wynik jest zbiorem pustym, ale żeby go uzyskać system bazy danych musiał i tak przeszukać całą drugą tabelę mimo, że w pierwszej nie otrzymał żadnych wyników, bo nie istnieją rekordy z taką datą. Koszt jest nieproporcjonalny do rozmiaru wyniku. Indeks na tej tabeli `salesorderheader` byłby przydatny, bo wtedy system bazodanowy nie musiałby przeszukiwać całej drugiej tabeli, a natychmiast stwierdziłby, że wynikiem jest zbiór pusty. Warto zauważyć, że stworzenie tego indeksu jest także rekomendowane przez SSMS.
+Wynik jest zbiorem pustym, ale żeby go uzyskać system bazy danych musiał i tak przeszukać całą drugą tabelę mimo, że w pierwszej nie otrzymał żadnych wyników, bo nie istnieją rekordy z taką datą. Koszt jest nieproporcjonalny do rozmiaru wyniku. Indeks na tej tabeli `salesorderheader` na polu `OrderDate` byłby przydatny, bo wtedy system bazodanowy nie musiałby przeszukiwać całej drugiej tabeli, a natychmiast stwierdziłby, że wynikiem jest zbiór pusty. Warto zauważyć, że stworzenie tego indeksu jest także rekomendowane przez SSMS.
 
 Możemy utworzyć indeks na kolumnę `OrderDate` w tabeli `salesorderheader` poniższą komendą:
 ```sql
@@ -178,7 +178,7 @@ Execution Plan:
 
 ![alt text](./_img/kw1.png)
 
-
+Potrzebny indeks można utworzyć poniższą komendą:
 ```sql
 CREATE NONCLUSTERED INDEX [orderid_include] ON [dbo].[salesorderdetail] ([SalesOrderID]) INCLUDE ([OrderQty], [ProductID], [UnitPriceDiscount], [LineTotal])
 ```
@@ -201,8 +201,15 @@ Execution Plan:
 
 ![alt text](./_img/kw4.png)
 
-
 Sytuacja bardzo podobna do tej z zapytania 1. Zbiór wynikowy jest pusty, ale odkrycie tego było kosztowne. Indeks w tabeli `salesorderdetail` na polu `salesorderid` pozwoliłby pominąć sporo pracy.
+
+Potrzebny indeks można utworzyć poniższa komendą:
+```sql
+CREATE NONCLUSTERED INDEX [salesorderid] ON [dbo].[salesorderdetail] ([SalesOrderID])
+```
+
+Po wykonaniu zapytania, po utworzeniu indeksu widzimy, że koszty i czasy spadły do zera:
+![alt text](./_img/zad1_7.png)
 
 ## Zapytanie 4
 
@@ -214,14 +221,7 @@ Execution Plan:
 
 ![alt text](./_img/zad1-zap4.png)
 
-
-
-
 ---
-
-
-
-
 
 <div style="page-break-after: always;"></div>
 
