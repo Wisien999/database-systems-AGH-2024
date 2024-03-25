@@ -146,7 +146,7 @@ Teraz wykonaj poszczególne zapytania (najlepiej każde analizuj oddzielnie). Co
 (Hint: aby wykonać tylko fragment kodu SQL znajdującego się w edytorze, zaznacz go i naciśnij F5)
 
 ---
-Zapytanie 1:
+## Zapytanie 1
 
 Wynik:
 
@@ -156,7 +156,7 @@ Execution Plan:
 
 ![alt text](./_img/zad1_2.png)
 
-Wynik jest zbiorem pustym, ale żeby go uzyskać system bazy danych musiał i tak przeszukać całą drugą tabelę mimo, że w pierwszej nie otrzymał żadnych wyników, bo nie istnieją rekordy z taką datą. Koszt jest nieproporcjonalny do rozmiaru wyniku. Indeks na tej tabeli `salesorderheader` byłby przydatny, bo wtedy system bazodanowy nie musiałby przeszukiwać całej drugiej tabeli, a natychmiast stwierdziłby, że wynikiem jest zbiór pusty.
+Wynik jest zbiorem pustym, ale żeby go uzyskać system bazy danych musiał i tak przeszukać całą drugą tabelę mimo, że w pierwszej nie otrzymał żadnych wyników, bo nie istnieją rekordy z taką datą. Koszt jest nieproporcjonalny do rozmiaru wyniku. Indeks na tej tabeli `salesorderheader` byłby przydatny, bo wtedy system bazodanowy nie musiałby przeszukiwać całej drugiej tabeli, a natychmiast stwierdziłby, że wynikiem jest zbiór pusty. Warto zauważyć, że stworzenie tego indeksu jest także rekomendowane przez SSMS.
 
 Możemy utworzyć indeks na kolumnę `OrderDate` w tabeli `salesorderheader` poniższą komendą:
 ```sql
@@ -166,7 +166,7 @@ CREATE NONCLUSTERED INDEX [orderdate] ON [dbo].[salesorderheader] ([OrderDate])
 Po wykonaniu zapytania po utworzeniu indeksu można zauważyć, że czasy zapytania oraz koszt spadły do zera.
 ![alt text](./_img/zad1_3.png)
 
-Zapytanie 2:
+## Zapytanie 2
 
 Wynik:
 
@@ -179,7 +179,7 @@ Execution Plan:
 ![alt text](./_img/zad1-zap2-exec-details.png)
 
 
-Zapytanie 3:
+## Zapytanie 3
 
 Wynik:
 
@@ -189,7 +189,7 @@ Execution Plan:
 
 ![alt text](./_img/kw4.png)
 
-Zapytanie 4:
+## Zapytanie 4
 
 Wynik:
 
