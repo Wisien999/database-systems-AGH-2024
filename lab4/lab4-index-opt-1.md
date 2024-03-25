@@ -187,20 +187,20 @@ Execution Plan:
 
 ![alt text](./_img/zad1_5.png)
 
-W zapytaniu można zauważyć, że, gdy wykonywane jest sumowanie kolumn robi to w sposób nieoptymalny. Aby wyliczyć sume musi ono pobierać całe rekordy, z których później wyciąga potrzebne wartości do sumy. Może to zostać zoptymalizowane tworząc indeks z `include` podając w nim kolumny, które sumujemy. Robiąc to wartości, których przechowujemy są przechowywane w liściach drzewa, które reprezentuje indeks, co powoduje, że są one od razu dostępne, bez dodatkowego ich wyciągania.
+Indeksy na kolumnach `orderdate` w tabeli `salesorderheader` i `productid` w tabeli `salesorderdetail` mogą poprawić wydajność grupowania i filtrowania. W zapytaniu można zauważyć także, że, gdy wykonywane jest sumowanie kolumn robi to w sposób nieoptymalny. Aby wyliczyć sume musi ono pobierać całe rekordy, z których później wyciąga potrzebne wartości do sumy. Może to zostać zoptymalizowane tworząc indeks z `include` podając w nim kolumny, które sumujemy. Robiąc to wartości, których przechowujemy są przechowywane w liściach drzewa, które reprezentuje indeks, co powoduje, że są one od razu dostępne, bez dodatkowego ich wyciągania.
 
 Potrzebny indeks można utworzyć poniższą komendą:
 ```sql
 CREATE NONCLUSTERED INDEX [orderid_include] ON [dbo].[salesorderdetail] ([SalesOrderID]) INCLUDE ([OrderQty], [ProductID], [UnitPriceDiscount], [LineTotal])
 ```
 
-Po utworzeniu indeksu koszt zapytania odpowiedzialnego za obliczanie wartości wartości zmniejszył się dwukrotnie oraz wartość operacji wejścia/wyjścia także zmniejszyła się dwukrotnie. 
+Po utworzeniu indeksu koszt i czas zapytania znacznie się zmniejszył oraz wartość operacji wejścia/wyjścia dla operacji sumowania zmniejszyła się dwukrotnie. 
 
 Przed:
-![alt text](./_img/zad1-zap2-exec-details.png)
+![alt text](./_img/zad1_6.png)
 
 Po:
-![alt text](./_img/zad1_6.png)
+![alt text](./_img/zad1_7.png)
 
 ## Zapytanie 3
 
@@ -210,13 +210,13 @@ Filtruje wyniki, zwracając tylko te rekordy, gdzie orderdate jest jednym z dat:
 
 Wynik:
 
-![alt text](./_img/kw3.png)
+![alt text](./_img/zad1_8.png)
 
 Execution Plan:
 
-![alt text](./_img/kw4.png)
+![alt text](./_img/zad1_9.png)
 
-Sytuacja bardzo podobna do tej z zapytania 1. Zbiór wynikowy jest pusty, ale odkrycie tego było kosztowne. Indeks w tabeli `salesorderheader` na polu `OrderDate` pozwoliłby pominąć sporo pracy.
+Sytuacja bardzo podobna do tej z zapytania 1. Zbiór wynikowy jest pusty, ale odkrycie tego było kosztowne. Indeks w tabeli `salesorderheader` na polu `OrderDate` pozwoli uniknąć zbędnych obliczeń i przyśpieszy zapytanie.
 
 Potrzebny indeks można utworzyć poniższa komendą:
 ```sql
@@ -224,7 +224,7 @@ CREATE NONCLUSTERED INDEX [orderdate] ON [dbo].[salesorderheader] ([OrderDate])
 ```
 
 Po wykonaniu zapytania, po utworzeniu indeksu widzimy, że koszty i czasy spadły do zera:
-![alt text](./_img/zad1_7.png)
+![alt text](./_img/zad1_10.png)
 
 ## Zapytanie 4
 
