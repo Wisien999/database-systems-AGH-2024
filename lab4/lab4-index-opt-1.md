@@ -367,9 +367,13 @@ Jakie są według Ciebie najważniejsze pola?
 ---
 > Wyniki: 
 
-```sql
---  ...
-```
+Do najważniejszych pól należą:
+- index_id / index_type-desc - to pole mówi nam z jakim typem indexu (lub stertą) mamy do czynienia
+- alloc_unity_type_desc - czy mamy doczynienia z *IN_ROW_DATA* lub *LOB_DATA*, ewentualnie *OVERFLOW_ROW_DATA*. W większości przypadków mamy do czynienia z *IN_ROW_DATA*, jeśli dany wiersz przekracza ustaloną wartość (zwykle 8060 bajtów) to część pól jest kopiowana do *OVERFLOW_ROW_DATA*, z ostatnim typem mamy do czynienia jeśli pole jest zdefiniowane jako LOB.
+- index_depth - głębokość indexu, w przypadku sterty = 1
+- index_level - aktualny poziom w indexie (wiersze w tej komendzie odpowiadają pojedynczemu poziomowi w B-drzewie)
+- avg_fragmentation_in_percent - logiczna defragmnetacja w przypadku indexów oraz fragmentacja extentów w przypadku sterty
+- page_count - liczba stron używanych przez indeks
 
 ---
 
@@ -401,9 +405,9 @@ and index_id not in (0) --only clustered and nonclustered indexes
 > Wyniki: 
 > zrzut ekranu/komentarz:
 
-```sql
---  ...
-```
+![alt](_img/image.png)
+
+W bazie Adventure Works mamy 5 tabel z umiarkowaną fragmentacją lub z nieoptymalną gęstością strony. W sytuacji gdy mamy małą gęstość strony, to zwiększamy ilość operacji I/O ale mamy nie musimy się martwić tym że wiersz przestanie się mieścić na stronie. W przypadku wysokiej gęstości, operacje I/O są bardzo optymalne, ale w przypadku gdy wiersz przestanie się mieścić na stronie, musimy taki wiersz splitować na dwie strony co jest nieoptymalne w przypadku dużej ilości operacji insert/update.
 
 ---
 
@@ -431,9 +435,7 @@ and index_id not in (0) --only clustered and nonclustered indexes
 > Wyniki: 
 > zrzut ekranu/komentarz:
 
-```sql
---  ...
-```
+![](_img/2.png)
 
 ---
 
@@ -444,9 +446,12 @@ Czym się różni przebudowa indeksu od reorganizacji?
 ---
 > Wyniki: 
 
-```sql
---  ...
-```
+### Czym się różni przebudowa od reorganizacji
+
+Obie operacje służą do zmniejszenia poziomu defragmentacji indeksu. Różni się sposobem działania. Reorganizacja operuje na poziomie liści B-drzewa i polega na przeorganizowaniu stron tak by odpowiadała ona fizycznej kolejnośći stron. Reorganizacja także modyfikuje strony tak by gęstość stron odpowiadała parametrowi fill dla danego indeksu. Przebudowa polega na całkowitym zdropowaniu indesku oraz zbudowaniu go na nowo, w ten sposob pozbywamy się całkowicie defragmentacji, natomiast jest to operacja dużo bardziej czasochłonna i wymaga ona więcej zasobów. Zaleca się także by operacja przebudowy odbywała się offline.
+
+Źródło:
+https://learn.microsoft.com/en-us/sql/relational-databases/indexes/reorganize-and-rebuild-indexes?view=sql-server-ver16&redirectedfrom=MSDN#rebuild-an-index
 
 ---
 
@@ -456,8 +461,12 @@ Sprawdź co przechowuje tabela sys.dm_db_index_usage_stats:
 > Wyniki: 
 
 ```sql
---  ...
+select * from  sys.dm_db_index_usage_stats;
 ```
+
+![](_img/3.png)
+
+Ta tabela zaweiera statystyki na temat użycia indeksów w zapytaniach. W ten sposób możemy zobaczyć czy stworzony przez nas indeks jest używany.
 
 ---
 
@@ -502,7 +511,6 @@ Napisz przygotowane komendy SQL do naprawy indeksów:
 > Wyniki: 
 
 ```sql
---  ...
 ```
 
 ---
