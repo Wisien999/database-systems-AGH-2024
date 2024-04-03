@@ -279,15 +279,30 @@ Zaznacz wszystkie zapytania, i uruchom je w **Database Engine Tuning Advisor**:
 Sprawdź zakładkę **Tuning Options**, co tam można skonfigurować?
 
 ---
-> Wyniki: 
 
-![alt text](./_img/zad2.png)
+### Wyniki
 
-Można skonfiguraować takie parametry jak:
-- jak szeroką analizę w kwesti fizycznych struktur danych przeprowacdzić
-- czy zaproponować partycjonowanie tabeli
-- które typy struktur danych zachować, a które można usunąć
-- strategę optymalizacji (online/offline)
+![alt text](./_img/zad2_1.png)
+
+Mamy możliwość konfiguracji następujących parametrów:
+
+- **Ograniczenie czasu tuningu**: Określ, ile czasu narzędzie ma przeznaczyć na analizę i generowanie rekomendacji. Możesz wybrać konkretny czas zakończenia procesu.
+
+- **Fizyczne struktury przechowujące dane do użycia w bazie danych**: Wybierz struktury, takie jak indeksy lub indeksowane widoki, które mają być brane pod uwagę w rekomendacjach. Możesz również zdecydować, czy uwzględnić indeksy filtrowane i indeksy kolumnowe.
+
+- **Strategia partycjonowania**: Wybierz preferowaną strategię partycjonowania, taką jak partycjonowanie pełne czy równomierne.
+
+- **Zachowanie fizycznych struktur przechowywania danych**: Określ, które struktury zachować w bazie danych, np. wszystkie, żadne, tylko indeksy itp.
+
+Oprócz tych podstawowych opcji, istnieją także zaawansowane ustawienia, takie jak:
+
+- **Maksymalna przestrzeń rekomendacji**: Określ maksymalną ilość miejsca, jaką narzędzie może zarezerwować na rekomendacje (wyrażoną w megabajtach).
+
+- **Uwzględnienie zdarzeń z bufora planów**: Decyduj, czy uwzględnić zdarzenia z bufora planów z wszystkich baz danych w analizie.
+
+- **Maksymalna liczba kolumn na indeks**: Określ maksymalną liczbę kolumn, które mogą być zawarte w pojedynczym indeksie.
+
+- **Praca bazy danych podczas tuningu**: Wybierz, czy dopuszczasz przerywanie pracy bazy danych podczas procesu tuningu.
 
 ---
 
