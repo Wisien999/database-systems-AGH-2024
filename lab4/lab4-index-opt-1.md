@@ -458,18 +458,17 @@ https://learn.microsoft.com/en-us/sql/relational-databases/indexes/reorganize-an
 Sprawdź co przechowuje tabela sys.dm_db_index_usage_stats:
 
 ---
-> Wyniki: 
+### Wyniki
 
 ```sql
 select * from  sys.dm_db_index_usage_stats;
 ```
 
-![](_img/3.png)
+![alt text](./_img/zad3_4.png)
 
-Ta tabela zaweiera statystyki na temat użycia indeksów w zapytaniach. W ten sposób możemy zobaczyć czy stworzony przez nas indeks jest używany.
+Tabela przechowuje informacje o użyciu indeksów bazy danych. Zawiera statystyki dotyczące operacji odczytu i zapisu dla indeksów w bazie danych. Dane tej tabeli mogą być przydatne do analizy i optymalizacji wydajności bazy danych poprzez identyfikację rzadko używanych indeksów lub takich, które wymagają aktualizacji statystyk.
 
 ---
-
 
 Napraw wykryte błędy z indeksami ze wcześniejszych zapytań. Możesz użyć do tego przykładowego skryptu:
 
@@ -504,11 +503,10 @@ inner join sys.schemas sc
 on sc.schema_id = ob.schema_id
 ```
 
-
 Napisz przygotowane komendy SQL do naprawy indeksów:
 
 ---
-> Wyniki: 
+### Wyniki
 
 ```sql
 ```
