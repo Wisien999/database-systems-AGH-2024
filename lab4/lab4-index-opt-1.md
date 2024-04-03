@@ -671,13 +671,13 @@ Zapisz sobie kilka różnych typów stron, dla różnych indeksów:
 ---
 ### Wyniki
 
-Indeks 1
+>Index 1
 ![alt text](./_img/zad4_1.png)
 
-Indeks 2
+>Index 2
 ![alt text](./_img/zad4_2.png)
 
-Indeks 3
+>Index 3
 ![alt text](./_img/zad4_3.png)
 
 Uzyskano strony o typach: 1, 2, 3 i 10.
