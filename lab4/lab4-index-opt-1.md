@@ -326,7 +326,7 @@ Opisz, dlaczego dane indeksy zostały zaproponowane do zapytań:
 ---
 ### Wyniki
 
-##### Wyniki w Recommendations
+##### Recommendations
 
 ![alt text](./_img/zad2_2.png)
 
@@ -406,15 +406,18 @@ GO
 
 ##### Dlaczego dane indeksy zostały zaproponowane do zapytań?
 
-TODO
-
-Sprawdź jak zmieniły się Execution Plany. Opisz zmiany:
+Indeksy zostały zaproponowane na podstawie analizy wykonywanych zapytań. Ponieważ zapytania korzystają głównie z identyfikatorów (np. "salesorderid"), dat zamówień ("orderdate") oraz numerów śledzenia przewoźnika ("carriertrackingnumber"), analizator analizując zapytania wskazał właśnie te kolumny i zaproponował indeksy dla tych kolumn, aby usprawnić wyszukiwanie danych.
 
 ---
 
-### Wyniki: 
+Sprawdź jak zmieniły się Execution Plany. Opisz zmiany.
+
+---
+
+### Wyniki
 
 ```sql
+TODO
 ```
 
 ---
