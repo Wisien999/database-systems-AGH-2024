@@ -508,8 +508,15 @@ Napisz przygotowane komendy SQL do naprawy indeksów:
 ---
 ### Wyniki
 
+![alt text](./_img/zad3_5.png)
+
 ```sql
+ALTER INDEX XMLPATH_Person_Demographics ON Person.Person REBUILD WITH (MAXDOP = 1);
+ALTER INDEX XMLPROPERTY_Person_Demographics ON Person.Person REBUILD WITH (MAXDOP = 1);
+ALTER INDEX XMLVALUE_Person_Demographics ON Person.Person REBUILD WITH (MAXDOP = 1);
 ```
+
+Parametr MAXDOP = 1 jest konieczny, gdyż zapewnia, że tylko jeden proces będzie wykonywał operację przebudowywania indeksu jednocześnie. Wszystkie te operacje będą wykonywane seryjnie. Chociaż to wydłuża czas przebudowywania, to zwiększa wydajność indeksu oraz zmniejsza fragmentację. Bez tego parametru indeksy nadal mogą pozostać kandydatami do przebudowywania, co wpływa na wydajność i stabilność systemu.
 
 ---
 
