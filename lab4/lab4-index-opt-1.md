@@ -215,7 +215,7 @@ Po:
 
 Zapytanie pobiera kolumny `salesordernumber`, `purchaseordernumber`, `duedate`, `shipdate`, łącząc tabele `salesorderheader` i `salesorderdetail` na podstawie kolumny `salesorderid`. Następnie filtruje wyniki, zwracając tylko te rekordy, gdzie `orderdate` należy do określonych dat.
 
-#### Wynik:
+#### Wynik
 
 ![alt text](./_img/zad1_8.png)
 
