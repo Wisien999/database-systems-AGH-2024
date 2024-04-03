@@ -449,15 +449,15 @@ Jakie są według Ciebie najważniejsze pola?
 ---
 #### Wyniki
 
-![alt text](image.png)
+![alt text](./_img/zad3_1.png)
 
 Do najważniejszych pól należą:
-- index_id / index_type-desc - to pole mówi nam z jakim typem indexu (lub stertą) mamy do czynienia
-- alloc_unity_type_desc - czy mamy doczynienia z *IN_ROW_DATA* lub *LOB_DATA*, ewentualnie *OVERFLOW_ROW_DATA*. W większości przypadków mamy do czynienia z *IN_ROW_DATA*, jeśli dany wiersz przekracza ustaloną wartość (zwykle 8060 bajtów) to część pól jest kopiowana do *OVERFLOW_ROW_DATA*, z ostatnim typem mamy do czynienia jeśli pole jest zdefiniowane jako LOB.
-- index_depth - głębokość indexu, w przypadku sterty = 1
-- index_level - aktualny poziom w indexie (wiersze w tej komendzie odpowiadają pojedynczemu poziomowi w B-drzewie)
-- avg_fragmentation_in_percent - logiczna defragmnetacja w przypadku indexów oraz fragmentacja extentów w przypadku sterty
-- page_count - liczba stron używanych przez indeks
+- **index_id / index_type-desc** - to pole mówi nam z jakim typem indexu (lub stertą) mamy do czynienia
+- **alloc_unity_type_desc** - czy mamy doczynienia z *IN_ROW_DATA* lub *LOB_DATA*, ewentualnie *OVERFLOW_ROW_DATA*. W większości przypadków mamy do czynienia z *IN_ROW_DATA*, jeśli dany wiersz przekracza ustaloną wartość (zwykle 8060 bajtów) to część pól jest kopiowana do *OVERFLOW_ROW_DATA*, z ostatnim typem mamy do czynienia jeśli pole jest zdefiniowane jako LOB.
+- **index_depth** - głębokość indexu, w przypadku sterty = 1
+- **index_level** - aktualny poziom w indexie (wiersze w tej komendzie odpowiadają pojedynczemu poziomowi w B-drzewie)
+- **avg_fragmentation_in_percent** - logiczna defragmnetacja w przypadku indexów oraz fragmentacja extentów w przypadku sterty
+- **page_count** - liczba stron używanych przez indeks
 
 ---
 
@@ -590,15 +590,61 @@ Napisz przygotowane komendy SQL do naprawy indeksów:
 ---
 ### Wyniki
 
+##### Przebudowa
+
 ![alt text](./_img/zad3_5.png)
 
 ```sql
-ALTER INDEX XMLPATH_Person_Demographics ON Person.Person REBUILD WITH (MAXDOP = 1);
-ALTER INDEX XMLPROPERTY_Person_Demographics ON Person.Person REBUILD WITH (MAXDOP = 1);
-ALTER INDEX XMLVALUE_Person_Demographics ON Person.Person REBUILD WITH (MAXDOP = 1);
+alter index XMLPATH_Person_Demographics on Person.Person rebuild
+alter index XMLPROPERTY_Person_Demographics on Person.Person rebuild
+alter index XMLVALUE_Person_Demographics on Person.Person rebuild
 ```
 
-Parametr MAXDOP = 1 jest konieczny, gdyż zapewnia, że tylko jeden proces będzie wykonywał operację przebudowywania indeksu jednocześnie. Wszystkie te operacje będą wykonywane seryjnie. Chociaż to wydłuża czas przebudowywania, to zwiększa wydajność indeksu oraz zmniejsza fragmentację. Bez tego parametru indeksy nadal mogą pozostać kandydatami do przebudowywania, co wpływa na wydajność i stabilność systemu.
+##### Reorganizacja
+
+```sql
+use adventureworks2017  
+  
+--table to hold results  
+declare @tablevar table(lngid int identity(1,1), objectid int,  
+index_id int)  
+  
+
+ insert into @tablevar (objectid, index_id)
+select [object_id],  index_id
+from sys.dm_db_index_physical_stats (db_id('adventureworks2017')  
+,null -- null to view all tables  
+,null -- null to view all indexes; otherwise, input index number  
+,null -- null to view all partitions of an index  
+,'detailed') --we want all information  
+where ((avg_fragmentation_in_percent > 10  
+and avg_fragmentation_in_percent < 15) -- logical fragmentation  
+or (avg_page_space_used_in_percent < 75  
+and avg_page_space_used_in_percent > 60)) --page density  
+and page_count > 8 -- we do not want indexes less than 1 extent in size  
+and index_id not in (0) --only clustered and nonclustered indexes
+  
+select 'alter index ' + ind.[name] + ' on ' + sc.[name] + '.'  
++ object_name(objectid) + ' reorganize'  
+from @tablevar tv  
+inner join sys.indexes ind  
+on tv.objectid = ind.[object_id]  
+and tv.index_id = ind.index_id  
+inner join sys.objects ob  
+on tv.objectid = ob.[object_id]  
+inner join sys.schemas sc  
+on sc.schema_id = ob.schema_id
+```
+
+![alt text](./_img/zad3_6.png)
+
+```sql
+alter index IX_WorkOrderRouting_ProductID on Production.WorkOrderRouting reorganize
+alter index PK_JobCandidate_JobCandidateID on HumanResources.JobCandidate reorganize
+alter index PK_ProductModel_ProductModelID on Production.ProductModel reorganize
+alter index PK_BillOfMaterials_BillOfMaterialsID on Production.BillOfMaterials reorganize
+alter index IX_WorkOrder_ProductID on Production.WorkOrder reorganize
+```
 
 ---
 
