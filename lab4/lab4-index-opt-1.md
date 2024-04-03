@@ -365,7 +365,9 @@ from sys.dm_db_index_physical_stats (db_id('adventureworks2017')
 Jakie są według Ciebie najważniejsze pola?
 
 ---
-> Wyniki: 
+#### Wyniki
+
+![alt text](image.png)
 
 Do najważniejszych pól należą:
 - index_id / index_type-desc - to pole mówi nam z jakim typem indexu (lub stertą) mamy do czynienia
@@ -376,9 +378,6 @@ Do najważniejszych pól należą:
 - page_count - liczba stron używanych przez indeks
 
 ---
-
-
-
 
 Sprawdź, które indeksy w bazie danych wymagają reorganizacji:
 
@@ -400,18 +399,14 @@ and page_count > 8 -- we do not want indexes less than 1 extent in size
 and index_id not in (0) --only clustered and nonclustered indexes
 ```
 
-
 ---
-> Wyniki: 
-> zrzut ekranu/komentarz:
+#### Wyniki
 
-![alt](_img/image.png)
+![alt text](./_img/zad3_2.png)
 
 W bazie Adventure Works mamy 5 tabel z umiarkowaną fragmentacją lub z nieoptymalną gęstością strony. W sytuacji gdy mamy małą gęstość strony, to zwiększamy ilość operacji I/O ale mamy nie musimy się martwić tym że wiersz przestanie się mieścić na stronie. W przypadku wysokiej gęstości, operacje I/O są bardzo optymalne, ale w przypadku gdy wiersz przestanie się mieścić na stronie, musimy taki wiersz splitować na dwie strony co jest nieoptymalne w przypadku dużej ilości operacji insert/update.
 
 ---
-
-
 
 Sprawdź, które indeksy w bazie danych wymagają przebudowy:
 
@@ -432,10 +427,13 @@ and index_id not in (0) --only clustered and nonclustered indexes
 ```
 
 ---
-> Wyniki: 
-> zrzut ekranu/komentarz:
+### Wyniki
 
-![](_img/2.png)
+![alt text](./_img/zad3_3.png)
+
+Wyniki wskazują, że trzy indeksy na tabeli Person wymagają przebudowy.
+Może to być spowodowane częstymi modyfikacjami rekordów w tabeli Person, szczególnie z uwagi na obecność kolumny `ModifiedDate`.
+Dodatkowo, rozmiar tej tabeli jest relatywnie duży, co również może przyczynić się do częstych modyfikacji i potencjalnej fragmentacji indeksów.
 
 ---
 
@@ -444,11 +442,13 @@ Czym się różni przebudowa indeksu od reorganizacji?
 (Podpowiedź: [http://blog.plik.pl/2014/12/defragmentacja-indeksow-ms-sql.html](http://blog.plik.pl/2014/12/defragmentacja-indeksow-ms-sql.html))
 
 ---
-> Wyniki: 
+### Wyniki
 
-### Czym się różni przebudowa od reorganizacji
+Obie operacje - reorganizacja i przebudowa indeksów - mają na celu zmniejszenie poziomu fragmentacji indeksu, jednak różnią się sposobem działania oraz skutkami.
 
-Obie operacje służą do zmniejszenia poziomu defragmentacji indeksu. Różni się sposobem działania. Reorganizacja operuje na poziomie liści B-drzewa i polega na przeorganizowaniu stron tak by odpowiadała ona fizycznej kolejnośći stron. Reorganizacja także modyfikuje strony tak by gęstość stron odpowiadała parametrowi fill dla danego indeksu. Przebudowa polega na całkowitym zdropowaniu indesku oraz zbudowaniu go na nowo, w ten sposob pozbywamy się całkowicie defragmentacji, natomiast jest to operacja dużo bardziej czasochłonna i wymaga ona więcej zasobów. Zaleca się także by operacja przebudowy odbywała się offline.
+Przebudowa polega na całkowitym zrzuceniu i ponownym zbudowaniu indeksu. Jest to bardziej radykalne podejście, które eliminuje całkowicie fragmentację, jednak jest znacznie bardziej czasochłonne i wymaga większej ilości zasobów. Może być wykonywany online lub offline, z opcją ONLINE pozwalającą na wykonywanie tej operacji w trakcie działania bazy danych, jednakże zaleca się, aby operacja przebudowy odbywała się offline, gdy baza danych nie jest wykorzystywana.
+
+Reorganizacja operuje na poziomie liści B-drzewa. Polega na uporządkowaniu fizycznej kolejności stron, co redukuje fragmentację zewnętrzną, oraz na modyfikacji stron w celu dopasowania gęstości do określonych parametrów fill dla danego indeksu. Jest to operacja wykonywana online, zużywająca mniej zasobów niż przebudowa, jednak może być mniej skuteczna w przypadku silnie zfragmentowanych indeksów.
 
 Źródło:
 https://learn.microsoft.com/en-us/sql/relational-databases/indexes/reorganize-and-rebuild-indexes?view=sql-server-ver16&redirectedfrom=MSDN#rebuild-an-index
