@@ -554,27 +554,27 @@ Indeks 3
 
 Uzyskano strony o typach: 1, 2, 3 i 10.
 
-- **Strona danych (Data Page - PageType 1)**
+**Strona danych (Data Page - PageType 1)**
 
-  Przechowuje rzeczywiste dane tabeli, takie jak wiersze.
-  Wysokość strony wynosi zazwyczaj 8 KB.
-  Te strony są również znane jako strony danych wierszy.
+Przechowuje rzeczywiste dane tabeli, takie jak wiersze.
+Wysokość strony wynosi zazwyczaj 8 KB.
+Te strony są również znane jako strony danych wierszy.
 
-- **Strona indeksu (Index Page - PageType 2)**
+**Strona indeksu (Index Page - PageType 2)**
 
-  Przechowuje dane indeksu dla danej tabeli.
-  Każdy indeks posiada swoje własne strony indeksu.
-  Strony indeksów zawierają odwołania do rzeczywistych danych lub do innych stron indeksu.
+Przechowuje dane indeksu dla danej tabeli.
+Każdy indeks posiada swoje własne strony indeksu.
+Strony indeksów zawierają odwołania do rzeczywistych danych lub do innych stron indeksu.
 
-- **Strona zaalokowana dla indeksu (Index Allocation Map (IAM) Page - PageType 3)**
+**Strona zaalokowana dla indeksu (Index Allocation Map (IAM) Page - PageType 3)**
 
-  Przechowuje informacje na temat innych stron, które są zaalokowane dla danego indeksu.
-  Umożliwia systemowi zarządzania bazą danych śledzenie używanych i dostępnych stron w indeksie.
+Przechowuje informacje na temat innych stron, które są zaalokowane dla danego indeksu.
+Umożliwia systemowi zarządzania bazą danych śledzenie używanych i dostępnych stron w indeksie.
 
-- **Strona danych lub indeksu (Data or Index Page - PageType 10)**
+**Strona danych lub indeksu (Data or Index Page - PageType 10)**
 
-  Jest to specjalny typ strony, który może być zarówno stroną danych, jak i stroną indeksu.
-  Zwykle używany w przypadku, gdy strona może zawierać zarówno dane, jak i indeksy, co jest częstym przypadkiem w przypadku strony liścia klastra.
+Jest to specjalny typ strony, który może być zarówno stroną danych, jak i stroną indeksu.
+Zwykle używany w przypadku, gdy strona może zawierać zarówno dane, jak i indeksy, co jest częstym przypadkiem w przypadku strony liścia klastra.
 
 ---
 
@@ -590,15 +590,26 @@ Sprawdź poszczególne strony komendą DBCC PAGE. np.:
 dbcc page('adventureworks2017', 1, 13720, 3);
 ```
 
-
 Zapisz obserwacje ze stron. Co ciekawego udało się zaobserwować?
 
 ---
-> Wyniki: 
+### Wyniki
 
-```sql
---  ...
-```
+![alt text](./_img/zad4_4.png)
+
+![alt text](./_img/zad4_5.png)
+
+![alt text](./_img/zad4_6.png)
+
+Podczas analizy zauważyliśmy cztery ciekawe obserwacje:
+
+**Informacje o stronie**: Na początku raportu uzyskaliśmy ogólne informacje o stronie, takie jak jej identyfikator (PAGE: (1:13720)) oraz dane bufora (BUFFER). Informacje o buforze zawierają szczegóły dotyczące sposobu przechowywania strony w pamięci podręcznej, takie jak adresy, statystyki odczytu/zapisu oraz stan błędu.
+
+**Nagłówek strony:** Zawiera metadane dotyczące strony, takie jak identyfikator strony, wersja nagłówka, typ strony, poziom w hierarchii, flagi, informacje o obiekcie, indeksie, poprzedniej i następnej stronie, ilość slotów, ilość danych wolnych oraz zarezerwowane dane.
+
+**Status alokacji**: W sekcji "Allocation Status" znajdują się informacje o alokacji miejsca w różnych strukturach bazy danych, takich jak GAM (Global Allocation Map), SGAM (Shared Global Allocation Map), PFS (Page Free Space), DIFF (Differential Changed Map) oraz ML (Minimum Log Map). Te informacje są przydatne do zarządzania przestrzenią w plikach bazy danych.
+
+**Dane**: Widzimy, że na stronie przechowywane są rzeczywiste dane (coś w rodzaju zrzutu pamięci). Te dane mają format szesnastkowy.
 
 ---
 
