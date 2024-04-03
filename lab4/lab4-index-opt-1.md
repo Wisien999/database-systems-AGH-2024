@@ -306,10 +306,7 @@ Oprócz tych podstawowych opcji, istnieją także zaawansowane ustawienia, takie
 
 ---
 
-
 Użyj **Start Analysis**:
-
-<!-- ![[_img/index1-3.png | 500]] -->
 
 <img src="_img/index1-3.png" alt="image" width="500" height="auto">
 
@@ -318,39 +315,109 @@ Zaobserwuj wyniki w **Recommendations**.
 
 Przejdź do zakładki **Reports**. Sprawdź poszczególne raporty. Główną uwagę zwróć na koszty i ich poprawę:
 
-
-<!-- ![[_img/index4-1.png | 500]] -->
-
 <img src="_img/index1-4.png" alt="image" width="500" height="auto">
 
-
-Zapisz poszczególne rekomendacje:
+Zapisz poszczególne rekomendacje
 
 Uruchom zapisany skrypt w Management Studio.
 
 Opisz, dlaczego dane indeksy zostały zaproponowane do zapytań:
 
 ---
-> Wyniki: 
+### Wyniki
+
+##### Wyniki w Recommendations
+
+![alt text](./_img/zad2_2.png)
+
+##### Raporty
+
+![alt text](./_img/zad2_3.png)
+
+##### Zapisany skrypt
 
 ```sql
---  ...
+USE [xyz]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_SalesOrderDetail_SalesOrderID] ON [dbo].[salesorderdetail]
+(
+	[SalesOrderID] ASC
+)
+INCLUDE([SalesOrderDetailID],[CarrierTrackingNumber],[OrderQty],[ProductID],[SpecialOfferID],[UnitPrice],[UnitPriceDiscount],[LineTotal],[rowguid],[ModifiedDate]) 
+WITH (SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_SalesOrderDetail_SalesOrderID_ProductID] ON [dbo].[salesorderdetail]
+(
+	[SalesOrderID] ASC,
+	[ProductID] ASC
+)
+INCLUDE([OrderQty],[UnitPriceDiscount],[LineTotal]) 
+WITH (SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_SalesOrderDetail_CarrierTrackingNumber] ON [dbo].[salesorderdetail]
+(
+	[CarrierTrackingNumber] ASC
+)
+INCLUDE([SalesOrderID]) 
+WITH (SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_SalesOrderDetail_SalesOrderID] ON [dbo].[salesorderdetail]
+(
+	[SalesOrderID] ASC
+)
+WITH (SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF) ON [PRIMARY]
+GO
+
+CREATE STATISTICS [stats_SalesOrderDetail_SalesOrderID_CarrierTrackingNumber] ON [dbo].[salesorderdetail]([SalesOrderID], [CarrierTrackingNumber])
+WITH AUTO_DROP = OFF
+GO
+
+CREATE NONCLUSTERED INDEX [IX_SalesOrderHeader_OrderDate_SalesOrderID] ON [dbo].[salesorderheader]
+(
+	[OrderDate] ASC,
+	[SalesOrderID] ASC
+)
+INCLUDE([RevisionNumber],[DueDate],[ShipDate],[Status],[OnlineOrderFlag],[SalesOrderNumber],[PurchaseOrderNumber],[AccountNumber],[CustomerID],[SalesPersonID],[TerritoryID],[BillToAddressID],[ShipToAddressID],[ShipMethodID],[CreditCardID],[CreditCardApprovalCode],[CurrencyRateID],[SubTotal],[TaxAmt],[Freight],[TotalDue],[Comment],[rowguid],[ModifiedDate]) 
+WITH (SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_SalesOrderHeader_SalesOrderID] ON [dbo].[salesorderheader]
+(
+	[SalesOrderID] ASC
+)
+INCLUDE([DueDate],[ShipDate],[SalesOrderNumber],[PurchaseOrderNumber]) 
+WITH (SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_SalesOrderHeader_OrderDate] ON [dbo].[salesorderheader]
+(
+	[OrderDate] ASC
+)
+INCLUDE([SalesOrderID]) 
+WITH (SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF) ON [PRIMARY]
+GO
 ```
 
----
+![alt text](./_img/zad2_4.png)
 
+##### Dlaczego dane indeksy zostały zaproponowane do zapytań?
+
+TODO
 
 Sprawdź jak zmieniły się Execution Plany. Opisz zmiany:
 
 ---
-> Wyniki: 
+
+### Wyniki: 
 
 ```sql
---  ...
 ```
 
 ---
-
 
 <div style="page-break-after: always;"></div>
 
