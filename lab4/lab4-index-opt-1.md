@@ -16,7 +16,7 @@
 
 ---
 
-**Imię i nazwisko:**
+**Imię i nazwisko:** Mateusz Skowron, Bartłomiej Wiśniewski, Karol Wrona
 
 --- 
 
@@ -146,6 +146,8 @@ Teraz wykonaj poszczególne zapytania (najlepiej każde analizuj oddzielnie). Co
 (Hint: aby wykonać tylko fragment kodu SQL znajdującego się w edytorze, zaznacz go i naciśnij F5)
 
 ---
+>Wyniki
+
 ## Zapytanie 1
 
 #### Opis
@@ -271,8 +273,6 @@ Po wykonaniu zapytania po utworzeniu indeksu, czas i koszt każdego z etapów or
 
 Zaznacz wszystkie zapytania, i uruchom je w **Database Engine Tuning Advisor**:
 
-<!-- ![[_img/index1-12.png | 500]] -->
-
 <img src="_img/index1-2.png" alt="image" width="500" height="auto">
 
 
@@ -280,7 +280,7 @@ Sprawdź zakładkę **Tuning Options**, co tam można skonfigurować?
 
 ---
 
-### Wyniki
+>Wyniki
 
 ![alt text](./_img/zad2_1.png)
 
@@ -324,7 +324,8 @@ Uruchom zapisany skrypt w Management Studio.
 Opisz, dlaczego dane indeksy zostały zaproponowane do zapytań:
 
 ---
-### Wyniki
+
+>Wyniki
 
 ##### Recommendations
 
@@ -414,7 +415,7 @@ Sprawdź jak zmieniły się Execution Plany. Opisz zmiany.
 
 ---
 
-### Wyniki
+>Wyniki
 
 ```sql
 TODO
@@ -450,7 +451,8 @@ from sys.dm_db_index_physical_stats (db_id('adventureworks2017')
 Jakie są według Ciebie najważniejsze pola?
 
 ---
-#### Wyniki
+
+> Wyniki
 
 ![alt text](./_img/zad3_1.png)
 
@@ -485,7 +487,8 @@ and index_id not in (0) --only clustered and nonclustered indexes
 ```
 
 ---
-#### Wyniki
+
+> Wyniki
 
 ![alt text](./_img/zad3_2.png)
 
@@ -512,7 +515,8 @@ and index_id not in (0) --only clustered and nonclustered indexes
 ```
 
 ---
-### Wyniki
+
+> Wyniki
 
 ![alt text](./_img/zad3_3.png)
 
@@ -527,7 +531,8 @@ Czym się różni przebudowa indeksu od reorganizacji?
 (Podpowiedź: [http://blog.plik.pl/2014/12/defragmentacja-indeksow-ms-sql.html](http://blog.plik.pl/2014/12/defragmentacja-indeksow-ms-sql.html))
 
 ---
-### Wyniki
+
+> Wyniki
 
 Obie operacje - reorganizacja i przebudowa indeksów - mają na celu zmniejszenie poziomu fragmentacji indeksu, jednak różnią się sposobem działania oraz skutkami.
 
@@ -543,7 +548,8 @@ https://learn.microsoft.com/en-us/sql/relational-databases/indexes/reorganize-an
 Sprawdź co przechowuje tabela sys.dm_db_index_usage_stats:
 
 ---
-### Wyniki
+
+> Wyniki
 
 ```sql
 select * from  sys.dm_db_index_usage_stats;
@@ -591,7 +597,8 @@ on sc.schema_id = ob.schema_id
 Napisz przygotowane komendy SQL do naprawy indeksów:
 
 ---
-### Wyniki
+
+> Wyniki
 
 ##### Przebudowa
 
@@ -672,7 +679,8 @@ dbcc ind ('adventureworks2017', 'person.address', 1)
 Zapisz sobie kilka różnych typów stron, dla różnych indeksów:
 
 ---
-### Wyniki
+
+> Wyniki
 
 >Index 1
 ![alt text](./_img/zad4_1.png)
@@ -724,13 +732,20 @@ dbcc page('adventureworks2017', 1, 13720, 3);
 Zapisz obserwacje ze stron. Co ciekawego udało się zaobserwować?
 
 ---
-### Wyniki
+
+> Wyniki
+
+##### Włączenie flagi
 
 ![alt text](./_img/zad4_4.png)
+
+##### Sprawdzanie stron
 
 ![alt text](./_img/zad4_5.png)
 
 ![alt text](./_img/zad4_6.png)
+
+![alt text](./_img/zad4_7.png)
 
 Podczas analizy zauważyliśmy cztery ciekawe obserwacje:
 
