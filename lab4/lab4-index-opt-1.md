@@ -541,11 +541,40 @@ dbcc ind ('adventureworks2017', 'person.address', 1)
 Zapisz sobie kilka różnych typów stron, dla różnych indeksów:
 
 ---
-> Wyniki: 
+### Wyniki
 
-```sql
---  ...
-```
+Indeks 1
+![alt text](./_img/zad4_1.png)
+
+Indeks 2
+![alt text](./_img/zad4_2.png)
+
+Indeks 3
+![alt text](./_img/zad4_3.png)
+
+Uzyskano strony o typach: 1, 2, 3 i 10.
+
+- **Strona danych (Data Page - PageType 1)**
+
+  Przechowuje rzeczywiste dane tabeli, takie jak wiersze.
+  Wysokość strony wynosi zazwyczaj 8 KB.
+  Te strony są również znane jako strony danych wierszy.
+
+- **Strona indeksu (Index Page - PageType 2)**
+
+  Przechowuje dane indeksu dla danej tabeli.
+  Każdy indeks posiada swoje własne strony indeksu.
+  Strony indeksów zawierają odwołania do rzeczywistych danych lub do innych stron indeksu.
+
+- **Strona zaalokowana dla indeksu (Index Allocation Map (IAM) Page - PageType 3)**
+
+  Przechowuje informacje na temat innych stron, które są zaalokowane dla danego indeksu.
+  Umożliwia systemowi zarządzania bazą danych śledzenie używanych i dostępnych stron w indeksie.
+
+- **Strona danych lub indeksu (Data or Index Page - PageType 10)**
+
+  Jest to specjalny typ strony, który może być zarówno stroną danych, jak i stroną indeksu.
+  Zwykle używany w przypadku, gdy strona może zawierać zarówno dane, jak i indeksy, co jest częstym przypadkiem w przypadku strony liścia klastra.
 
 ---
 
