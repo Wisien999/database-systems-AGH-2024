@@ -421,6 +421,11 @@ Sprawdź jak zmieniły się Execution Plany. Opisz zmiany.
 TODO
 ```
 
+![alt text](./_img/zad2-zap1-index.png)
+![alt text](./_img/zad2-zap2-index.png)
+![alt text](./_img/zad2-zap3-index.png)
+![alt text](./_img/zad2-zap4-index.png)
+
 ---
 
 <div style="page-break-after: always;"></div>
