@@ -417,14 +417,48 @@ Sprawdź jak zmieniły się Execution Plany. Opisz zmiany.
 
 >Wyniki
 
-```sql
-TODO
-```
+### Zapytanie 1
+
+**Stary Execution Plan**
+
+![alt text](./_img/zad1_2.png)
+
+**Nowy Execution Plan**
 
 ![alt text](./_img/zad2-zap1-index.png)
+
+### Zapytanie 2
+
+**Stary Execution Plan**
+
+![alt text](./_img/zad1_5.png)
+
+**Nowy Execution Plan**
+
 ![alt text](./_img/zad2-zap2-index.png)
+
+### Zapytanie 3
+
+**Stary Execution Plan**
+
+![alt text](./_img/zad1_9.png)
+
+**Nowy Execution Plan**
+
 ![alt text](./_img/zad2-zap3-index.png)
+
+### Zapytanie 4
+
+**Stary Execution Plan**
+
+![alt text](./_img/zad1_12.png)
+
+**Nowy Execution Plan**
+
 ![alt text](./_img/zad2-zap4-index.png)
+
+
+Jak widać główną różnicą jest zastąpienie *table scans* przez *index scan* które jest dużo szybsze i efektywniejsze. Widzimy także że zamiast *hash join* korzystamy z *nested loop*. Na ogół ten pierwszy jest szybszy od tego drugiego, natomiast *hash join* nie korzysta z indeksów w przeciwieństwie do *nested loops*. Dlatego po stworzeniu indeksów optymalizator zmienił sposób wykonywania joinów.
 
 ---
 
