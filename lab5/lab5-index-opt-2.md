@@ -233,6 +233,10 @@ Czym różni się ten plan od zapytania o `'Osarumwense Agbonile'` . Dlaczego ta
 --  ...
 ```
 
+![alt text](./images/zad2-zap4-index.png)
+![alt text](./images/zad2-zap5-index.png)
+![alt text](./images/zad2-zap6-index.png)
+
 
 # Zadanie 3
 
