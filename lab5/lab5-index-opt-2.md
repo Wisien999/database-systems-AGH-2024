@@ -277,11 +277,11 @@ Jaki indeks można zastosować aby zoptymalizować koszt zapytania? Przygotuj po
 ---
 > Wyniki: 
 
-Można dodać indeks na kolumny `rejectedqty` oraz `productid` z sekcją `include`, w której uwzględnimy kolumny, których dodatkowo potrzebujemy, czyli `orderqty` oraz `duedate`, aby nie trzeba było realizować dodatkowych operacji pobierających te wartości.
+Można dodać indeks na kolumny `rejectedqty` oraz `productid` wskazując sortowanie tak jak w zapytaniu z sekcją `include`, w której uwzględnimy kolumny, których dodatkowo potrzebujemy, czyli `orderqty` oraz `duedate`, aby nie trzeba było realizować dodatkowych operacji pobierających te wartości.
 
 ```sql
 create index person_firspurchaseorderdetail_rejectedqty_productid_orderqty_duedate
-on purchaseorderdetail (rejectedqty, productid) include (orderqty, duedate)
+on purchaseorderdetail (rejectedqty desc, productid asc) include (orderqty, duedate)
 ```
 
 Ponownie wykonaj analizę zapytania:
@@ -292,7 +292,7 @@ Ponownie wykonaj analizę zapytania:
 ![alt text](./images/zad3_4.png)
 ![alt text](./images/zad3_5.png)
 
-Koszt części zapytania obejmującej sortowanie wielokrotnie zmalał. Nadal jest to jednak najbardziej kosztowny element.
+Zniknęła najbardziej kosztowna część zapytania obejmująca sortowanie dzięki zastosowaniu indeksu na kolumny po których odbywało się sortowanie, gdyż nie jest ono już potrzebne, bo jest zapownione przez realizację indeksu.
 Znacznie zmniejszy się także koszt operacji wejścia/wyjścia.
 Zmalał całkowity koszt i czas zapytania.
 
