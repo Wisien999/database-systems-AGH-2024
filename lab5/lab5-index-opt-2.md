@@ -300,7 +300,7 @@ Ponownie wykonaj analizę zapytania:
 ![alt text](./images/zad3_4.png)
 ![alt text](./images/zad3_5.png)
 
-Zniknęła najbardziej kosztowna część zapytania obejmująca sortowanie dzięki zastosowaniu indeksu na kolumny po których odbywało się sortowanie, gdyż nie jest ono już potrzebne, bo jest zapownione przez realizację indeksu.
+Zniknęła najbardziej kosztowna część zapytania obejmująca sortowanie dzięki zastosowaniu indeksu na kolumny po których odbywało się sortowanie, gdyż nie jest ono już potrzebne, bo jest zapownione przez realizację indeksu. Teraz najbardziej kosztowną operacją jest odczyt wartości.
 Zmniejszył się także koszt operacji wejścia/wyjścia.
 Zmalał całkowity koszt i czas zapytania.
 
