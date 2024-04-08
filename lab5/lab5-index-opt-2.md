@@ -341,11 +341,11 @@ Czy jest widoczna różnica w zapytaniach? Jeśli tak to jaka? Aby wymusić uży
 
 Wynik zapytania:
 
-![alt text](./image/4-kw-image.png)
+![alt text](./images/4-kw-image.png)
 
 Plan:
 
-![alt text](./image/4-kw-image-1.png)
+![alt text](./images/4-kw-image-1.png)
 
 Koszt: ~0.27
 
@@ -361,11 +361,11 @@ where postalcode between '98000' and '99999'
 
 Wynik zapytania:
 
-![alt text](./image/4-kw-image-2.png)
+![alt text](./images/4-kw-image-2.png)
 
 Plan:
 
-![alt text](./image/4-kw-image-3.png)
+![alt text](./images/4-kw-image-3.png)
 
 Koszt: ~0.028
 
@@ -379,11 +379,11 @@ where postalcode between '98000' and '99999'
 
 Wynik zapytania: 
 
-![alt text](./image/4-kw-image-4.png)
+![alt text](./images/4-kw-image-4.png)
 
 Plan:
 
-![alt text](./image/4-kw-image-5.png)
+![alt text](./images/4-kw-image-5.png)
 
 Koszt: ~0.028
 
@@ -412,7 +412,7 @@ Który jest większy? Jak można skomentować te dwa podejścia do indeksowania?
 ### WYNIKI START
 > Wyniki: 
 
-![alt text](./image/4-kw-image-6.png)
+![alt text](./images/4-kw-image-6.png)
 
 Jak widać rozmiar indeksów jest bardzo podobny. Może za to wystąpić różnica w ilości poziomów drzewa. Ponieważ, w nie-liściach nie przechowujemy kolumn zawartych w include(), to jesteśmy w stanie zmieścić więcej kluczy w jednym nodzie. Skutkuje to bardziej płaskim drzewem ale o podobnym fizycznym rozmiarze.
 
