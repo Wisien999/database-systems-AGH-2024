@@ -294,6 +294,7 @@ Ponownie wykonaj analizę zapytania:
 
 Koszt części zapytania obejmującej sortowanie wielokrotnie zmalał. Nadal jest to jednak najbardziej kosztowny element.
 Znacznie zmniejszy się także koszt operacji wejścia/wyjścia.
+Zmalał całkowity koszt i czas zapytania.
 
 # Zadanie 4
 
