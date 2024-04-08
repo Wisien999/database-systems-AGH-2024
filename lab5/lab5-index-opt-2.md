@@ -267,7 +267,7 @@ Która część zapytania ma największy koszt?
 
 ![alt text](./images/zad3_2.png)
 
-Największy koszt ma część obejmująca sortowanie. Stanowi ona 85% kosztu całości zapytania.
+Największy koszt ma część zapytania obejmująca sortowanie. Stanowi ona 85% kosztu całości zapytania.
 
 Jaki indeks można zastosować aby zoptymalizować koszt zapytania? Przygotuj polecenie tworzące index.
 
@@ -275,19 +275,21 @@ Jaki indeks można zastosować aby zoptymalizować koszt zapytania? Przygotuj po
 ---
 > Wyniki: 
 
+Można dodać indeks na kolumny `rejectedqty` oraz `productid` z sekcją `include`, w której uwzględnimu kolumny, których dodatkowo potrzebujemy, czyli `orderqty` oraz `duedate`, aby nie trzeba było realizować dodatkowych odczytów dla każdego wiersza.
+
 ```sql
---  ...
+create index person_firspurchaseorderdetail_rejectedqty_productid_orderqty_duedate
+on purchaseorderdetail (rejectedqty, productid) include (orderqty, duedate)
 ```
 
- Ponownie wykonaj analizę zapytania:
-
+Ponownie wykonaj analizę zapytania:
 
 ---
 > Wyniki: 
 
-```sql
---  ...
-```
+![alt text](./images/zad3_3.png)
+
+Koszt części zapytania obejmującej sortowanie wielokrotnie zmalał. Nadal jest to jednak najbardziej kosztowny element.
 
 # Zadanie 4
 
