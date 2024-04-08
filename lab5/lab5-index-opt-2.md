@@ -196,10 +196,10 @@ Co można o nich powiedzieć?
 
 ---
 > Wyniki: 
+![alt text](./images/zad2-zap1-noindex.png)
+![alt text](./images/zad2-zap2-noindex.png)
+![alt text](./images/zad2-zap3-noindex.png)
 
-```sql
---  ...
-```
 
 Przygotuj indeks obejmujący te zapytania:
 
@@ -213,10 +213,10 @@ Sprawdź plan zapytania. Co się zmieniło?
 
 ---
 > Wyniki: 
+![alt text](./images/zad2-zap1-index.png)
+![alt text](./images/zad2-zap2-index.png)
+![alt text](./images/zad2-zap3-index.png)
 
-```sql
---  ...
-```
 
 
 Przeprowadź ponownie analizę zapytań tym razem dla parametrów: `FirstName = ‘Angela’` `LastName = ‘Price’`. (Trzy zapytania, różna kombinacja parametrów). 
