@@ -253,9 +253,11 @@ Która część zapytania ma największy koszt?
 ---
 > Wyniki: 
 
-```sql
---  ...
-```
+![alt text](./images/zad3_1.png)
+
+![alt text](./images/zad3_2.png)
+
+Największy koszt ma część obejmująca sortowanie. Stanowi ona 85% kosztu całości zapytania.
 
 Jaki indeks można zastosować aby zoptymalizować koszt zapytania? Przygotuj polecenie tworzące index.
 
