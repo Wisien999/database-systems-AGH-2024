@@ -235,7 +235,9 @@ Czym różni się ten plan od zapytania o `'Osarumwense Agbonile'` . Dlaczego ta
 > Wyniki: 
 
 ```sql
---  ...
+select * from [person] where lastname = 'Price';
+select * from [person] where lastname = 'Price' and firstname = 'Angela'  ;
+select * from [person] where firstname = 'Angela';
 ```
 
 ![alt text](./images/zad2-zap4-index.png)
