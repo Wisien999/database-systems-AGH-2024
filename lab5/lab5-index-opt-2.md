@@ -277,7 +277,7 @@ Jaki indeks można zastosować aby zoptymalizować koszt zapytania? Przygotuj po
 ---
 > Wyniki: 
 
-Można dodać indeks na kolumny `rejectedqty` oraz `productid` z sekcją `include`, w której uwzględnimu kolumny, których dodatkowo potrzebujemy, czyli `orderqty` oraz `duedate`, aby nie trzeba było realizować dodatkowych odczytów dla każdego wiersza.
+Można dodać indeks na kolumny `rejectedqty` oraz `productid` z sekcją `include`, w której uwzględnimy kolumny, których dodatkowo potrzebujemy, czyli `orderqty` oraz `duedate`, aby nie trzeba było realizować dodatkowych operacji pobierających te wartości.
 
 ```sql
 create index person_firspurchaseorderdetail_rejectedqty_productid_orderqty_duedate
