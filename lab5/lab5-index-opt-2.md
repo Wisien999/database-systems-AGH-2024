@@ -310,11 +310,63 @@ go
 Czy jest widoczna różnica w zapytaniach? Jeśli tak to jaka? Aby wymusić użycie indeksu użyj `WITH(INDEX(Address_PostalCode_1))` po `FROM`:
 
 > Wyniki: 
+### WYNIKI START
 
+Wynik zapytania:
+
+![alt text](./image/4-kw-image.png)
+
+Plan:
+
+![alt text](./image/4-kw-image-1.png)
+
+Koszt: ~0.27
+
+Wykonujemy pełny skan tabeli
+
+### Zastosowanie indexu 1
 ```sql
---  ...
+select addressline1, addressline2, city, stateprovinceid, postalcode  
+from address 
+WITH(INDEX(Address_PostalCode_1))
+where postalcode between '98000' and '99999'
 ```
 
+Wynik zapytania:
+
+![alt text](./image/4-kw-image-2.png)
+
+Plan:
+
+![alt text](./image/4-kw-image-3.png)
+
+Koszt: ~0.028
+
+### Zastosowanie indexu 2
+```sql
+select addressline1, addressline2, city, stateprovinceid, postalcode  
+from address 
+WITH(INDEX(Address_PostalCode_2))
+where postalcode between '98000' and '99999'
+```
+
+Wynik zapytania: 
+
+![alt text](./image/4-kw-image-4.png)
+
+Plan:
+
+![alt text](./image/4-kw-image-5.png)
+
+Koszt: ~0.028
+
+Nie widać różnicy pomiędzy poszczególnymi zapytaniami, koszt i plan jest taki sam dla obu indeksów.
+
+Różnica w indeksach polega na na sposbie przetrzymywania wartości w b-drzewie. Klucze w include() są przechowywane w liściach b-drzewa, w drugim przypadku wszystkie wartości są przechoywane w każdym z nodeów.
+
+
+### WYNIKI END
+---
 
 Sprawdź rozmiar Indeksów:
 
@@ -330,13 +382,14 @@ go
 
 Który jest większy? Jak można skomentować te dwa podejścia do indeksowania? Które kolumny na to wpływają?
 
-
+### WYNIKI START
 > Wyniki: 
 
-```sql
---  ...
-```
+![alt text](./image/4-kw-image-6.png)
 
+Jak widać rozmiar indeksów jest bardzo podobny. Może za to wystąpić różnica w ilości poziomów drzewa. Ponieważ, w nie-liściach nie przechowujemy kolumn zawartych w include(), to jesteśmy w stanie zmieścić więcej kluczy w jednym nodzie. Skutkuje to bardziej płaskim drzewem ale o podobnym fizycznym rozmiarze.
+
+### WYNIKI END
 
 # Zadanie 5 – Indeksy z filtrami
 
