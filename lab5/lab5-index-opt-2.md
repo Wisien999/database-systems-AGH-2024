@@ -201,6 +201,7 @@ Co można o nich powiedzieć?
 ![alt text](./images/zad2-zap2-noindex.png)
 ![alt text](./images/zad2-zap3-noindex.png)
 
+Dla query szukającym po imieniu zwrócone zostało 5 wierszy.
 W każdym z przypadków system bazy danych jest zmuszony do przeskanowania całej tabeli w celu znalezienia wierszy spełniających kryterium.
 
 
@@ -240,6 +241,11 @@ Czym różni się ten plan od zapytania o `'Osarumwense Agbonile'` . Dlaczego ta
 ![alt text](./images/zad2-zap4-index.png)
 ![alt text](./images/zad2-zap5-index.png)
 ![alt text](./images/zad2-zap6-index.png)
+
+Dla query szukającym po imieniu zwrócone zostało 86 wierszy.
+
+Do realizacji zapytań używających tylko jednego pola w klauzuli `WHERE` indeks nie jest wykorzystywany.
+Prawdopodobnie optymalizator mając do dyspozycji statystyki tabeli i indeksu stwierdził, że znalezienie wszystkich wierszy spełniających klauzulę `WHERE` użycie dostępnego indeksu nie jest opłacalne. System baz danych musi utrzymywać statystyki rozkładu danych z których wynika, że `Angele` jest dużo popularniejszym imieniem od `Osarumwense`.
 
 
 # Zadanie 3
