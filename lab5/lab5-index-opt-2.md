@@ -98,9 +98,15 @@ Zanotuj czas zapytania oraz jego koszt koszt:
 ---
 > Wyniki: 
 
-```sql
---  ...
-```
+Zapytanie nr1:
+czas: 1/100 sekundy
+koszt: ~0.14
+
+Zapytanie nr2:
+czas: 1/100 sekundy
+koszt: ~0.14
+
+W każdym z zapytań wykonanu full table scan
 
 
 Dodaj indeks:
@@ -111,32 +117,46 @@ create  index customer_store_cls_idx on customer(storeid)
 
 Jak zmienił się plan i czas? Czy jest możliwość optymalizacji?
 
+Po dodaniu indeksu:
 
----
-> Wyniki: 
+Zapytanie nr1:
+czas: 1/100 sekundy
+koszt: ~0.0065
 
-```sql
---  ...
-```
+![alt text](./images/image-kw.png)
+
+Zapytanie nr2:
+czas: 1/100 sekundy
+cost: ~0.05
+
+![alt text](./images/image-1-kw.png)
+
+Jak widać zamiast full table scan, mamy index scan a następnie RID lookup
+
+O ile czas wykonania znacząco się nie różni, to możemy zauważyć znaczące mniejszenie kosztu wykonania.
 
 
 Dodaj indeks klastrowany:
 
 ```sql
-create clustered index customer_store_cls_idx on customer(storeid)
+create clustered index clustered_customer_store_cls_idx on customer(storeid)
 ```
 
 Czy zmienił się plan i czas? Skomentuj dwa podejścia w wyszukiwaniu krotek.
 
+Zapytanie nr1:
+czas: 1/100 sekundy
+kosz: ~0.003
 
----
-> Wyniki: 
+![alt text](./images/image-2-kw.png)
 
-```sql
---  ...
-```
+Zapytanie nr2:
+czas: 1/100 sekundy
+koszt: ~0.003
 
+![alt text](./images/image-3-kw.png)
 
+W planie mamy tylko clustered index seek. W przypadku zapytania nr1 nie widzimy dużej korzyści z zastosowania clustered index. Rożnice widać za to w przypadku wybieraniu zakresu. Ponieważ clustered index fizycznie sortuje dane na dysku, kolejne wiersze z zakresu są umieszczone blisko siebie.
 
 # Zadanie 2 – Indeksy zawierające dodatkowe atrybuty (dane z kolumn)
 
