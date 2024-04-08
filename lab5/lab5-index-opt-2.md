@@ -299,7 +299,7 @@ Ponownie wykonaj analizę zapytania:
 ![alt text](./images/zad3_5.png)
 
 Zniknęła najbardziej kosztowna część zapytania obejmująca sortowanie dzięki zastosowaniu indeksu na kolumny po których odbywało się sortowanie, gdyż nie jest ono już potrzebne, bo jest zapownione przez realizację indeksu.
-Znacznie zmniejszy się także koszt operacji wejścia/wyjścia.
+Zmniejszył się także koszt operacji wejścia/wyjścia.
 Zmalał całkowity koszt i czas zapytania.
 
 # Zadanie 4
