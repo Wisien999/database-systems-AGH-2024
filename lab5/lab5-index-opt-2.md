@@ -197,9 +197,13 @@ Co można o nich powiedzieć?
 ---
 > Wyniki: 
 
-```sql
---  ...
-```
+![alt text](./images/zad2-zap1-noindex.png)
+![alt text](./images/zad2-zap2-noindex.png)
+![alt text](./images/zad2-zap3-noindex.png)
+
+Dla query szukającym po imieniu zwrócone zostało 5 wierszy.
+W każdym z przypadków system bazy danych jest zmuszony do przeskanowania całej tabeli w celu znalezienia wierszy spełniających kryterium.
+
 
 Przygotuj indeks obejmujący te zapytania:
 
@@ -214,9 +218,12 @@ Sprawdź plan zapytania. Co się zmieniło?
 ---
 > Wyniki: 
 
-```sql
---  ...
-```
+![alt text](./images/zad2-zap1-index.png)
+![alt text](./images/zad2-zap2-index.png)
+![alt text](./images/zad2-zap3-index.png)
+
+Jak widać teraz najpierw używany jest indeks a następnie RID lookup.
+RID lookup jest wykonywany w celu uzyskania dodatkowych informacji o wierszu, które nie są przechowywane w indeksie.
 
 
 Przeprowadź ponownie analizę zapytań tym razem dla parametrów: `FirstName = ‘Angela’` `LastName = ‘Price’`. (Trzy zapytania, różna kombinacja parametrów). 
@@ -228,8 +235,19 @@ Czym różni się ten plan od zapytania o `'Osarumwense Agbonile'` . Dlaczego ta
 > Wyniki: 
 
 ```sql
---  ...
+select * from [person] where lastname = 'Price';
+select * from [person] where lastname = 'Price' and firstname = 'Angela'  ;
+select * from [person] where firstname = 'Angela';
 ```
+
+![alt text](./images/zad2-zap4-index.png)
+![alt text](./images/zad2-zap5-index.png)
+![alt text](./images/zad2-zap6-index.png)
+
+Dla query szukającym po imieniu zwrócone zostało 86 wierszy.
+
+Do realizacji zapytań używających tylko jednego pola w klauzuli `WHERE` indeks nie jest wykorzystywany.
+Prawdopodobnie optymalizator mając do dyspozycji statystyki tabeli i indeksu stwierdził, że znalezienie wszystkich wierszy spełniających klauzulę `WHERE` użycie dostępnego indeksu nie jest opłacalne. System baz danych musi utrzymywać statystyki rozkładu danych z których wynika, że `Angele` jest dużo popularniejszym imieniem od `Osarumwense`.
 
 
 # Zadanie 3
@@ -253,9 +271,13 @@ Która część zapytania ma największy koszt?
 ---
 > Wyniki: 
 
-```sql
---  ...
-```
+![alt text](./images/zad3_1.png)
+
+![alt text](./images/zad3_2.png)
+
+![alt text](./images/zad3_3.png)
+
+Największy koszt ma część zapytania obejmująca sortowanie. Stanowi ona 85% kosztu całości zapytania.
 
 Jaki indeks można zastosować aby zoptymalizować koszt zapytania? Przygotuj polecenie tworzące index.
 
@@ -263,19 +285,24 @@ Jaki indeks można zastosować aby zoptymalizować koszt zapytania? Przygotuj po
 ---
 > Wyniki: 
 
+Można dodać indeks na kolumny `rejectedqty` oraz `productid` wskazując sortowanie tak jak w zapytaniu z sekcją `include`, w której uwzględnimy kolumny, których dodatkowo potrzebujemy, czyli `orderqty` oraz `duedate`, aby nie trzeba było realizować dodatkowych operacji pobierających te wartości.
+
 ```sql
---  ...
+create index person_firspurchaseorderdetail_rejectedqty_productid_orderqty_duedate
+on purchaseorderdetail (rejectedqty desc, productid asc) include (orderqty, duedate)
 ```
 
- Ponownie wykonaj analizę zapytania:
-
+Ponownie wykonaj analizę zapytania:
 
 ---
 > Wyniki: 
 
-```sql
---  ...
-```
+![alt text](./images/zad3_4.png)
+![alt text](./images/zad3_5.png)
+
+Zniknęła najbardziej kosztowna część zapytania obejmująca sortowanie dzięki zastosowaniu indeksu na kolumny po których odbywało się sortowanie, gdyż nie jest ono już potrzebne, bo jest zapownione przez realizację indeksu. Teraz najbardziej kosztowną operacją jest odczyt wartości.
+Zmniejszył się także koszt operacji wejścia/wyjścia.
+Zmalał całkowity koszt i czas zapytania.
 
 # Zadanie 4
 
