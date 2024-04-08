@@ -201,6 +201,8 @@ Co można o nich powiedzieć?
 ![alt text](./images/zad2-zap2-noindex.png)
 ![alt text](./images/zad2-zap3-noindex.png)
 
+W każdym z przypadków system bazy danych jest zmuszony do przeskanowania całej tabeli w celu znalezienia wierszy spełniających kryterium.
+
 
 Przygotuj indeks obejmujący te zapytania:
 
@@ -219,6 +221,8 @@ Sprawdź plan zapytania. Co się zmieniło?
 ![alt text](./images/zad2-zap2-index.png)
 ![alt text](./images/zad2-zap3-index.png)
 
+Jak widać teraz najpierw używany jest indeks a następnie RID lookup.
+RID lookup jest wykonywany w celu uzyskania dodatkowych informacji o wierszu, które nie są przechowywane w indeksie.
 
 
 Przeprowadź ponownie analizę zapytań tym razem dla parametrów: `FirstName = ‘Angela’` `LastName = ‘Price’`. (Trzy zapytania, różna kombinacja parametrów). 
