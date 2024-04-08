@@ -267,6 +267,8 @@ Która część zapytania ma największy koszt?
 
 ![alt text](./images/zad3_2.png)
 
+![alt text](./images/zad3_3.png)
+
 Największy koszt ma część zapytania obejmująca sortowanie. Stanowi ona 85% kosztu całości zapytania.
 
 Jaki indeks można zastosować aby zoptymalizować koszt zapytania? Przygotuj polecenie tworzące index.
@@ -287,9 +289,11 @@ Ponownie wykonaj analizę zapytania:
 ---
 > Wyniki: 
 
-![alt text](./images/zad3_3.png)
+![alt text](./images/zad3_4.png)
+![alt text](./images/zad3_5.png)
 
 Koszt części zapytania obejmującej sortowanie wielokrotnie zmalał. Nadal jest to jednak najbardziej kosztowny element.
+Znacznie zmniejszy się także koszt operacji wejścia/wyjścia.
 
 # Zadanie 4
 
