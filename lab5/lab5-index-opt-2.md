@@ -440,6 +440,9 @@ where enddate is not null
     and startdate >= '2010-08-05'
 ```
 
+![alt text](./images/zad5_1.png)
+![alt text](./images/zad5_2.png)
+
 Zastosuj indeks:
 
 ```sql
@@ -456,18 +459,39 @@ Czy indeks został użyty? Dlaczego?
 
 > Wyniki: 
 
-```sql
---  ...
-```
+![alt text](./images/zad5_3.png)
+
+Jak widać wynik analizy zapytania po utworzniu indeksu jest taki sam jak przed jego utworzeniem, a więc indekse nie został użyty.
 
 Spróbuj wymusić indeks. Co się stało, dlaczego takie zachowanie?
 
 > Wyniki: 
 
+##### Wymuszenie indeksu
+
 ```sql
---  ...
+select productassemblyid, componentid, startdate  
+from billofmaterials with(index(billofmaterials_cond_idx))  
+where enddate is not null  
+    and componentid = 327  
+    and startdate >= '2010-08-05'
 ```
 
+![alt text](./images/zad5_4.png)
+
+##### Porównanie
+
+Koszt zapytania przed wymuszeniem indeksu:
+
+![alt text](./images/zad5_5.png)
+
+Koszt zapytania po wymuszeniu indeksu:
+
+![alt text](./images/zad5_6.png)
+
+Po wymuszeniu indeksu, widzimy, że został on wykorzystany, jednak koszt zapytania wzrósł z 0.02 do 0.07.
+
+Bez wymuszania indeksu planer decyduje się na jego nie wykorzystanie, prawdopodobnie dlatego, że zapytanie korzystające z tego indeksu jest mniej wydajne.
 
 ---
 
