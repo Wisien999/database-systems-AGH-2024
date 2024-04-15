@@ -285,11 +285,13 @@ Do analizy, proszę uwzględnić następujące rodzaje indeksów:
 
 Proszę przygotować zestaw zapytań do danych, które:
 - wykorzystują poszczególne indeksy
-- które przy wymuszeniu indeksu działają gorzej, niż bez niego (lub pomimo założonego indeksu, tabela jest w pełni skanowana)
+- przy wymuszeniu indeksu działają gorzej, niż bez niego (lub pomimo założonego indeksu, tabela jest w pełni skanowana)
+
 Odpowiedź powinna zawierać:
+
 - Schemat tabeli
 - Opis danych (ich rozmiar, zawartość, statystyki)
-- Trzy indeksy:
+- Trzy indeksy
 - Opis indeksu
 - Przygotowane zapytania, wraz z wynikami z planów (zrzuty ekranow)
 - Komentarze do zapytań, ich wyników
