@@ -18,6 +18,8 @@
 
 **Imię i nazwisko:**
 
+Mateusz Skowron, Bartłomiej Wiśniewski, Karol Wrona
+
 --- 
 
 Celem ćwiczenia jest zapoznanie się z planami wykonania zapytań (execution plans), oraz z budową i możliwością wykorzystaniem indeksów (cz. 2.)
