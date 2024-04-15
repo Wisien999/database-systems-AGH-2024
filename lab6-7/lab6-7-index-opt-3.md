@@ -107,9 +107,16 @@ Skomentuj oba zapytania. Czy indeks został użyty w którymś zapytaniu, dlacze
 ---
 > Wyniki: 
 
-```sql
---  ...
-```
+Execution Plan dla zapytania 1:
+
+![alt text](_img/zad1-zap1.png)
+
+Execution Plan dla zapytania 2:
+
+![alt text](_img/zad1-zap2.png)
+
+
+Tylko pierwsze zapytanie wykorzystuje indeks. W drugim zapytaniu warunek jest przeciwieństwem warunku indeksu, dlatego indeks nie jest używany. Indeks z warunkiem działa tylko wtedy, gdy warunek jest spełniony. W przeciwnym przypadku indeks nie jest używany.
 
 
 
