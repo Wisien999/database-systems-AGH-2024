@@ -142,7 +142,7 @@ order by orderdate
 
 ![alt text](./_img/zad2_2.png)
 ![alt text](./_img/zad2_3.png)
-![alt text](image.png)
+![alt text](./_img/zad2_analysis-1.png)
 
 Stwórz indeks klastrujący według OrderDate:
 
@@ -156,7 +156,7 @@ Wypisz ponownie sto pierwszych zamówień. Co się zmieniło?
 
 ![alt text](./_img/zad2_5.png)
 ![alt text](./_img/zad2_6.png)
-![alt text](image-1.png)
+![alt text](./_img/zad2_analysis-2.png)
 
 ---
 > Wyniki: 
