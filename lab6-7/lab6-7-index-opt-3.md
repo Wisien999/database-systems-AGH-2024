@@ -142,6 +142,7 @@ order by orderdate
 
 ![alt text](./_img/zad2_2.png)
 ![alt text](./_img/zad2_3.png)
+![alt text](image.png)
 
 Stwórz indeks klastrujący według OrderDate:
 
@@ -155,11 +156,14 @@ Wypisz ponownie sto pierwszych zamówień. Co się zmieniło?
 
 ![alt text](./_img/zad2_5.png)
 ![alt text](./_img/zad2_6.png)
+![alt text](image-1.png)
 
 ---
 > Wyniki: 
 
-W wynikach nie zmieniło się nic.
+W wynikach nie zmieniło się nic. 
+
+W analizie zapytań, możemy zauważyć, że w pierwszym przypadku, gdzie nie mamy indeksu jest realizowana operacja sortowania, która jest bardzo kosztowa i stanowi większą część kosztu zapytania. W drugim przypadku, dzięki zastosowaniu indeksu klastrującego na kolumnę, po której sortujemy w naszym zapytaniu pozbywamy się konieczności sortowania, dzięki czemu nie ma konieczności realizowania kosztowej operacji sortowania.
 
 Sprawdź zapytanie:
 
@@ -183,6 +187,8 @@ order by OrderDate asc
 ![alt text](./_img/zad2_7.png)
 ![alt text](./_img/zad2_8.png)
 
+Widzimy, że indeks został wykorzystany, na co wskazuje operacja `Clustered Index Seek`. Nie jest wykonywane dodatkowe sortowanie.
+
 ```sql
 select top 1000 * from salesorderheader2  
 where orderdate between '2010-10-01' and '2011-06-01'
@@ -191,6 +197,9 @@ order by OrderDate desc
 ![alt text](./_img/zad2_9.png)
 ![alt text](./_img/zad2_10.png)
 
+Widzimy, że indeks został wykorzystany, na co wskazuje operacja `Clustered Index Seek`. Nie jest wykonywane dodatkowe sortowanie.
+
+Indeks działa w obu przypadkach dzięki czemu w obu przypadkach unikamy konieczności sortowania.
 
 # Zadanie 3 – indeksy column store
 
