@@ -129,7 +129,7 @@ Skopiuj ponownie tabelę SalesOrderHeader do swojej bazy danych:
 ```sql
 select * into salesorderheader2 from adventureworks2017.sales.salesorderheader
 ```
-![alt text](zad2_1.png)
+![alt text](./_img/zad2_1.png)
 
 Wypisz sto pierwszych zamówień:
 
@@ -138,8 +138,8 @@ select top 100 * from salesorderheader2
 order by orderdate
 ```
 
-![alt text](zad2_2.png)
-![alt text](zad2_3.png)
+![alt text](./_img/zad2_2.png)
+![alt text](./_img/zad2_3.png)
 
 Stwórz indeks klastrujący według OrderDate:
 
@@ -147,12 +147,12 @@ Stwórz indeks klastrujący według OrderDate:
 create clustered index order_date2_idx on salesorderheader2(orderdate)
 ```
 
-![alt text](zad2_4.png)
+![alt text](./_img/zad2_4.png)
 
 Wypisz ponownie sto pierwszych zamówień. Co się zmieniło?
 
-![alt text](zad2_5.png)
-![alt text](zad2_6.png)
+![alt text](./_img/zad2_5.png)
+![alt text](./_img/zad2_6.png)
 
 ---
 > Wyniki: 
@@ -174,8 +174,20 @@ Dodaj sortowanie według OrderDate ASC i DESC. Czy indeks działa w obu przypadk
 > Wyniki: 
 
 ```sql
---  ...
+select top 1000 * from salesorderheader2  
+where orderdate between '2010-10-01' and '2011-06-01'
+order by OrderDate asc
 ```
+![alt text](./_img/zad2_7.png)
+![alt text](./_img/zad2_8.png)
+
+```sql
+select top 1000 * from salesorderheader2  
+where orderdate between '2010-10-01' and '2011-06-01'
+order by OrderDate desc
+```
+![alt text](./_img/zad2_9.png)
+![alt text](./_img/zad2_10.png)
 
 
 # Zadanie 3 – indeksy column store
