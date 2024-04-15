@@ -129,14 +129,17 @@ Skopiuj ponownie tabelę SalesOrderHeader do swojej bazy danych:
 ```sql
 select * into salesorderheader2 from adventureworks2017.sales.salesorderheader
 ```
-
+![alt text](zad2_1.png)
 
 Wypisz sto pierwszych zamówień:
 
 ```sql
-select top 1000 * from salesorderheader2  
+select top 100 * from salesorderheader2  
 order by orderdate
 ```
+
+![alt text](zad2_2.png)
+![alt text](zad2_3.png)
 
 Stwórz indeks klastrujący według OrderDate:
 
@@ -144,15 +147,17 @@ Stwórz indeks klastrujący według OrderDate:
 create clustered index order_date2_idx on salesorderheader2(orderdate)
 ```
 
+![alt text](zad2_4.png)
+
 Wypisz ponownie sto pierwszych zamówień. Co się zmieniło?
+
+![alt text](zad2_5.png)
+![alt text](zad2_6.png)
 
 ---
 > Wyniki: 
 
-```sql
---  ...
-```
-
+W wynikach nie zmieniło się nic.
 
 Sprawdź zapytanie:
 
