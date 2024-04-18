@@ -238,9 +238,37 @@ Sprawdź różnicę pomiędzy przetwarzaniem w zależności od indeksów. Porów
 ---
 > Wyniki: 
 
-```sql
---  ...
-```
+Zapytania zostały wykonane na tabeli z 52 mln wierszy
+
+### Clustered index
+
+![alt text](_img/image-3k.png)
+
+![alt text](_img/image-1-3k.png)
+
+![alt text](_img/image-2-3k.png)
+
+![alt text](_img/image-6-3k.png)
+
+Czas wykonania około: 8s
+
+### Columnstore index
+
+Zakładnie column store indexa trwało około: 41 sek
+
+Czas wykonania: 0s 
+
+![alt text](_img/image-3-3k.png)
+
+![alt text](_img/image-5-3k.png)
+
+![alt text](_img/image-4-3k.png)
+
+![alt text](_img/image-7-3k.png)
+
+### Porównanie
+
+Jak widać columnstore mimo dość długiego procesu zakładania indeksu, drastycznie zwiększa prędkość odczytu. Estimated Subtree Cost zwykłego indeksu to 360, columnstora to 6. 
 
 # Zadanie 4 – własne eksperymenty
 
