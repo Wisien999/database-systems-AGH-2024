@@ -18,6 +18,8 @@
 
 **Imię i nazwisko:**
 
+Mateusz Skowron, Bartłomiej Wiśniewski, Karol Wrona
+
 --- 
 
 Celem ćwiczenia jest zapoznanie się z planami wykonania zapytań (execution plans), oraz z budową i możliwością wykorzystaniem indeksów (cz. 2.)
@@ -129,14 +131,18 @@ Skopiuj ponownie tabelę SalesOrderHeader do swojej bazy danych:
 ```sql
 select * into salesorderheader2 from adventureworks2017.sales.salesorderheader
 ```
-
+![alt text](./_img/zad2_1.png)
 
 Wypisz sto pierwszych zamówień:
 
 ```sql
-select top 1000 * from salesorderheader2  
+select top 100 * from salesorderheader2  
 order by orderdate
 ```
+
+![alt text](./_img/zad2_2.png)
+![alt text](./_img/zad2_3.png)
+![alt text](./_img/zad2_analysis-1.png)
 
 Stwórz indeks klastrujący według OrderDate:
 
@@ -144,15 +150,20 @@ Stwórz indeks klastrujący według OrderDate:
 create clustered index order_date2_idx on salesorderheader2(orderdate)
 ```
 
+![alt text](./_img/zad2_4.png)
+
 Wypisz ponownie sto pierwszych zamówień. Co się zmieniło?
+
+![alt text](./_img/zad2_5.png)
+![alt text](./_img/zad2_6.png)
+![alt text](./_img/zad2_analysis-2.png)
 
 ---
 > Wyniki: 
 
-```sql
---  ...
-```
+W wynikach nie zmieniło się nic. 
 
+W analizie zapytań, możemy zauważyć, że w pierwszym przypadku, gdzie nie mamy indeksu jest realizowana operacja sortowania, która jest bardzo kosztowa i stanowi większą część kosztu zapytania. W drugim przypadku, dzięki zastosowaniu indeksu klastrującego na kolumnę, po której sortujemy w naszym zapytaniu pozbywamy się konieczności sortowania, czyli najbardziej kosztownej operacji, a więc koszt zapytania się zmniejsza.
 
 Sprawdź zapytanie:
 
@@ -169,9 +180,26 @@ Dodaj sortowanie według OrderDate ASC i DESC. Czy indeks działa w obu przypadk
 > Wyniki: 
 
 ```sql
---  ...
+select top 1000 * from salesorderheader2  
+where orderdate between '2010-10-01' and '2011-06-01'
+order by OrderDate asc
 ```
+![alt text](./_img/zad2_7.png)
+![alt text](./_img/zad2_8.png)
 
+Widzimy, że indeks został wykorzystany, na co wskazuje operacja `Clustered Index Seek`. Nie jest wykonywane dodatkowe sortowanie.
+
+```sql
+select top 1000 * from salesorderheader2  
+where orderdate between '2010-10-01' and '2011-06-01'
+order by OrderDate desc
+```
+![alt text](./_img/zad2_9.png)
+![alt text](./_img/zad2_10.png)
+
+Widzimy, że indeks został wykorzystany, na co wskazuje operacja `Clustered Index Seek`. Nie jest wykonywane dodatkowe sortowanie.
+
+Indeks działa w obu przypadkach dzięki czemu w obu przypadkach unikamy konieczności sortowania.
 
 # Zadanie 3 – indeksy column store
 
@@ -285,11 +313,13 @@ Do analizy, proszę uwzględnić następujące rodzaje indeksów:
 
 Proszę przygotować zestaw zapytań do danych, które:
 - wykorzystują poszczególne indeksy
-- które przy wymuszeniu indeksu działają gorzej, niż bez niego (lub pomimo założonego indeksu, tabela jest w pełni skanowana)
+- przy wymuszeniu indeksu działają gorzej, niż bez niego (lub pomimo założonego indeksu, tabela jest w pełni skanowana)
+
 Odpowiedź powinna zawierać:
+
 - Schemat tabeli
 - Opis danych (ich rozmiar, zawartość, statystyki)
-- Trzy indeksy:
+- Trzy indeksy
 - Opis indeksu
 - Przygotowane zapytania, wraz z wynikami z planów (zrzuty ekranow)
 - Komentarze do zapytań, ich wyników
