@@ -330,12 +330,7 @@ Odpowiedź powinna zawierać:
 
 ### Eksperyment 1 - Indeks warunkowy (Filtered Index)
 
-Tworzymy tabelę `Products` z następującymi kolumnami:
-- `ProductID`
-- `ProductName`
-- `Category`
-- `Price`
-- `StockQuantity`
+Rozpoczynamy od stworzenia tabeli `Products`, która będzie przechowywać informacje o produktach, w tym nazwę, kategorię, cenę i ilość w magazynie. Następnie wypełniamy tę tabelę 20,000 rekordami.
 
 ```sql
 CREATE TABLE Products (
@@ -345,11 +340,7 @@ CREATE TABLE Products (
     Price DECIMAL(10,2),
     StockQuantity INT
 );
-```
 
-Wypełniamy tabelę danymi dotyczącymi różnych produktów. Generujemy 20,000 rekordów.
-
-```sql
 DECLARE @i INT = 1;
 WHILE @i <= 20000
 BEGIN
@@ -370,13 +361,13 @@ END;
 
 ![alt text](./_img/eks1-1.png)
 
-Zapytanie, które będziemy wykonywać, wyszukuje produkty o kategorii `Electronics`.
+Chcemy wybrać produkty z kategorii "Electronics".
 
 ```sql
 SELECT ProductName, Price, StockQuantity FROM Products WHERE Category = 'Electronics'
 ```
 
-Teraz dodajemy indeks warunkowy na kolumnie `Category` dla określonej kategorii (np. "Electronics") i porównujemy wydajność z indeksem i bez indeksu. Włączamy także pozostałe kolumny, które są używane w naszym zapytaniu.
+Tworzymy indeks warunkowy na kolumnie Category dla kategorii "Electronics" i dodajemy pozostałe kolumny jako INCLUDE.
 
 ```sql
 CREATE NONCLUSTERED INDEX IX_Filtered_Category_Electronics
@@ -385,44 +376,42 @@ INCLUDE(ProductName, Price, StockQuantity)
 WHERE Category = 'Electronics';
 ```
 
+> Wyniki
+
 **Bez indeksu**
 
 ![alt text](./_img/eks1-2.png)
 ![alt text](./_img/eks1-3.png)
 
-Widzimy, że aby uzyskać wynik, SZBD musi pobrać wszystkie dane, a następnie wybrać te, które spełniają warunek.
+Zapytanie wykonuje pełne skanowanie tabeli, aby znaleźć odpowiednie rekordy.
 
 **Z indeksem w jego zasięgu**
 
 ![alt text](./_img/eks1-4.png)
 ![alt text](./_img/eks1-5.png)
 
-Dzięki indeksowi koszt zapytania jest znacznie niższy, a liczba operacji wejścia/wyjścia jest mniejsza.
+Dzięki indeksowi, koszt zapytania jest znacznie niższy, a liczba operacji wejścia/wyjścia jest mniejsza.
 
 **Z indeksem poza jego zasięgiem**
 
 ![alt text](./_img/eks1-6.png)
 ![alt text](./_img/eks1-7.png)
 
-W tym przypadku warunki filtrowania indeksu nie są spełnione, więc SZBD musi wykonać pełne skanowanie tabeli, podobnie jak w przypadku braku indeksu.
+W tym przypadku, gdy warunek filtru nie jest spełniony, wykonuje się pełne skanowanie tabeli.
 
 **Rekomendacja Database Engine Tuning Advisor**
-Narzędzie Database Engine Tuning Advisor rekomenduje utworzenie identycznego indeksu, który został przez nas zdefiniowany, dodatkowo sugerując uporządkowanie kategorii rosnąco.
+
+Narzędzie sugeruje utworzenie identycznego indeksu z dodatkową rekomendacją uporządkowania kategorii rosnąco.
 
 ![alt text](./_img/eks1-8.png)
 
 **Wnioski**
-Indeks warunkowy jest używany, gdy zapytanie pokrywa się z jego warunkami. Zapytania z indeksem warunkowym wykonują się szybciej i są bardziej wydajne. Jednak gdy warunki nie są spełnione, SZBD musi sięgnąć po pełne skanowanie tabeli, co jest kosztowne. Na podstawie tego eksperymentu możemy wnioskować, że stosowanie tego rodzaju indeksów ma sens w przypadkach, gdy często odpytujemy dane z konkretnie określonej kategorii, na którą ten indeks jest założony.
+
+Indeks warunkowy jest skuteczny w przypadku, gdy zapytanie pokrywa się z jego warunkami. Jednakże, gdy warunki nie są spełnione, może dojść do pełnego skanowania tabeli, co jest kosztowne. Stosowanie tego rodzaju indeksów ma sens, gdy często wyszukujemy dane z konkretnie określonej kategorii.
 
 ### Eksperyment 2 - Indeks kolumnowy (Column Index)
 
-Tworzymy tabelę `Orders` z następującymi kolumnami:
-- `OrderID`
-- `CustomerID`
-- `ProductID`
-- `OrderDate`
-- `Quantity`
-- `TotalPrice`
+Tworzymy tabelę `Orders`, która będzie przechowywać informacje o zamówieniach, w tym identyfikator klienta, produktu, datę zamówienia, ilość i łączną cenę. Następnie wypełniamy tę tabelę 50,000 rekordami.
 
 ```sql
 CREATE TABLE Orders (
@@ -433,11 +422,7 @@ CREATE TABLE Orders (
     Quantity INT,
     TotalPrice DECIMAL(10,2)
 );
-```
 
-Wypełniamy tabelę danymi dotyczącymi różnych zamówień. Generujemy 50,000 rekordów.
-
-```sql
 DECLARE @i INT = 1;
 WHILE @i <= 50000
 BEGIN
@@ -455,7 +440,7 @@ END;
 
 ![alt text](./_img/eks2-1.png)
 
-Zapytanie, które będziemy wykonywać, sumuje wartość zamówień dla określonego produktu w określonym przedziale czasowym.
+Chcemy zsumować wartość zamówień dla określonego produktu w określonym przedziale czasowym.
 
 ```sql
 SELECT ProductID, SUM(TotalPrice) AS TotalSales 
@@ -464,12 +449,14 @@ WHERE OrderDate BETWEEN '2022-01-01' AND '2022-12-31'
 GROUP BY ProductID;
 ```
 
-Teraz dodajemy indeks kolumnowy na kolumnie TotalPrice i porównujemy wydajność z indeksem i bez indeksu.
+Tworzymy indeks kolumnowy na kolumnie TotalPrice.
 
 ```sql
 CREATE NONCLUSTERED COLUMNSTORE INDEX IX_Column_TotalPrice
 ON Orders (TotalPrice);
 ```
+
+> Wyniki
 
 **Bez indeksu**
 
@@ -477,7 +464,7 @@ ON Orders (TotalPrice);
 ![alt text](./_img/eks2-3.png)
 ![alt text](./_img/eks2-4.png)
 
-Widzimy, że zapytanie wykonuje pełne skanowanie tabeli, aby obliczyć sumę wartości zamówień dla określonego przedziału czasowego.
+Zapytanie wykonuje pełne skanowanie tabeli, aby obliczyć sumę wartości zamówień dla określonego przedziału czasowego.
 
 **Z indeksem**
 
@@ -486,7 +473,7 @@ Widzimy, że zapytanie wykonuje pełne skanowanie tabeli, aby obliczyć sumę wa
 ![alt text](./_img/eks2-7.png)
 
 Dzięki indeksowi kolumnowemu, koszt zapytania jest znacznie niższy, ponieważ SZBD może szybko uzyskać dostęp do wartości TotalPrice, co umożliwia szybsze obliczenie sumy.
-Można zauwazyć, że bez wykorzystania indeksu operacja agregująca dane stanowi aż 33% kosztu zapytania, gdzie po wykorzystaniu indeksu ta wartość spada do 5% a jej koszt i czas wykonania są znacznie niższe i bliskie zeru.
+Bez wykorzystania indeksu operacja agregująca dane stanowi aż 33% kosztu zapytania, gdzie po wykorzystaniu indeksu ta wartość spada do 5% a jej koszt i czas wykonania są znacznie niższe i bliskie zeru.
 
 **Rekomendacja Database Engine Tuning Advisor**
 
@@ -496,18 +483,11 @@ Narzędzie Database Engine Tuning Advisor sugeruje utworzenie indeksu, który ma
 
 **Wnioski**
 
-Indeks kolumnowy doskonale nadaje się do zapytań analitycznych, które wymagają szybkiego dostępu do dużej ilości danych i obliczeń agregujących, takich jak suma czy średnia. W przypadku zapytań, gdzie istotna jest suma kolumny, indeks kolumnowy może znacznie poprawić wydajność zapytań.
+Indeks kolumnowy doskonale nadaje się do zapytań analitycznych, które wymagają szybkiego dostępu do dużej ilości danych i obliczeń agregujących. Może znacznie poprawić wydajność zapytań, szczególnie tych, w których istotna jest suma kolumny.
 
 ### Eksperyment 3 - Indeksy wykorzystujące kilka atrybutów, indeksy include
 
-Tworzymy tabelę `Customers` z następującymi kolumnami:
-- `CustomerID`
-- `FirstName`
-- `LastName`
-- `City`
-- `Country`
-- `PhoneNumber`
-- `Email`
+Tworzymy tabelę `Customers`, która będzie przechowywać informacje o klientach, takie jak imię, nazwisko, miasto, kraj, numer telefonu i adres e-mail. Następnie wypełniamy tę tabelę 50,000 rekordami.
 
 ```sql
 CREATE TABLE Customers (
@@ -519,11 +499,7 @@ CREATE TABLE Customers (
     PhoneNumber NVARCHAR(20),
     Email NVARCHAR(100)
 );
-```
 
-Wypełniamy tabelę danymi dotyczącymi różnych klientów. Generujemy 50,000 rekordów.
-
-```sql
 DECLARE @i INT = 1;
 WHILE @i <= 50000
 BEGIN
@@ -550,7 +526,7 @@ END;
 
 ![alt text](./_img/eks4-1.png)
 
-Zapytanie, które będziemy wykonywać, wyszukuje klientów z danego miasta i kraju.
+Chcemy wyszukać klientów z danego miasta i kraju.
 
 ```sql
 SELECT FirstName, LastName, PhoneNumber, Email 
@@ -558,7 +534,7 @@ FROM Customers
 WHERE City = 'New York' AND Country = 'USA';
 ```
 
-Wykorzystamy indeks na kolumnach City i Country oraz include na FirstName, LastName, PhoneNumber, Email.
+Tworzymy indeks na kolumnach City i Country oraz include na FirstName, LastName, PhoneNumber, Email.
 
 ```sql
 CREATE NONCLUSTERED INDEX IX_City_Country_Include
@@ -566,13 +542,15 @@ ON Customers (City, Country)
 INCLUDE (FirstName, LastName, PhoneNumber, Email);
 ```
 
+> Wyniki
+
 **Bez indeksu**
 
 ![alt text](./_img/eks4-2.png)
 ![alt text](./_img/eks4-3.png)
 ![alt text](./_img/eks4-4.png)
 
-Widzimy, że SZBD musi przeszukać całą tabelę, aby znaleźć klientów spełniających warunki zapytania.
+Zapytanie wykonuje pełne skanowanie tabeli, aby znaleźć klientów spełniających warunki zapytania.
 
 **Z indeksem**
 
@@ -584,13 +562,13 @@ Dzięki indeksowi, koszt zapytania jest znacznie niższy, ponieważ SZBD może s
 
 **Rekomendacja Database Engine Tuning Advisor**
 
-Narzędzie Database Engine Tuning Advisor sugeruje utworzenie indeksu, który został przez nas zdefiniowany, bez dodatkowych rekomendacji.
+Narzędzie sugeruje utworzenie indeksu, który został przez nas zdefiniowany, bez dodatkowych rekomendacji.
 
 ![alt text](./_img/eks4-8.png)
 
 **Wnioski**
 
-Indeksy wykorzystujące kilka atrybutów, wraz z include, są przydatne w sytuacjach, gdy zapytania obejmują wiele kolumn w warunkach wyszukiwania oraz dodatkowych kolumnach do wyświetlenia. Dzięki nim zapytania stają się bardziej wydajne, ponieważ SZBD może szybciej dostępować się do danych spełniających kryteria zapytania.
+Indeksy wykorzystujące kilka atrybutów, wraz z include, są przydatne w przypadkach, gdy zapytania obejmują wiele kolumn w warunkach wyszukiwania oraz dodatkowych kolumnach do wyświetlenia. Dzięki nim zapytania stają się bardziej wydajne, ponieważ SZBD może szybciej dostępować się do danych spełniających kryteria zapytania.
 
 |         |     |     |     |
 | ------- | --- | --- | --- |
