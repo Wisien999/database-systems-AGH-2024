@@ -414,6 +414,90 @@ Narzędzie Database Engine Tuning Advisor rekomenduje utworzenie identycznego in
 **Wnioski**
 Indeks warunkowy jest używany, gdy zapytanie pokrywa się z jego warunkami. Zapytania z indeksem warunkowym wykonują się szybciej i są bardziej wydajne. Jednak gdy warunki nie są spełnione, SZBD musi sięgnąć po pełne skanowanie tabeli, co jest kosztowne. Na podstawie tego eksperymentu możemy wnioskować, że stosowanie tego rodzaju indeksów ma sens w przypadkach, gdy często odpytujemy dane z konkretnie określonej kategorii, na którą ten indeks jest założony.
 
+### Eksperyment 2 - Indeks kolumnowy
+
+Tworzymy tabelę `Orders` z następującymi kolumnami:
+- `OrderID`
+- `CustomerID`
+- `ProductID`
+- `OrderDate`
+- `Quantity`
+- `TotalPrice`
+
+```sql
+CREATE TABLE Orders (
+    OrderID INT IDENTITY(1,1),
+    CustomerID INT,
+    ProductID INT,
+    OrderDate DATE,
+    Quantity INT,
+    TotalPrice DECIMAL(10,2)
+);
+```
+
+Wypełniamy tabelę danymi dotyczącymi różnych zamówień. Generujemy 50,000 rekordów.
+
+```sql
+DECLARE @i INT = 1;
+WHILE @i <= 50000
+BEGIN
+    INSERT INTO Orders (CustomerID, ProductID, OrderDate, Quantity, TotalPrice)
+    VALUES (
+        FLOOR(RAND()*(100-1+1))+1,
+        FLOOR(RAND()*(1000-1+1))+1,
+        DATEADD(DAY, -RAND()*(365*10), GETDATE()),
+        FLOOR(RAND()*(10-1+1))+1,
+        RAND() * 1000
+    );
+    SET @i = @i + 1;
+END;
+```
+
+![alt text](./_img/eks2-1.png)
+
+Zapytanie, które będziemy wykonywać, sumuje wartość zamówień dla określonego produktu w określonym przedziale czasowym.
+
+```sql
+SELECT ProductID, SUM(TotalPrice) AS TotalSales 
+FROM Orders 
+WHERE OrderDate BETWEEN '2022-01-01' AND '2022-12-31' 
+GROUP BY ProductID;
+```
+
+Teraz dodajemy indeks kolumnowy na kolumnie TotalPrice i porównujemy wydajność z indeksem i bez indeksu.
+
+```sql
+CREATE NONCLUSTERED COLUMNSTORE INDEX IX_Column_TotalPrice
+ON Orders (TotalPrice);
+```
+
+**Bez indeksu**
+
+![alt text](./_img/eks2-2.png)
+![alt text](./_img/eks2-3.png)
+![alt text](./_img/eks2-4.png)
+
+Widzimy, że zapytanie wykonuje pełne skanowanie tabeli, aby obliczyć sumę wartości zamówień dla określonego przedziału czasowego.
+
+**Z indeksem**
+
+![alt text](./_img/eks2-5.png)
+![alt text](./_img/eks2-6.png)
+![alt text](./_img/eks2-7.png)
+
+Dzięki indeksowi kolumnowemu, koszt zapytania jest znacznie niższy, ponieważ SZBD może szybko uzyskać dostęp do wartości TotalPrice, co umożliwia szybsze obliczenie sumy.
+Można zauwazyć, że bez wykorzystania indeksu operacja agregująca dane stanowi aż 33% kosztu zapytania, gdzie po wykorzystaniu indeksu ta wartość spada do 5% a jej koszt i czas wykonania są znacznie niższe i bliskie zeru.
+
+**Rekomendacja Database Engine Tuning Advisor**
+
+![alt text](./_img/eks2-8.png)
+
+Narzędzie Database Engine Tuning Advisor sugeruje utworzenie indeksu, który ma kolumnę `TotalPrice` jako INCLUDE. Dzięki temu baza danych może efektywniej wykonywać operacje agregujące, takie jak suma wartości zamówień dla określonego przedziału czasowego, bo ma szybszy dostęp do tych danych.
+
+**Wnioski**
+
+Indeks kolumnowy doskonale nadaje się do zapytań analitycznych, które wymagają szybkiego dostępu do dużej ilości danych i obliczeń agregujących, takich jak suma czy średnia. W przypadku zapytań, gdzie istotna jest suma kolumny, indeks kolumnowy może znacznie poprawić wydajność zapytań.
+
 |         |     |     |     |
 | ------- | --- | --- | --- |
 | zadanie | pkt |     |     |
