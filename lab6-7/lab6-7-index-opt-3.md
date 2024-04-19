@@ -328,12 +328,91 @@ Odpowiedź powinna zawierać:
 
 > Wyniki: 
 
+### Eksperyment 1 - Filtered Index (Indeks warunkowy)
+
+Tworzymy tabelę `Products` z następującymi kolumnami:
+- `ProductID`
+- `ProductName`
+- `Category`
+- `Price`
+- `StockQuantity`
+
 ```sql
---  ...
+CREATE TABLE Products (
+    ProductID INT IDENTITY(1,1),
+    ProductName NVARCHAR(255),
+    Category NVARCHAR(50),
+    Price DECIMAL(10,2),
+    StockQuantity INT
+);
 ```
 
+Wypełniamy tabelę danymi dotyczącymi różnych produktów. Generujemy 20,000 rekordów.
 
+```sql
+DECLARE @i INT = 1;
+WHILE @i <= 20000
+BEGIN
+    INSERT INTO Products (ProductName, Category, Price, StockQuantity)
+    VALUES (
+        CONCAT('Product', @i),
+        CASE 
+            WHEN @i % 3 = 0 THEN 'Electronics'
+            WHEN @i % 3 = 1 THEN 'Clothing'
+            ELSE 'Books'
+        END,
+        RAND() * 1000,
+        RAND() * 100
+    );
+    SET @i = @i + 1;
+END;
+```
 
+![alt text](image.png)
+
+Zapytanie, które będziemy wykonywać, wyszukuje produkty o kategorii `Electronics`.
+
+```sql
+SELECT ProductName, Price, StockQuantity FROM Products WHERE Category = 'Electronics'
+```
+
+Teraz dodajemy indeks warunkowy na kolumnie `Category` dla określonej kategorii (np. "Electronics") i porównujemy wydajność z indeksem i bez indeksu. Włączamy także pozostałe kolumny, które są używane w naszym zapytaniu.
+
+```sql
+CREATE NONCLUSTERED INDEX IX_Filtered_Category_Electronics
+ON Products (Category)
+INCLUDE(ProductName, Price, StockQuantity)
+WHERE Category = 'Electronics';
+```
+
+**Bez indeksu**
+
+![alt text](image-1.png)
+![alt text](image-2.png)
+
+Widzimy, że aby uzyskać wynik, SZBD musi pobrać wszystkie dane, a następnie wybrać te, które spełniają warunek.
+
+**Z indeksem w jego zasięgu**
+
+![alt text](image-3.png)
+![alt text](image-4.png)
+
+Dzięki indeksowi koszt zapytania jest znacznie niższy, a liczba operacji wejścia/wyjścia jest mniejsza.
+
+**Z indeksem poza jego zasięgiem**
+
+![alt text](image-5.png)
+![alt text](image-6.png)
+
+W tym przypadku warunki filtrowania indeksu nie są spełnione, więc SZBD musi wykonać pełne skanowanie tabeli, podobnie jak w przypadku braku indeksu.
+
+**Wnioski**
+Indeks warunkowy jest używany, gdy zapytanie pokrywa się z jego warunkami. Zapytania z indeksem warunkowym wykonują się szybciej i są bardziej wydajne. Jednak gdy warunki nie są spełnione, SZBD musi sięgnąć po pełne skanowanie tabeli, co jest kosztowne. Na podstawie tego eksperymentu możemy wnioskować, że stosowanie tego rodzaju indeksów ma sens w przypadkach, gdy często odpytujemy dane z konkretnie określonej kategorii, na którą ten indeks jest założony.
+
+**Rekomendacja Database Engine Tuning Advisor**
+Narzędzie Database Engine Tuning Advisor rekomenduje utworzenie identycznego indeksu, który został przez nas zdefiniowany, dodatkowo sugerując uporządkowanie kategorii rosnąco.
+
+![alt text](image-7.png)
 
 |         |     |     |     |
 | ------- | --- | --- | --- |
