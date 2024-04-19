@@ -368,7 +368,7 @@ BEGIN
 END;
 ```
 
-![alt text](image.png)
+![alt text](./_img/eks1-1.png)
 
 Zapytanie, które będziemy wykonywać, wyszukuje produkty o kategorii `Electronics`.
 
@@ -387,22 +387,22 @@ WHERE Category = 'Electronics';
 
 **Bez indeksu**
 
-![alt text](image-1.png)
-![alt text](image-2.png)
+![alt text](./_img/eks1-2.png)
+![alt text](./_img/eks1-3.png)
 
 Widzimy, że aby uzyskać wynik, SZBD musi pobrać wszystkie dane, a następnie wybrać te, które spełniają warunek.
 
 **Z indeksem w jego zasięgu**
 
-![alt text](image-3.png)
-![alt text](image-4.png)
+![alt text](./_img/eks1-4.png)
+![alt text](./_img/eks1-5.png)
 
 Dzięki indeksowi koszt zapytania jest znacznie niższy, a liczba operacji wejścia/wyjścia jest mniejsza.
 
 **Z indeksem poza jego zasięgiem**
 
-![alt text](image-5.png)
-![alt text](image-6.png)
+![alt text](./_img/eks1-6.png)
+![alt text](./_img/eks1-7.png)
 
 W tym przypadku warunki filtrowania indeksu nie są spełnione, więc SZBD musi wykonać pełne skanowanie tabeli, podobnie jak w przypadku braku indeksu.
 
@@ -412,7 +412,7 @@ Indeks warunkowy jest używany, gdy zapytanie pokrywa się z jego warunkami. Zap
 **Rekomendacja Database Engine Tuning Advisor**
 Narzędzie Database Engine Tuning Advisor rekomenduje utworzenie identycznego indeksu, który został przez nas zdefiniowany, dodatkowo sugerując uporządkowanie kategorii rosnąco.
 
-![alt text](image-7.png)
+![alt text](./_img/eks1-8.png)
 
 |         |     |     |     |
 | ------- | --- | --- | --- |
