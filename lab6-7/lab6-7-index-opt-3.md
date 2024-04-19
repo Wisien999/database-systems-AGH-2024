@@ -406,13 +406,13 @@ Dzięki indeksowi koszt zapytania jest znacznie niższy, a liczba operacji wejś
 
 W tym przypadku warunki filtrowania indeksu nie są spełnione, więc SZBD musi wykonać pełne skanowanie tabeli, podobnie jak w przypadku braku indeksu.
 
-**Wnioski**
-Indeks warunkowy jest używany, gdy zapytanie pokrywa się z jego warunkami. Zapytania z indeksem warunkowym wykonują się szybciej i są bardziej wydajne. Jednak gdy warunki nie są spełnione, SZBD musi sięgnąć po pełne skanowanie tabeli, co jest kosztowne. Na podstawie tego eksperymentu możemy wnioskować, że stosowanie tego rodzaju indeksów ma sens w przypadkach, gdy często odpytujemy dane z konkretnie określonej kategorii, na którą ten indeks jest założony.
-
 **Rekomendacja Database Engine Tuning Advisor**
 Narzędzie Database Engine Tuning Advisor rekomenduje utworzenie identycznego indeksu, który został przez nas zdefiniowany, dodatkowo sugerując uporządkowanie kategorii rosnąco.
 
 ![alt text](./_img/eks1-8.png)
+
+**Wnioski**
+Indeks warunkowy jest używany, gdy zapytanie pokrywa się z jego warunkami. Zapytania z indeksem warunkowym wykonują się szybciej i są bardziej wydajne. Jednak gdy warunki nie są spełnione, SZBD musi sięgnąć po pełne skanowanie tabeli, co jest kosztowne. Na podstawie tego eksperymentu możemy wnioskować, że stosowanie tego rodzaju indeksów ma sens w przypadkach, gdy często odpytujemy dane z konkretnie określonej kategorii, na którą ten indeks jest założony.
 
 |         |     |     |     |
 | ------- | --- | --- | --- |
