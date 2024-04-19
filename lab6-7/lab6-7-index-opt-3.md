@@ -328,7 +328,7 @@ Odpowiedź powinna zawierać:
 
 > Wyniki: 
 
-### Eksperyment 1 - Filtered Index (Indeks warunkowy)
+### Eksperyment 1 - Indeks warunkowy (Filtered Index)
 
 Tworzymy tabelę `Products` z następującymi kolumnami:
 - `ProductID`
@@ -414,7 +414,7 @@ Narzędzie Database Engine Tuning Advisor rekomenduje utworzenie identycznego in
 **Wnioski**
 Indeks warunkowy jest używany, gdy zapytanie pokrywa się z jego warunkami. Zapytania z indeksem warunkowym wykonują się szybciej i są bardziej wydajne. Jednak gdy warunki nie są spełnione, SZBD musi sięgnąć po pełne skanowanie tabeli, co jest kosztowne. Na podstawie tego eksperymentu możemy wnioskować, że stosowanie tego rodzaju indeksów ma sens w przypadkach, gdy często odpytujemy dane z konkretnie określonej kategorii, na którą ten indeks jest założony.
 
-### Eksperyment 2 - Indeks kolumnowy
+### Eksperyment 2 - Indeks kolumnowy (Column Index)
 
 Tworzymy tabelę `Orders` z następującymi kolumnami:
 - `OrderID`
@@ -497,6 +497,100 @@ Narzędzie Database Engine Tuning Advisor sugeruje utworzenie indeksu, który ma
 **Wnioski**
 
 Indeks kolumnowy doskonale nadaje się do zapytań analitycznych, które wymagają szybkiego dostępu do dużej ilości danych i obliczeń agregujących, takich jak suma czy średnia. W przypadku zapytań, gdzie istotna jest suma kolumny, indeks kolumnowy może znacznie poprawić wydajność zapytań.
+
+### Eksperyment 3 - Indeksy wykorzystujące kilka atrybutów, indeksy include
+
+Tworzymy tabelę `Customers` z następującymi kolumnami:
+- `CustomerID`
+- `FirstName`
+- `LastName`
+- `City`
+- `Country`
+- `PhoneNumber`
+- `Email`
+
+```sql
+CREATE TABLE Customers (
+    CustomerID INT IDENTITY(1,1),
+    FirstName NVARCHAR(50),
+    LastName NVARCHAR(50),
+    City NVARCHAR(100),
+    Country NVARCHAR(100),
+    PhoneNumber NVARCHAR(20),
+    Email NVARCHAR(100)
+);
+```
+
+Wypełniamy tabelę danymi dotyczącymi różnych klientów. Generujemy 50,000 rekordów.
+
+```sql
+DECLARE @i INT = 1;
+WHILE @i <= 50000
+BEGIN
+    INSERT INTO Customers (FirstName, LastName, City, Country, PhoneNumber, Email)
+    VALUES (
+        CONCAT('First', @i),
+        CONCAT('Last', @i),
+        CASE 
+            WHEN @i % 3 = 0 THEN 'New York'
+            WHEN @i % 3 = 1 THEN 'Los Angeles'
+            ELSE 'Chicago'
+        END,
+        CASE 
+            WHEN @i % 3 = 0 THEN 'USA'
+            WHEN @i % 3 = 1 THEN 'USA'
+            ELSE 'Canada'
+        END,
+        CONCAT('123-456-', @i),
+        CONCAT('email', @i, '@example.com')
+    );
+    SET @i = @i + 1;
+END;
+```
+
+![alt text](./_img/eks4-1.png)
+
+Zapytanie, które będziemy wykonywać, wyszukuje klientów z danego miasta i kraju.
+
+```sql
+SELECT FirstName, LastName, PhoneNumber, Email 
+FROM Customers 
+WHERE City = 'New York' AND Country = 'USA';
+```
+
+Wykorzystamy indeks na kolumnach City i Country oraz include na FirstName, LastName, PhoneNumber, Email.
+
+```sql
+CREATE NONCLUSTERED INDEX IX_City_Country_Include
+ON Customers (City, Country)
+INCLUDE (FirstName, LastName, PhoneNumber, Email);
+```
+
+**Bez indeksu**
+
+![alt text](./_img/eks4-2.png)
+![alt text](./_img/eks4-3.png)
+![alt text](./_img/eks4-4.png)
+
+Widzimy, że SZBD musi przeszukać całą tabelę, aby znaleźć klientów spełniających warunki zapytania.
+
+**Z indeksem**
+
+![alt text](./_img/eks4-5.png)
+![alt text](./_img/eks4-6.png)
+![alt text](./_img/eks4-7.png)
+
+Dzięki indeksowi, koszt zapytania jest znacznie niższy, ponieważ SZBD może szybko zlokalizować klientów z danego miasta i kraju za pomocą indeksu, a następnie uzyskać pozostałe dane z include.
+
+**Rekomendacja Database Engine Tuning Advisor**
+
+Narzędzie Database Engine Tuning Advisor sugeruje utworzenie indeksu, który został przez nas zdefiniowany, bez dodatkowych rekomendacji.
+
+![alt text](./_img/eks4-8.png)
+
+**Wnioski**
+
+Indeksy wykorzystujące kilka atrybutów, wraz z include, są przydatne w sytuacjach, gdy zapytania obejmują wiele kolumn w warunkach wyszukiwania oraz dodatkowych kolumnach do wyświetlenia. Dzięki nim zapytania stają się bardziej wydajne, ponieważ SZBD może szybciej dostępować się do danych spełniających kryteria zapytania.
 
 |         |     |     |     |
 | ------- | --- | --- | --- |
