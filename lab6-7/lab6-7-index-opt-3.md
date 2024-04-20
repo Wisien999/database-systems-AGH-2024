@@ -624,7 +624,6 @@ Zapytanie 1
 
 ![alt text](_img/exp-bw-no-index-1.png)
 
-
 Zapytanie 2
 
 ![alt text](_img/exp-bw-no-index-2.png)
@@ -643,16 +642,15 @@ Pierwotnie komuna `content` była typu `text`, ale okazało się MS SQL Server 
 #### Wyniki zapytań z indeksem
 Zapytanie 1
 
-![alt text](_img/exp-bw-no-index-1.png)
-
+![alt text](_img/exp-bw-index-1.png)
 
 Zapytanie 2
 
-![alt text](_img/exp-bw-no-index-2.png)
+![alt text](_img/exp-bw-index-2.png)
 
 Zapytanie 3
 
-![alt text](_img/exp-bw-no-index-3.png)
+![alt text](_img/exp-bw-index-3.png)
 
 
 
