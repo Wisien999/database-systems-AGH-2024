@@ -294,6 +294,91 @@ Odpowiedź powinna zawierać:
 ```
 
 
+### Analiza operacji na napisach
+
+Definicja tabeli:
+```sql
+create table testString (
+	content varchar(500),
+	metadata1 varchar(20),
+	metadata2 varchar(20),
+	cnt int,
+)
+```
+
+Generacja danych:
+```sql
+declare @i int
+set @i = 1
+while @i <= 100000
+begin
+	insert into testString (content, metadata1, metadata2, cnt) 
+	values ('<root><block>bottom'+str(rand())+'</block><within charge="habit"><modern>rice</modern><wore>14'+str(rand())+'44283974</wore><jet solve="tribe">-421801468.1904454</jet></within><some>1167830737.'+str(rand())+'</some></root>', 
+	'meta1', 
+	'value' + str(@i), 
+	@i), 
+	('<root><various chain="alone">no</various><whatever>school</whatever><fruit>197'+str(rand())+'313</fruit></root>',
+	'value='+str(rand()),
+	'test',
+	(@i * @i) % 1000000)
+	;
+set @i = @i + 1;
+end;
+```
+
+Zapytanie 1
+```sql
+select content from testString where content like '%<block>bottom         0</block>%';
+```
+
+Zapytanie 2
+```sql
+select content from testString where content like '<root><block>bottom         0%';
+
+```
+
+Zapytanie 3
+```sql
+select content from testString where content like '%313</fruit></root>';
+
+```
+
+#### Wyniki zapytań bez indeksu
+Zapytanie 1
+
+![alt text](_img/exp-bw-no-index-1.png)
+
+
+Zapytanie 2
+
+![alt text](_img/exp-bw-no-index-2.png)
+
+Zapytanie 3
+
+![alt text](_img/exp-bw-no-index-3.png)
+
+
+#### Dodanie Indeksu na kolumnie `content`
+```sql
+create nonclustered index content_index on testString (content);
+```
+Pierwotnie komuna `content` była typu `text`, ale okazało się MS SQL Server nie wspiera indeksowaniwa kolumn tego typu. Wspiera natomiast indeksowanie kolumn o typie `varchar`.
+
+#### Wyniki zapytań z indeksem
+Zapytanie 1
+
+![alt text](_img/exp-bw-no-index-1.png)
+
+
+Zapytanie 2
+
+![alt text](_img/exp-bw-no-index-2.png)
+
+Zapytanie 3
+
+![alt text](_img/exp-bw-no-index-3.png)
+
+
 
 
 |         |     |     |     |
