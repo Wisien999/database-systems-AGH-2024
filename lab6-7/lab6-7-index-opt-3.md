@@ -610,13 +610,11 @@ select content from testString where content like '%<block>bottom         0</blo
 Zapytanie 2
 ```sql
 select content from testString where content like '<root><block>bottom         0%';
-
 ```
 
 Zapytanie 3
 ```sql
 select content from testString where content like '%313</fruit></root>';
-
 ```
 
 #### Wyniki zapytań bez indeksu
@@ -637,7 +635,7 @@ Zapytanie 3
 ```sql
 create nonclustered index content_index on testString (content);
 ```
-Pierwotnie komuna `content` była typu `text`, ale okazało się MS SQL Server nie wspiera indeksowaniwa kolumn tego typu. Wspiera natomiast indeksowanie kolumn o typie `varchar`.
+Pierwotnie kolumna `content` była typu `text`, ale okazało się MS SQL Server nie wspiera indeksowaniwa kolumn tego typu. Wspiera natomiast indeksowanie kolumn o typie `varchar`.
 
 #### Wyniki zapytań z indeksem
 Zapytanie 1
