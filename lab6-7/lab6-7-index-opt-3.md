@@ -630,6 +630,9 @@ Zapytanie 3
 
 ![alt text](_img/exp-bw-no-index-3.png)
 
+Na tabeli nie ma indeksów, więc oczywiście trzeba przeskanować całą tabelę i fęcznie odfiltrować wyniki niepasujące do klauzuli `WHERE`.
+Można zauważeyć, że w zależności tego czy wyszukiwany jest prefix, infix czy sufix czasy wyszukiwania są zancząco różne. Jest to spodziewane, te 3 "fixy" mają różny stopień skomplikowania w znalezieniu. Prefix jest najprostszy - wystarczy sprawdzić początek napisu, sufix wymaga jeszcze przejścia do końca napisu (w zależności od implementacji może to być kosztowne lub nie), a infix wymaga przeszukania całego napisu.
+
 
 #### Dodanie Indeksu na kolumnie `content`
 ```sql
@@ -649,6 +652,11 @@ Zapytanie 2
 Zapytanie 3
 
 ![alt text](_img/exp-bw-index-3.png)
+
+
+Z indeksem wyszukiwanie infixu i sufixu używa `Index Scan` który jest bardzo podobny to `Table Scan`, ale używa danych zawartych w indeksie, a nie w tabeli. Zysk czasowy jest więc prawdopodobnie wynikiem ominięcia operacji I/O.
+Wyszukiwanie prefixu za to używa `Index Seek`, które jest efektywnym wykorzystaniem struktury drzewa.
+Widać tutaj, że MS SQL Server tworząc indeks `nonclustered` na polu `varchar` w żaden sposób nie optymalizuje go pod wyszukiwanie tekstowe (np. budując inny typ drzewa).
 
 
 
