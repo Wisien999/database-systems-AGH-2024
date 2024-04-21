@@ -670,6 +670,14 @@ Jak widać tabela zajmuje 5.86 GB.
 
 Spróbujmy wykonać zapytanie z zadania 3.
 
+```sql
+select productid, sum(unitprice), avg(unitprice), sum(orderqty), avg(orderqty)
+from saleshistory
+group by productid
+order by productid
+```
+
+
 ![alt text](_img/image-9-kw44.png)
 
 Jak widać czas wynosi 3.66 s
@@ -756,6 +764,12 @@ W strukutrze kolumnowej przechowywane są w następujący sposób:
 Joe: 1, 2, 3, 4 ...
 ```
 
+```sql
+CREATE CLUSTERED COLUMNSTORE INDEX clustered_columnstore_idx ON dbo.saleshistory;
+GO
+```
+
+
 ![alt text](_img/image-2-kw44.png)
 
 Jak widać zysk z tej kompresji jest ogromny, tabela zajmuje teraz zaledwie 0.014 GB.
@@ -771,6 +785,11 @@ Jak widać koszt to tylko 6. Zatem nie tylko zyskaliśmy ogromną kompresje dany
 ### Column store archive
 
 Kompresje colum stroe archive można także polepszyć używając specjalnego algorymtu Microsoftu XPRESS, jest to ich implementacja algorytmu *LZ77*
+
+```sql
+ALTER TABLE dbo.saleshistory REBUILD PARTITION = ALL
+WITH (DATA_COMPRESSION =  COLUMNSTORE_ARCHIVE);
+```
 
 ![alt text](_img/image-3-kw44.png)
 
