@@ -1,5 +1,4 @@
-
-# Indeksy,  optymalizator <br>Lab 6-7
+# Indeksy, optymalizator <br>Lab 6-7
 
 <!-- <style scoped>
  p,li {
@@ -13,21 +12,21 @@
   }
 </style>  -->
 
-
 ---
 
 **Imię i nazwisko:**
 
 Mateusz Skowron, Bartłomiej Wiśniewski, Karol Wrona
 
---- 
+---
 
 Celem ćwiczenia jest zapoznanie się z planami wykonania zapytań (execution plans), oraz z budową i możliwością wykorzystaniem indeksów (cz. 2.)
 
 Swoje odpowiedzi wpisuj w miejsca oznaczone jako:
 
 ---
-> Wyniki: 
+
+> Wyniki:
 
 ```sql
 --  ...
@@ -44,29 +43,29 @@ Zwróć uwagę na formatowanie kodu
 ## Oprogramowanie - co jest potrzebne?
 
 Do wykonania ćwiczenia potrzebne jest następujące oprogramowanie
+
 - MS SQL Server,
-- SSMS - SQL Server Management Studio    
+- SSMS - SQL Server Management Studio
 - przykładowa baza danych AdventureWorks2017.
-    
+
 Oprogramowanie dostępne jest na przygotowanej maszynie wirtualnej
 
-## Przygotowanie  
+## Przygotowanie
 
-
-    
-Stwórz swoją bazę danych o nazwie lab6. 
+Stwórz swoją bazę danych o nazwie lab6.
 
 ```sql
-create database lab5  
-go  
-  
-use lab5  
+create database lab5
+go
+
+use lab5
 go
 ```
 
 ## Dokumentacja
 
 Obowiązkowo:
+
 - [https://docs.microsoft.com/en-us/sql/relational-databases/indexes/indexes](https://docs.microsoft.com/en-us/sql/relational-databases/indexes/indexes)
 - [https://docs.microsoft.com/en-us/sql/relational-databases/indexes/create-filtered-indexes](https://docs.microsoft.com/en-us/sql/relational-databases/indexes/create-filtered-indexes)
 
@@ -81,33 +80,32 @@ select * into product from adventureworks2017.production.product
 Stwórz indeks z warunkiem przedziałowym:
 
 ```sql
-create nonclustered index product_range_idx  
-    on product (productsubcategoryid, listprice) include (name)  
+create nonclustered index product_range_idx
+    on product (productsubcategoryid, listprice) include (name)
 where productsubcategoryid >= 27 and productsubcategoryid <= 36
 ```
 
 Sprawdź, czy indeks jest użyty w zapytaniu:
 
 ```sql
-select name, productsubcategoryid, listprice  
-from product  
+select name, productsubcategoryid, listprice
+from product
 where productsubcategoryid >= 27 and productsubcategoryid <= 36
 ```
 
 Sprawdź, czy indeks jest użyty w zapytaniu, który jest dopełnieniem zbioru:
 
 ```sql
-select name, productsubcategoryid, listprice  
-from product  
+select name, productsubcategoryid, listprice
+from product
 where productsubcategoryid < 27 or productsubcategoryid > 36
 ```
 
-
 Skomentuj oba zapytania. Czy indeks został użyty w którymś zapytaniu, dlaczego? Czy indeks nie został użyty w którymś zapytaniu, dlaczego? Jak działają indeksy z warunkiem?
 
-
 ---
-> Wyniki: 
+
+> Wyniki:
 
 Execution Plan dla zapytania 1:
 
@@ -117,10 +115,7 @@ Execution Plan dla zapytania 2:
 
 ![alt text](_img/zad1-zap2.png)
 
-
 Tylko pierwsze zapytanie wykorzystuje indeks. W drugim zapytaniu warunek jest przeciwieństwem warunku indeksu, dlatego indeks nie jest używany. Indeks z warunkiem działa tylko wtedy, gdy warunek jest spełniony. W przeciwnym przypadku indeks nie jest używany.
-
-
 
 # Zadanie 2 – indeksy klastrujące
 
@@ -131,12 +126,13 @@ Skopiuj ponownie tabelę SalesOrderHeader do swojej bazy danych:
 ```sql
 select * into salesorderheader2 from adventureworks2017.sales.salesorderheader
 ```
+
 ![alt text](./_img/zad2_1.png)
 
 Wypisz sto pierwszych zamówień:
 
 ```sql
-select top 100 * from salesorderheader2  
+select top 100 * from salesorderheader2
 order by orderdate
 ```
 
@@ -159,41 +155,43 @@ Wypisz ponownie sto pierwszych zamówień. Co się zmieniło?
 ![alt text](./_img/zad2_analysis-2.png)
 
 ---
-> Wyniki: 
 
-W wynikach nie zmieniło się nic. 
+> Wyniki:
+
+W wynikach nie zmieniło się nic.
 
 W analizie zapytań, możemy zauważyć, że w pierwszym przypadku, gdzie nie mamy indeksu jest realizowana operacja sortowania, która jest bardzo kosztowa i stanowi większą część kosztu zapytania. W drugim przypadku, dzięki zastosowaniu indeksu klastrującego na kolumnę, po której sortujemy w naszym zapytaniu pozbywamy się konieczności sortowania, czyli najbardziej kosztownej operacji, a więc koszt zapytania się zmniejsza.
 
 Sprawdź zapytanie:
 
 ```sql
-select top 1000 * from salesorderheader2  
+select top 1000 * from salesorderheader2
 where orderdate between '2010-10-01' and '2011-06-01'
 ```
-
 
 Dodaj sortowanie według OrderDate ASC i DESC. Czy indeks działa w obu przypadkach. Czy wykonywane jest dodatkowo sortowanie?
 
-
 ---
-> Wyniki: 
+
+> Wyniki:
 
 ```sql
-select top 1000 * from salesorderheader2  
+select top 1000 * from salesorderheader2
 where orderdate between '2010-10-01' and '2011-06-01'
 order by OrderDate asc
 ```
+
 ![alt text](./_img/zad2_7.png)
 ![alt text](./_img/zad2_8.png)
 
 Widzimy, że indeks został wykorzystany, na co wskazuje operacja `Clustered Index Seek`. Nie jest wykonywane dodatkowe sortowanie.
 
 ```sql
-select top 1000 * from salesorderheader2  
+select top 1000 * from salesorderheader2
 where orderdate between '2010-10-01' and '2011-06-01'
 order by OrderDate desc
 ```
+
 ![alt text](./_img/zad2_9.png)
 ![alt text](./_img/zad2_10.png)
 
@@ -203,68 +201,65 @@ Indeks działa w obu przypadkach dzięki czemu w obu przypadkach unikamy koniecz
 
 # Zadanie 3 – indeksy column store
 
-
 Celem zadania jest poznanie indeksów typu column store![](file:////Users/rm/Library/Group%20Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image001.jpg)
 
 Utwórz tabelę testową:
 
 ```sql
-create table dbo.saleshistory(  
- salesorderid int not null,  
- salesorderdetailid int not null,  
- carriertrackingnumber nvarchar(25) null,  
- orderqty smallint not null,  
- productid int not null,  
- specialofferid int not null,  
- unitprice money not null,  
- unitpricediscount money not null,  
- linetotal numeric(38, 6) not null,  
- rowguid uniqueidentifier not null,  
- modifieddate datetime not null  
+create table dbo.saleshistory(
+ salesorderid int not null,
+ salesorderdetailid int not null,
+ carriertrackingnumber nvarchar(25) null,
+ orderqty smallint not null,
+ productid int not null,
+ specialofferid int not null,
+ unitprice money not null,
+ unitpricediscount money not null,
+ linetotal numeric(38, 6) not null,
+ rowguid uniqueidentifier not null,
+ modifieddate datetime not null
  )
 ```
 
 Załóż indeks:
 
 ```sql
-create clustered index saleshistory_idx  
+create clustered index saleshistory_idx
 on saleshistory(salesorderdetailid)
 ```
 
-
-
 Wypełnij tablicę danymi:
 
-(UWAGA    `GO 100` oznacza 100 krotne wykonanie polecenia. Jeżeli podejrzewasz, że Twój serwer może to zbyt przeciążyć, zacznij od GO 10, GO 20, GO 50 (w sumie już będzie 80))
+(UWAGA `GO 100` oznacza 100 krotne wykonanie polecenia. Jeżeli podejrzewasz, że Twój serwer może to zbyt przeciążyć, zacznij od GO 10, GO 20, GO 50 (w sumie już będzie 80))
 
 ```sql
-insert into saleshistory  
- select sh.*  
- from adventureworks2017.sales.salesorderdetail sh  
+insert into saleshistory
+ select sh.*
+ from adventureworks2017.sales.salesorderdetail sh
 go 100
 ```
 
 Sprawdź jak zachowa się zapytanie, które używa obecny indeks:
 
 ```sql
-select productid, sum(unitprice), avg(unitprice), sum(orderqty), avg(orderqty)  
-from saleshistory  
-group by productid  
+select productid, sum(unitprice), avg(unitprice), sum(orderqty), avg(orderqty)
+from saleshistory
+group by productid
 order by productid
 ```
 
 Załóż indeks typu ColumnStore:
 
 ```sql
-create nonclustered columnstore index saleshistory_columnstore  
+create nonclustered columnstore index saleshistory_columnstore
  on saleshistory(unitprice, orderqty, productid)
 ```
 
 Sprawdź różnicę pomiędzy przetwarzaniem w zależności od indeksów. Porównaj plany i opisz różnicę.
 
-
 ---
-> Wyniki: 
+
+> Wyniki:
 
 Zapytania zostały wykonane na tabeli z 52 mln wierszy
 
@@ -284,7 +279,7 @@ Czas wykonania około: 8s
 
 Zakładnie column store indexa trwało około: 41 sek
 
-Czas wykonania: 0s 
+Czas wykonania: 0s
 
 ![alt text](_img/image-3-3k.png)
 
@@ -296,13 +291,14 @@ Czas wykonania: 0s
 
 ### Porównanie
 
-Jak widać columnstore mimo dość długiego procesu zakładania indeksu, drastycznie zwiększa prędkość odczytu. Estimated Subtree Cost zwykłego indeksu to 360, columnstora to 6. 
+Jak widać columnstore mimo dość długiego procesu zakładania indeksu, drastycznie zwiększa prędkość odczytu. Estimated Subtree Cost zwykłego indeksu to 360, columnstora to 6.
 
 # Zadanie 4 – własne eksperymenty
 
 Należy zaprojektować tabelę w bazie danych, lub wybrać dowolny schemat danych (poza używanymi na zajęciach), a następnie wypełnić ją danymi w taki sposób, aby zrealizować poszczególne punkty w analizie indeksów. Warto wygenerować sobie tabele o większym rozmiarze.
 
 Do analizy, proszę uwzględnić następujące rodzaje indeksów:
+
 - Klastrowane (np.  dla atrybutu nie będącego kluczem głównym)
 - Nieklastrowane
 - Indeksy wykorzystujące kilka atrybutów, indeksy include
@@ -312,6 +308,7 @@ Do analizy, proszę uwzględnić następujące rodzaje indeksów:
 ## Analiza
 
 Proszę przygotować zestaw zapytań do danych, które:
+
 - wykorzystują poszczególne indeksy
 - przy wymuszeniu indeksu działają gorzej, niż bez niego (lub pomimo założonego indeksu, tabela jest w pełni skanowana)
 
@@ -325,8 +322,7 @@ Odpowiedź powinna zawierać:
 - Komentarze do zapytań, ich wyników
 - Sprawdzenie, co proponuje Database Engine Tuning Advisor (porównanie czy udało się Państwu znaleźć odpowiednie indeksy do zapytania)
 
-
-> Wyniki: 
+> Wyniki:
 
 ### Eksperyment 1 - Indeks warunkowy (Filtered Index)
 
@@ -347,7 +343,7 @@ BEGIN
     INSERT INTO Products (ProductName, Category, Price, StockQuantity)
     VALUES (
         CONCAT('Product', @i),
-        CASE 
+        CASE
             WHEN @i % 3 = 0 THEN 'Electronics'
             WHEN @i % 3 = 1 THEN 'Clothing'
             ELSE 'Books'
@@ -443,9 +439,9 @@ END;
 Chcemy zsumować wartość zamówień dla określonego produktu w określonym przedziale czasowym.
 
 ```sql
-SELECT ProductID, SUM(TotalPrice) AS TotalSales 
-FROM Orders 
-WHERE OrderDate BETWEEN '2022-01-01' AND '2022-12-31' 
+SELECT ProductID, SUM(TotalPrice) AS TotalSales
+FROM Orders
+WHERE OrderDate BETWEEN '2022-01-01' AND '2022-12-31'
 GROUP BY ProductID;
 ```
 
@@ -507,12 +503,12 @@ BEGIN
     VALUES (
         CONCAT('First', @i),
         CONCAT('Last', @i),
-        CASE 
+        CASE
             WHEN @i % 3 = 0 THEN 'New York'
             WHEN @i % 3 = 1 THEN 'Los Angeles'
             ELSE 'Chicago'
         END,
-        CASE 
+        CASE
             WHEN @i % 3 = 0 THEN 'USA'
             WHEN @i % 3 = 1 THEN 'USA'
             ELSE 'Canada'
@@ -529,8 +525,8 @@ END;
 Chcemy wyszukać klientów z danego miasta i kraju.
 
 ```sql
-SELECT FirstName, LastName, PhoneNumber, Email 
-FROM Customers 
+SELECT FirstName, LastName, PhoneNumber, Email
+FROM Customers
 WHERE City = 'New York' AND Country = 'USA';
 ```
 
@@ -573,6 +569,7 @@ Indeksy wykorzystujące kilka atrybutów, wraz z include, są przydatne w przypa
 ### Eksperyment 4 - Indeksownie napisów
 
 Definicja tabeli:
+
 ```sql
 create table testString (
 	content varchar(500),
@@ -583,16 +580,17 @@ create table testString (
 ```
 
 Generacja danych:
+
 ```sql
 declare @i int
 set @i = 1
 while @i <= 100000
 begin
-	insert into testString (content, metadata1, metadata2, cnt) 
-	values ('<root><block>bottom'+str(rand())+'</block><within charge="habit"><modern>rice</modern><wore>14'+str(rand())+'44283974</wore><jet solve="tribe">-421801468.1904454</jet></within><some>1167830737.'+str(rand())+'</some></root>', 
-	'meta1', 
-	'value' + str(@i), 
-	@i), 
+	insert into testString (content, metadata1, metadata2, cnt)
+	values ('<root><block>bottom'+str(rand())+'</block><within charge="habit"><modern>rice</modern><wore>14'+str(rand())+'44283974</wore><jet solve="tribe">-421801468.1904454</jet></within><some>1167830737.'+str(rand())+'</some></root>',
+	'meta1',
+	'value' + str(@i),
+	@i),
 	('<root><various chain="alone">no</various><whatever>school</whatever><fruit>197'+str(rand())+'313</fruit></root>',
 	'value='+str(rand()),
 	'test',
@@ -603,21 +601,25 @@ end;
 ```
 
 Zapytanie 1
+
 ```sql
 select content from testString where content like '%<block>bottom         0</block>%';
 ```
 
 Zapytanie 2
+
 ```sql
 select content from testString where content like '<root><block>bottom         0%';
 ```
 
 Zapytanie 3
+
 ```sql
 select content from testString where content like '%313</fruit></root>';
 ```
 
 #### Wyniki zapytań bez indeksu
+
 Zapytanie 1
 
 ![alt text](_img/exp-bw-no-index-1.png)
@@ -633,14 +635,16 @@ Zapytanie 3
 Na tabeli nie ma indeksów, więc oczywiście trzeba przeskanować całą tabelę i fęcznie odfiltrować wyniki niepasujące do klauzuli `WHERE`.
 Można zauważeyć, że w zależności tego czy wyszukiwany jest prefix, infix czy sufix czasy wyszukiwania są zancząco różne. Jest to spodziewane, te 3 "fixy" mają różny stopień skomplikowania w znalezieniu. Prefix jest najprostszy - wystarczy sprawdzić początek napisu, sufix wymaga jeszcze przejścia do końca napisu (w zależności od implementacji może to być kosztowne lub nie), a infix wymaga przeszukania całego napisu.
 
-
 #### Dodanie Indeksu na kolumnie `content`
+
 ```sql
 create nonclustered index content_index on testString (content);
 ```
+
 Pierwotnie kolumna `content` była typu `text`, ale okazało się MS SQL Server nie wspiera indeksowaniwa kolumn tego typu. Wspiera natomiast indeksowanie kolumn o typie `varchar`.
 
 #### Wyniki zapytań z indeksem
+
 Zapytanie 1
 
 ![alt text](_img/exp-bw-index-1.png)
@@ -653,16 +657,15 @@ Zapytanie 3
 
 ![alt text](_img/exp-bw-index-3.png)
 
-
 Z indeksem wyszukiwanie infixu i sufixu używa `Index Scan` który jest bardzo podobny to `Table Scan`, ale używa danych zawartych w indeksie, a nie w tabeli. Zysk czasowy jest więc prawdopodobnie wynikiem ominięcia operacji I/O.
 Wyszukiwanie prefixu za to używa `Index Seek`, które jest efektywnym wykorzystaniem struktury drzewa.
 Widać tutaj, że MS SQL Server tworząc indeks `nonclustered` na polu `varchar` w żaden sposób nie optymalizuje go pod wyszukiwanie tekstowe (np. budując inny typ drzewa).
 
-### Kompresja tabeli - porównanie różnych metod
+### Eksperyment 5 - Kompresja tabeli - porównanie różnych metod
 
 Eksperyment zostanie przeprowadzony na bazie danych z ćwiczenia 3, uzupełnioną 58 mln wierszy. W tym eksperymecnie zakładamy że mamy dużą tabele danych na której wykonujemy tylko operacje czytania. Jest to tabela z archiwalnymi danymi, na której nie będziemy wykonywać operacji insert, update czy też delete. Chcemy zbadać jaka metoda kompresji danych jest najskuteczniejsza.
 
-### Bez kompresji
+#### Bez kompresji
 
 ![alt text](_img/image-kw44.png)
 
@@ -677,7 +680,6 @@ group by productid
 order by productid
 ```
 
-
 ![alt text](_img/image-9-kw44.png)
 
 Jak widać czas wynosi 3.66 s
@@ -686,24 +688,25 @@ Jak widać czas wynosi 3.66 s
 
 a koszt to około 584
 
+#### Page compression
 
-### Page compression
+W pierszym kroku spróbujemy wykonać _Page Compression_. Kompresja ta składa się z trzech kroków:
 
-W pierszym kroku spróbujemy wykonać *Page Compression*. Kompresja ta składa się z trzech kroków:
 - Row compression
 - Prefix compression
 - Dictionary compression
 
 Omówmy każdy z tych kroków
 
-#### Row compression:
+#### Row compression
 
 Row compression optymalizuje dane na trzy sposoby:
+
 1. Elimunuje narzut związany z metadanymi. Są to informacje odnośnie kolumn, ich długości, offsetów.
 2. Używa pól o zmiennej długości aby przechowywać wartości numeryczne oraz typy oparte o typy numeryczne
 3. Powyższa metoda stosowana jest także dla stringów, np. poprzez pomijanie pustych znaków
 
-#### Prefix compression:
+#### Prefix compression
 
 Prefix compression polega na wyznaczeniu dla każdej kolumny pewenego prefixu który powtarza się w jak największej ilości wierszy. Prefix taki jest przenoszony do nagłówka strony. Ilustracje z dokumentacji MsSql:
 
@@ -711,7 +714,7 @@ Prefix compression polega na wyznaczeniu dla każdej kolumny pewenego prefixu kt
 
 ![alt text](_img/image-5-kw44.png)
 
-#### Dictionary compression:
+#### Dictionary compression
 
 Dictionary Compression wykonane jest po prefix comppresion i polega na stworzeniu słównika powtarzających się wartości. W przeciwieństwie do prefix compression nie jest ona ograniczona do jednej kolumny. Ilustracja:
 
@@ -725,7 +728,6 @@ WITH (DATA_COMPRESSION = PAGE);
 ```
 
 ![alt text](_img/image-1-kw44.png)
-
 
 Jak widać efekty tej kompresji są bardzo zadowolające, teraz tabela zajmuje tylko 0.729 GB.
 
@@ -743,11 +745,11 @@ a koszt to około 584
 
 Jak widać w tym przypadku kompresja danych nie ma żadnego wypływu na szybkość tego zapytania.
 
-### Column store
+#### Column store
 
-Kompresa colun store polega na zmianie sposobu przechowywania danych w strukture kolumnową. W takiej strukturze kolumny są podzielonę na segmenty z których każdy jest niezależnie kompresowany. Ponadto tworzony jest słownik kolumnowy, który przechowuje unikalne wartości w kolumnie oraz licznik ich wystąpień, w ten sposób często powtarzające dane są zastępowane odnośnikami do słownika.
+Kompresja column store polega na zmianie sposobu przechowywania danych w strukture kolumnową. W takiej strukturze kolumny są podzielonę na segmenty z których każdy jest niezależnie kompresowany. Ponadto tworzony jest słownik kolumnowy, który przechowuje unikalne wartości w kolumnie oraz licznik ich wystąpień, w ten sposób często powtarzające dane są zastępowane odnośnikami do słownika.
 
-Struktura kolumonowa jest szczególnie efektywna przy dużej ilości powtarzających się danych. Wyobraźmy sobie że mamy 10 wierszy z wartością *Joe*. W wierszowej reprezentacji dane przechowywane byłby w ten sposób:
+Struktura kolumonowa jest szczególnie efektywna przy dużej ilości powtarzających się danych. Wyobraźmy sobie że mamy 10 wierszy z wartością _Joe_. W wierszowej reprezentacji dane przechowywane byłby w ten sposób:
 
 ```
 1: Joe
@@ -758,7 +760,7 @@ Struktura kolumonowa jest szczególnie efektywna przy dużej ilości powtarzają
 .
 ```
 
-W strukutrze kolumnowej przechowywane są w następujący sposób:
+W strukturze kolumnowej przechowywane są w następujący sposób:
 
 ```
 Joe: 1, 2, 3, 4 ...
@@ -768,7 +770,6 @@ Joe: 1, 2, 3, 4 ...
 CREATE CLUSTERED COLUMNSTORE INDEX clustered_columnstore_idx ON dbo.saleshistory;
 GO
 ```
-
 
 ![alt text](_img/image-2-kw44.png)
 
@@ -782,9 +783,9 @@ Jak widać zysk z tej kompresji jest ogromny, tabela zajmuje teraz zaledwie 0.01
 
 Jak widać koszt to tylko 6. Zatem nie tylko zyskaliśmy ogromną kompresje danych, ale także uzyskaliśmy przyspieszenie w tym konkretnym zapytaniu.
 
-### Column store archive
+#### Column store archive
 
-Kompresje colum stroe archive można także polepszyć używając specjalnego algorymtu Microsoftu XPRESS, jest to ich implementacja algorytmu *LZ77*
+Kompresje colum stroe archive można także polepszyć używając specjalnego algorymtu Microsoftu XPRESS, jest to ich implementacja algorytmu _LZ77_
 
 ```sql
 ALTER TABLE dbo.saleshistory REBUILD PARTITION = ALL
@@ -795,7 +796,7 @@ WITH (DATA_COMPRESSION =  COLUMNSTORE_ARCHIVE);
 
 W ten sposób udało nam się zmiejszyć wielkość tabeli dwukrotnie, do 0.0075 GB.
 
-### Wydajność
+#### Wydajność
 
 Sytuacja indetyczna jak w powyższym przykładzie:
 
@@ -803,13 +804,11 @@ Sytuacja indetyczna jak w powyższym przykładzie:
 
 ![alt text](_img/image-15-kw44.png)
 
-### Podsumowanie
+#### Podsumowanie
 
 ![plot](_img/myplot-kw44.png)
 
-Jak widać na powyższym wykresie dowolna już nawet *Page Compression* znacząco zmniejsza rozmiar tabeli. Natomiast kompresje przy pomocy *columnstore indexes* dają niesamowite wyniki. Co więcej dodanie indeksów columstore przyspieszyło nasze zapytanie. To sprawia że metody te świetnie sprawdzają się w przypadku dużych tabel na których wykonujemy głónie operacje czytania.
-
-
+Jak widać na powyższym wykresie dowolna już nawet _Page Compression_ znacząco zmniejsza rozmiar tabeli. Natomiast kompresje przy pomocy _columnstore indexes_ dają niesamowite wyniki. Co więcej dodanie indeksów columstore przyspieszyło nasze zapytanie. To sprawia że metody te świetnie sprawdzają się w przypadku dużych tabel na których wykonujemy głónie operacje czytania.
 
 |         |     |     |     |
 | ------- | --- | --- | --- |
