@@ -658,6 +658,138 @@ Z indeksem wyszukiwanie infixu i sufixu używa `Index Scan` który jest bardzo p
 Wyszukiwanie prefixu za to używa `Index Seek`, które jest efektywnym wykorzystaniem struktury drzewa.
 Widać tutaj, że MS SQL Server tworząc indeks `nonclustered` na polu `varchar` w żaden sposób nie optymalizuje go pod wyszukiwanie tekstowe (np. budując inny typ drzewa).
 
+### Kompresja tabeli - porównanie różnych metod
+
+Eksperyment zostanie przeprowadzony na bazie danych z ćwiczenia 3, uzupełnioną 58 mln wierszy. W tym eksperymecnie zakładamy że mamy dużą tabele danych na której wykonujemy tylko operacje czytania. Jest to tabela z archiwalnymi danymi, na której nie będziemy wykonywać operacji insert, update czy też delete. Chcemy zbadać jaka metoda kompresji danych jest najskuteczniejsza.
+
+### Bez kompresji
+
+![alt text](_img/image-kw44.png)
+
+Jak widać tabela zajmuje 5.86 GB.
+
+Spróbujmy wykonać zapytanie z zadania 3.
+
+![alt text](_img/image-9-kw44.png)
+
+Jak widać czas wynosi 3.66 s
+
+![alt text](_img/image-10-kw44.png)
+
+a koszt to około 584
+
+
+### Page compression
+
+W pierszym kroku spróbujemy wykonać *Page Compression*. Kompresja ta składa się z trzech kroków:
+- Row compression
+- Prefix compression
+- Dictionary compression
+
+Omówmy każdy z tych kroków
+
+#### Row compression:
+
+Row compression optymalizuje dane na trzy sposoby:
+1. Elimunuje narzut związany z metadanymi. Są to informacje odnośnie kolumn, ich długości, offsetów.
+2. Używa pól o zmiennej długości aby przechowywać wartości numeryczne oraz typy oparte o typy numeryczne
+3. Powyższa metoda stosowana jest także dla stringów, np. poprzez pomijanie pustych znaków
+
+#### Prefix compression:
+
+Prefix compression polega na wyznaczeniu dla każdej kolumny pewenego prefixu który powtarza się w jak największej ilości wierszy. Prefix taki jest przenoszony do nagłówka strony. Ilustracje z dokumentacji MsSql:
+
+![alt text](_img/image-4-kw44.png)
+
+![alt text](_img/image-5-kw44.png)
+
+#### Dictionary compression:
+
+Dictionary Compression wykonane jest po prefix comppresion i polega na stworzeniu słównika powtarzających się wartości. W przeciwieństwie do prefix compression nie jest ona ograniczona do jednej kolumny. Ilustracja:
+
+![alt text](_img/image-6-kw44.png)
+
+#### Wyniki Page Compression
+
+```sql
+ALTER TABLE dbo.saleshistory REBUILD PARTITION = ALL
+WITH (DATA_COMPRESSION = PAGE);
+```
+
+![alt text](_img/image-1-kw44.png)
+
+
+Jak widać efekty tej kompresji są bardzo zadowolające, teraz tabela zajmuje tylko 0.729 GB.
+
+#### Wydajność
+
+Sprawdźmy ile czasu zajmie zapytanie z zadania 3:
+
+![alt text](_img/image-7-kw44.png)
+
+Jak widać czas to 2.4s
+
+![alt text](_img/image-11-kw44.png)
+
+a koszt to około 584
+
+Jak widać w tym przypadku kompresja danych nie ma żadnego wypływu na szybkość tego zapytania.
+
+### Column store
+
+Kompresa colun store polega na zmianie sposobu przechowywania danych w strukture kolumnową. W takiej strukturze kolumny są podzielonę na segmenty z których każdy jest niezależnie kompresowany. Ponadto tworzony jest słownik kolumnowy, który przechowuje unikalne wartości w kolumnie oraz licznik ich wystąpień, w ten sposób często powtarzające dane są zastępowane odnośnikami do słownika.
+
+Struktura kolumonowa jest szczególnie efektywna przy dużej ilości powtarzających się danych. Wyobraźmy sobie że mamy 10 wierszy z wartością *Joe*. W wierszowej reprezentacji dane przechowywane byłby w ten sposób:
+
+```
+1: Joe
+2: Joe
+3: Joe
+.
+.
+.
+```
+
+W strukutrze kolumnowej przechowywane są w następujący sposób:
+
+```
+Joe: 1, 2, 3, 4 ...
+```
+
+![alt text](_img/image-2-kw44.png)
+
+Jak widać zysk z tej kompresji jest ogromny, tabela zajmuje teraz zaledwie 0.014 GB.
+
+#### Wydajność
+
+![alt text](_img/image-12-kw44.png)
+
+![alt text](_img/image-13-kw44.png)
+
+Jak widać koszt to tylko 6. Zatem nie tylko zyskaliśmy ogromną kompresje danych, ale także uzyskaliśmy przyspieszenie w tym konkretnym zapytaniu.
+
+### Column store archive
+
+Kompresje colum stroe archive można także polepszyć używając specjalnego algorymtu Microsoftu XPRESS, jest to ich implementacja algorytmu *LZ77*
+
+![alt text](_img/image-3-kw44.png)
+
+W ten sposób udało nam się zmiejszyć wielkość tabeli dwukrotnie, do 0.0075 GB.
+
+### Wydajność
+
+Sytuacja indetyczna jak w powyższym przykładzie:
+
+![alt text](_img/image-14-kw44.png)
+
+![alt text](_img/image-15-kw44.png)
+
+### Podsumowanie
+
+![plot](_img/myplot-kw44.png)
+
+Jak widać na powyższym wykresie dowolna już nawet *Page Compression* znacząco zmniejsza rozmiar tabeli. Natomiast kompresje przy pomocy *columnstore indexes* dają niesamowite wyniki. Co więcej dodanie indeksów columstore przyspieszyło nasze zapytanie. To sprawia że metody te świetnie sprawdzają się w przypadku dużych tabel na których wykonujemy głónie operacje czytania.
+
 
 
 |         |     |     |     |
