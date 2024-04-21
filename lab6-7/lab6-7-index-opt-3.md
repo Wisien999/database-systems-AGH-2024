@@ -568,74 +568,88 @@ Indeksy wykorzystujące kilka atrybutów, wraz z include, są przydatne w przypa
 
 ### Eksperyment 4 - Indeksownie napisów
 
-Definicja tabeli:
+#### Opis i cel
+
+W tym eksperymencie zbadamy wydajność operacji wyszukiwania tekstu na tabeli `testString`. Tabela ta zawiera kolumnę `content`, która przechowuje duże bloki tekstu XML. Celem jest porównanie czasu i kosztu wykonania zapytań tekstowych przed i po dodaniu indeksu na kolumnie `content`.
+
+#### Tworzenie tabeli i generowanie danych
+
+Najpierw tworzymy tabelę `testString`:
 
 ```sql
-create table testString (
-	content varchar(500),
-	metadata1 varchar(20),
-	metadata2 varchar(20),
-	cnt int,
-)
+CREATE TABLE testString (
+    content VARCHAR(500),
+    metadata1 VARCHAR(20),
+    metadata2 VARCHAR(20),
+    cnt INT
+);
 ```
 
-Generacja danych:
+Następnie generujemy dane do tabeli:
 
 ```sql
-declare @i int
-set @i = 1
-while @i <= 100000
-begin
-	insert into testString (content, metadata1, metadata2, cnt)
-	values ('<root><block>bottom'+str(rand())+'</block><within charge="habit"><modern>rice</modern><wore>14'+str(rand())+'44283974</wore><jet solve="tribe">-421801468.1904454</jet></within><some>1167830737.'+str(rand())+'</some></root>',
-	'meta1',
-	'value' + str(@i),
-	@i),
-	('<root><various chain="alone">no</various><whatever>school</whatever><fruit>197'+str(rand())+'313</fruit></root>',
-	'value='+str(rand()),
-	'test',
-	(@i * @i) % 1000000)
-	;
-set @i = @i + 1;
-end;
+DECLARE @i INT = 1;
+WHILE @i <= 100000
+BEGIN
+    INSERT INTO testString (content, metadata1, metadata2, cnt)
+    VALUES (
+        '<root><block>bottom' + CAST(RAND() AS VARCHAR(10)) + '</block><within charge="habit"><modern>rice</modern><wore>14' + CAST(RAND() AS VARCHAR(10)) + '44283974</wore><jet solve="tribe">-421801468.1904454</jet></within><some>1167830737.' + CAST(RAND() AS VARCHAR(10)) + '</some></root>',
+        'meta1',
+        'value' + CAST(@i AS VARCHAR(10)),
+        @i
+    );
+    SET @i = @i + 1;
+END;
 ```
 
-Zapytanie 1
+#### Zapytania
+
+Będziemy wykonywać trzy różne zapytania tekstowe:
+
+##### Zapytanie 1
+
+Wyszukiwanie bloku tekstu zawierającego konkretną frazę `<block>bottom 0</block>`:
 
 ```sql
-select content from testString where content like '%<block>bottom         0</block>%';
+select content from testString where content like '%<block>bottom 0</block>%';
 ```
 
-Zapytanie 2
+##### Zapytanie 2
+
+Wyszukiwanie bloku tekstu zaczynającego się od `<root><block>bottom 0`:
 
 ```sql
-select content from testString where content like '<root><block>bottom         0%';
+select content from testString where content like '<root><block>bottom 0%';
 ```
 
-Zapytanie 3
+##### Zapytanie 3
+
+Wyszukiwanie bloku tekstu kończącego się na `313</fruit></root>`:
 
 ```sql
 select content from testString where content like '%313</fruit></root>';
 ```
 
-#### Wyniki zapytań bez indeksu
+#### Wyniki bez indeksu
 
-Zapytanie 1
+##### Zapytanie 1
 
 ![alt text](_img/exp-bw-no-index-1.png)
 
-Zapytanie 2
+##### Zapytanie 2
 
 ![alt text](_img/exp-bw-no-index-2.png)
 
-Zapytanie 3
+##### Zapytanie 3
 
 ![alt text](_img/exp-bw-no-index-3.png)
 
-Na tabeli nie ma indeksów, więc oczywiście trzeba przeskanować całą tabelę i fęcznie odfiltrować wyniki niepasujące do klauzuli `WHERE`.
+Na tabeli nie ma indeksów, więc oczywiście trzeba przeskanować całą tabelę i ręcznie odfiltrować wyniki niepasujące do klauzuli `WHERE`.
 Można zauważeyć, że w zależności tego czy wyszukiwany jest prefix, infix czy sufix czasy wyszukiwania są zancząco różne. Jest to spodziewane, te 3 "fixy" mają różny stopień skomplikowania w znalezieniu. Prefix jest najprostszy - wystarczy sprawdzić początek napisu, sufix wymaga jeszcze przejścia do końca napisu (w zależności od implementacji może to być kosztowne lub nie), a infix wymaga przeszukania całego napisu.
 
 #### Dodanie Indeksu na kolumnie `content`
+
+Tworzymy indeks _nonclustered_ na kolumnie `content`:
 
 ```sql
 create nonclustered index content_index on testString (content);
@@ -645,15 +659,15 @@ Pierwotnie kolumna `content` była typu `text`, ale okazało się MS SQL Server
 
 #### Wyniki zapytań z indeksem
 
-Zapytanie 1
+##### Zapytanie 1
 
 ![alt text](_img/exp-bw-index-1.png)
 
-Zapytanie 2
+##### Zapytanie 2
 
 ![alt text](_img/exp-bw-index-2.png)
 
-Zapytanie 3
+##### Zapytanie 3
 
 ![alt text](_img/exp-bw-index-3.png)
 
@@ -661,15 +675,21 @@ Z indeksem wyszukiwanie infixu i sufixu używa `Index Scan` który jest bardzo p
 Wyszukiwanie prefixu za to używa `Index Seek`, które jest efektywnym wykorzystaniem struktury drzewa.
 Widać tutaj, że MS SQL Server tworząc indeks `nonclustered` na polu `varchar` w żaden sposób nie optymalizuje go pod wyszukiwanie tekstowe (np. budując inny typ drzewa).
 
+#### Wnioski
+
+Dodanie indeksu na kolumnie `content` znacząco poprawia wydajność operacji wyszukiwania tekstu. Indeks umożliwia szybkie dostęp do danych, co prowadzi do znacznego skrócenia czasu wykonania zapytań i redukcji kosztów operacji. W przypadku tabel zawierających duże bloki tekstu, stosowanie indeksów może być kluczowe dla zapewnienia odpowiedniej wydajności operacji wyszukiwania tekstu.
+
 ### Eksperyment 5 - Kompresja tabeli - porównanie różnych metod
 
-Eksperyment zostanie przeprowadzony na bazie danych z ćwiczenia 3, uzupełnioną 58 mln wierszy. W tym eksperymecnie zakładamy że mamy dużą tabele danych na której wykonujemy tylko operacje czytania. Jest to tabela z archiwalnymi danymi, na której nie będziemy wykonywać operacji insert, update czy też delete. Chcemy zbadać jaka metoda kompresji danych jest najskuteczniejsza.
+#### Opis i cel
+
+W tym eksperymencie przeprowadzimy analizę różnych metod kompresji danych na bazie danych z ćwiczenia 3, zawierającej 58 milionów rekordów. Założenie eksperymentu zakłada, że mamy dużą tabelę z danymi archiwalnymi, na której operacje manipulacyjne (insert, update, delete) nie będą wykonywane, a głównie będą wykonywane operacje odczytu. Celem jest zbadanie, która metoda kompresji danych jest najskuteczniejsza.
 
 #### Bez kompresji
 
 ![alt text](_img/image-kw44.png)
 
-Jak widać tabela zajmuje 5.86 GB.
+Początkowo tabela zajmuje 5.86 GB.
 
 Spróbujmy wykonać zapytanie z zadania 3.
 
@@ -682,11 +702,11 @@ order by productid
 
 ![alt text](_img/image-9-kw44.png)
 
-Jak widać czas wynosi 3.66 s
+Czas wykonania zapytania wynosi 3.66s
 
 ![alt text](_img/image-10-kw44.png)
 
-a koszt to około 584
+a jego koszt około 584.
 
 #### Page compression
 
@@ -696,9 +716,7 @@ W pierszym kroku spróbujemy wykonać _Page Compression_. Kompresja ta składa s
 - Prefix compression
 - Dictionary compression
 
-Omówmy każdy z tych kroków
-
-#### Row compression
+##### Row compression
 
 Row compression optymalizuje dane na trzy sposoby:
 
@@ -706,7 +724,7 @@ Row compression optymalizuje dane na trzy sposoby:
 2. Używa pól o zmiennej długości aby przechowywać wartości numeryczne oraz typy oparte o typy numeryczne
 3. Powyższa metoda stosowana jest także dla stringów, np. poprzez pomijanie pustych znaków
 
-#### Prefix compression
+##### Prefix compression
 
 Prefix compression polega na wyznaczeniu dla każdej kolumny pewenego prefixu który powtarza się w jak największej ilości wierszy. Prefix taki jest przenoszony do nagłówka strony. Ilustracje z dokumentacji MsSql:
 
@@ -714,13 +732,13 @@ Prefix compression polega na wyznaczeniu dla każdej kolumny pewenego prefixu kt
 
 ![alt text](_img/image-5-kw44.png)
 
-#### Dictionary compression
+##### Dictionary compression
 
 Dictionary Compression wykonane jest po prefix comppresion i polega na stworzeniu słównika powtarzających się wartości. W przeciwieństwie do prefix compression nie jest ona ograniczona do jednej kolumny. Ilustracja:
 
 ![alt text](_img/image-6-kw44.png)
 
-#### Wyniki Page Compression
+##### Wyniki
 
 ```sql
 ALTER TABLE dbo.saleshistory REBUILD PARTITION = ALL
@@ -729,25 +747,25 @@ WITH (DATA_COMPRESSION = PAGE);
 
 ![alt text](_img/image-1-kw44.png)
 
-Jak widać efekty tej kompresji są bardzo zadowolające, teraz tabela zajmuje tylko 0.729 GB.
+Jak widać efekty tej kompresji są bardzo zadowolające. Tabela po kompresji zajmuje jedynie 0.729 GB.
 
-#### Wydajność
+##### Wydajność
 
 Sprawdźmy ile czasu zajmie zapytanie z zadania 3:
 
 ![alt text](_img/image-7-kw44.png)
 
-Jak widać czas to 2.4s
+Czas wykonania zapytania wynosi teraz 2.4s
 
 ![alt text](_img/image-11-kw44.png)
 
-a koszt to około 584
+a jego koszt pozostaje na poziomie około 584.
 
 Jak widać w tym przypadku kompresja danych nie ma żadnego wypływu na szybkość tego zapytania.
 
 #### Column store
 
-Kompresja column store polega na zmianie sposobu przechowywania danych w strukture kolumnową. W takiej strukturze kolumny są podzielonę na segmenty z których każdy jest niezależnie kompresowany. Ponadto tworzony jest słownik kolumnowy, który przechowuje unikalne wartości w kolumnie oraz licznik ich wystąpień, w ten sposób często powtarzające dane są zastępowane odnośnikami do słownika.
+Kompresja kolumnowa polega na zmianie sposobu przechowywania danych, gdzie kolumny są podzielone na segmenty, z których każdy jest niezależnie kompresowany. Tworzony jest również słownik kolumnowy dla unikalnych wartości w kolumnie, co pozwala na bardziej efektywne zarządzanie danymi powtarzającymi się.
 
 Struktura kolumonowa jest szczególnie efektywna przy dużej ilości powtarzających się danych. Wyobraźmy sobie że mamy 10 wierszy z wartością _Joe_. W wierszowej reprezentacji dane przechowywane byłby w ten sposób:
 
@@ -766,6 +784,8 @@ W strukturze kolumnowej przechowywane są w następujący sposób:
 Joe: 1, 2, 3, 4 ...
 ```
 
+##### Wyniki
+
 ```sql
 CREATE CLUSTERED COLUMNSTORE INDEX clustered_columnstore_idx ON dbo.saleshistory;
 GO
@@ -773,19 +793,21 @@ GO
 
 ![alt text](_img/image-2-kw44.png)
 
-Jak widać zysk z tej kompresji jest ogromny, tabela zajmuje teraz zaledwie 0.014 GB.
+Jak widać zysk z tej kompresji jest ogromny. Tabela zajmuje teraz zaledwie 0.014 GB.
 
-#### Wydajność
+##### Wydajność
 
 ![alt text](_img/image-12-kw44.png)
 
 ![alt text](_img/image-13-kw44.png)
 
-Jak widać koszt to tylko 6. Zatem nie tylko zyskaliśmy ogromną kompresje danych, ale także uzyskaliśmy przyspieszenie w tym konkretnym zapytaniu.
+Koszt zapytania wynosi tylko 6. Zatem nie tylko zyskaliśmy ogromną kompresje danych, ale także uzyskaliśmy przyspieszenie dla tego konkretnego zapytania.
 
 #### Column store archive
 
-Kompresje colum stroe archive można także polepszyć używając specjalnego algorymtu Microsoftu XPRESS, jest to ich implementacja algorytmu _LZ77_
+Kompresja kolumnowa archive wykorzystuje specjalny algorytm XPRESS firmy Microsoft, będący implementacją algorytmu _LZ77_.
+
+##### Wyniki
 
 ```sql
 ALTER TABLE dbo.saleshistory REBUILD PARTITION = ALL
@@ -796,19 +818,19 @@ WITH (DATA_COMPRESSION =  COLUMNSTORE_ARCHIVE);
 
 W ten sposób udało nam się zmiejszyć wielkość tabeli dwukrotnie, do 0.0075 GB.
 
-#### Wydajność
-
-Sytuacja indetyczna jak w powyższym przykładzie:
+##### Wydajność
 
 ![alt text](_img/image-14-kw44.png)
 
 ![alt text](_img/image-15-kw44.png)
 
-#### Podsumowanie
+Plan wykonania jest taki sam jak przypadku `Column store`. Czas i koszt zapytania jest również na prawie identycznym poziomie, choć jest tutaj niewiele niższy.
+
+#### Wnioski
 
 ![plot](_img/myplot-kw44.png)
 
-Jak widać na powyższym wykresie dowolna już nawet _Page Compression_ znacząco zmniejsza rozmiar tabeli. Natomiast kompresje przy pomocy _columnstore indexes_ dają niesamowite wyniki. Co więcej dodanie indeksów columstore przyspieszyło nasze zapytanie. To sprawia że metody te świetnie sprawdzają się w przypadku dużych tabel na których wykonujemy głónie operacje czytania.
+Analiza wykazała, że nawet podstawowa _Page Compression_ znacząco redukuje objętość danych, ale to _kompresja kolumnowa_ daje najbardziej imponujące wyniki. Dodanie _kolumnowego indeksu_ nie tylko drastycznie zmniejszyło objętość danych, ale także znacząco przyspieszyło wykonywanie zapytań. Warto zauważyć, że wykorzystanie _kolumnowego indeksu archive_ jeszcze bardziej zmniejszyło wielkość danych oraz koszt wykonania zapytań, co czyni go idealnym wyborem dla archiwalnych danych. Metody te są szczególnie efektywne w przypadku dużych tabel, na których przeważają operacje odczytu.
 
 |         |     |     |     |
 | ------- | --- | --- | --- |
