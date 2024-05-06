@@ -92,7 +92,7 @@ przy pomocy komendy:
 
 stopujemy primary server:
 
-![alt text](image15-kw.png)
+![alt text](_img/image15-kw.png)
 
 Jak widać dostajemy też errory z replica server
 
