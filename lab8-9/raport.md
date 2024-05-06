@@ -113,7 +113,7 @@ Tworzymy dwie repliki:
 
 > pg_basebackup -h localhost -U repuser -p 5433 -D ./replica1 -R -C --slot=slot_name1 --checkpoint1
 
-Zmieńmy porty odpowiednio na 5434 i 5435 i uruchomy repliki:
+Zmieńmy porty odpowiednio na `5434` i `5435` i uruchomy repliki:
 
 ![alt text](_img/image17-kw.png)
 
@@ -127,3 +127,16 @@ Jak widać instancja na porcie 5433 nie jest w recovery mode a pozostałe dwie s
 
 Cascade Setup
 
+> ./pg_basebackup -p 5433 -U repuser -h 127.0.0.1 -D /tmp/replica3 -R -C --slot slot3 --checkpoint fast
+i zmiana portu na `5436`
+
+> ./pg_basebackup -p 5436 -U repuser -h 127.0.0.1 -D /tmp/replica4 -R -C --slot slot4 --checkpoint fast
+i zmiana portu na `5437`
+
+Teraz zobaczmy czy replikacja działa.
+
+![alt text](_img/image20-bw.png)
+
+![alt text](_img/image21-bw.png)
+
+Jak widać replika o numerze 4 otrzymała dane od bazy primary za pomocą repliki 3.
