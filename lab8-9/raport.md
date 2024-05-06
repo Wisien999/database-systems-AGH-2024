@@ -101,3 +101,20 @@ Zróbmy teraz ręcznego failovera przy pomocy komendy:
 > pg_ctl promote -D ./replica_db
 
 ![alt text](_img/image16-kw.png)
+
+Multi standby-setup:
+
+Tworzymy dwie repliki:
+
+> pg_basebackup -h localhost -U repuser -p 5433 -D ./replica1 -R -C --slot=slot_name1 --checkpoint1
+
+> pg_basebackup -h localhost -U repuser -p 5433 -D ./replica1 -R -C --slot=slot_name1 --checkpoint1
+
+Zmieńmy porty odpowiednio na 5434 i 5435 i uruchomy repliki:
+
+![alt text](_img/image17-kw.png)
+
+![alt text](_img/image18-kw.png)
+
+Sprawdźmy czy wszystko działa:
+
