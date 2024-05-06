@@ -23,7 +23,10 @@ Następnie zalgowałem się do tej instancji w celu stworzenia usera repuser:
 
 > CREATE ROLE repuser WITH REPLICATION, LOGIN;
 
-todo zmiana konfiguracji
+Na koniec pliku dodałem:
+```
+host    all     repuser     0.0.0.0/0   trust
+```
 
 Następnia zrestartowałem serwis:
 
@@ -92,7 +95,7 @@ przy pomocy komendy:
 
 stopujemy primary server:
 
-![alt text](image15-kw.png)
+![alt text](_img/image15-kw.png)
 
 Jak widać dostajemy też errory z replica server
 
