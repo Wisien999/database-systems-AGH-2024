@@ -23,7 +23,10 @@ Następnie zalgowałem się do tej instancji w celu stworzenia usera repuser:
 
 > CREATE ROLE repuser WITH REPLICATION, LOGIN;
 
-todo zmiana konfiguracji
+Na koniec pliku dodałem:
+```
+host    all     repuser     0.0.0.0/0   trust
+```
 
 Następnia zrestartowałem serwis:
 
