@@ -128,9 +128,11 @@ Jak widać instancja na porcie 5433 nie jest w recovery mode a pozostałe dwie s
 Cascade Setup
 
 > ./pg_basebackup -p 5433 -U repuser -h 127.0.0.1 -D /tmp/replica3 -R -C --slot slot3 --checkpoint fast
+
 i zmiana portu na `5436`
 
 > ./pg_basebackup -p 5436 -U repuser -h 127.0.0.1 -D /tmp/replica4 -R -C --slot slot4 --checkpoint fast
+
 i zmiana portu na `5437`
 
 Teraz zobaczmy czy replikacja działa.
