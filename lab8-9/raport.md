@@ -121,3 +121,9 @@ Zmieńmy porty odpowiednio na 5434 i 5435 i uruchomy repliki:
 
 Sprawdźmy czy wszystko działa:
 
+![alt text](_img/image19-kw.png)
+
+Jak widać instancja na porcie 5433 nie jest w recovery mode a pozostałe dwie są.
+
+Cascade Setup
+
