@@ -200,3 +200,8 @@ Pub:
 
 ![alt text](image-32.png)
 
+## Rozserzenie Konfiguracji
+
+## I
+
+## II - Cascade
