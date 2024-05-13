@@ -182,3 +182,21 @@ Jak widać różne schematy tabeli wcale nie muszą przeszkadzać w replikcaji d
 
 >Note, however, that there is no need for the schemas to be absolutely the same on both sides.
 
+### PG_STAT
+
+pub:
+
+![alt text](image-29.png)
+
+sub:
+
+![alt text](image-30.png)
+
+Dropujemy subskrypcje:
+
+![alt text](image-31.png)
+
+Pub:
+
+![alt text](image-32.png)
+
