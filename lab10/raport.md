@@ -208,28 +208,28 @@ Pub:
 
 Tworzymy i konfigurujemy 4 instancje
 
->initdb -D /tmp/first_db
+>./initdb -D /tmp/first_db
 
 ![alt text](image-33.png)
 
 - port = 5433
 - wal_level = logical
 
->initdb -D /tmp/second_db
+>./initdb -D /tmp/second_db
 
 ![alt text](image-34.png)
 
 - port = 5434
 - wal_level = logical
 
->initdb -D /tmp/third_db
+>./initdb -D /tmp/third_db
 
 ![alt text](image-35.png)
 
 - port = 5435
 - wal_level = logical
 
->initdb -D /tmp/fourth_db
+>./initdb -D /tmp/fourth_db
 
 ![alt text](image-36.png)
 
