@@ -210,39 +210,39 @@ Przy korzystaniu z komendy pg_dump użyjemy flagi -s która skopiuje sam schemat
 
 Po dumpie, mamy puste schematy na instancjach sub_x_1 i sub_x_2:
 
-![alt text](image-33.png)
+![alt text](image-33-kw.png)
 
-![alt text](image-34.png)
+![alt text](image-34-kw.png)
 
 Następnie po wznowieniu publikacji i ustawieniu subskrybcji dane zostały automatycznie zsynchronizowane:
 
-![alt text](image-35.png)
+![alt text](image-35-kw.png)
 
-![alt text](image-36.png)
+![alt text](image-36-kw.png)
 
 upewnijmy się czy synchronizacja działa przez wykonanie operacji truncate:
 
 pub:
 
-![alt text](image-37.png)
+![alt text](image-37-kw.png)
 
 my_sub:
 
-![alt text](image-38.png)
+![alt text](image-38-kw.png)
 
 sub_x_1:
 
-![alt text](image-39.png)
+![alt text](image-39-kw.png)
 
 sub_x_2:
 
-![alt text](image-40.png)
+![alt text](image-40-kw.png)
 
 Sprawdźmy jeszcze widok pg_stat_replication:
 
 pub:
 
-![alt text](image-41.png)
+![alt text](image-41-kw.png)
 
 Jak widać mamy 3 rekordy po jednym dla każdej subskrypcji
 
