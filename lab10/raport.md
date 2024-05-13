@@ -244,3 +244,23 @@ Uruchamiamy instancje
 > ./pg_ctl -D /tmp/third_db -l /tmp/third_db_log start
 
 > ./pg_ctl -D /tmp/fourth_db -l /tmp/fourth_db_log start
+
+Tworzymy na pierwszej instancji bazę pub_db
+
+![alt text](image-37.png)
+
+Tworzymy na pierwszej instacji tabelę pub_tbl i wstawiamy do niej przykładowe dane
+
+![alt text](image-38.png)
+
+Tworzymy na drugiej, trzeciej i czwartej instancji bazę sub_db
+
+![alt text](image-39.png)
+![alt text](image-40.png)
+![alt text](image-41.png)
+
+Używamy polecenia pg_dump by wykonać dump bazy pub_db do pozostałych baz sub_db
+
+![alt text](image-42.png)
+![alt text](image-43.png)
+![alt text](image-44.png)
