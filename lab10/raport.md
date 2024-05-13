@@ -142,11 +142,11 @@ Tej operacji nie przeżył rekord o id 20
 
 ### Add Column
 
-Pub: 
+Pub:
 
 ![alt text](image-21.png)
 
-Sub: 
+Sub:
 
 ![alt text](image-22.png)
 
@@ -205,3 +205,42 @@ Pub:
 ## I
 
 ## II - Cascade
+
+Tworzymy i konfigurujemy 4 instancje
+
+>initdb -D /tmp/first_db
+
+![alt text](image-33.png)
+
+- port = 5433
+- wal_level = logical
+
+>initdb -D /tmp/second_db
+
+![alt text](image-34.png)
+
+- port = 5434
+- wal_level = logical
+
+>initdb -D /tmp/third_db
+
+![alt text](image-35.png)
+
+- port = 5435
+- wal_level = logical
+
+>initdb -D /tmp/fourth_db
+
+![alt text](image-36.png)
+
+- port = 5436
+
+Uruchamiamy instancje
+
+> ./pg_ctl -D /tmp/first_db -l /tmp/first_db_log start
+
+>./pg_ctl -D /tmp/second_db -l /tmp/second_db_log start
+
+> ./pg_ctl -D /tmp/third_db -l /tmp/third_db_log start
+
+> ./pg_ctl -D /tmp/fourth_db -l /tmp/fourth_db_log start
