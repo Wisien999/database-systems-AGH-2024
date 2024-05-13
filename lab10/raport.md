@@ -153,3 +153,32 @@ Sub:
 Po dodaniu danych do pub, dostajemy takie errory odnośnie subskrypcji:
 
 ![alt text](image-23.png)
+
+Wg dokumentacji postgresa (https://www.postgresql.org/docs/10/logical-replication-restrictions.html):
+
+> The database schema and DDL commands are not replicated
+
+Zatem ręcznie dodamy kolumne w sub:
+
+i potej zmianie znowu mamy synchornizacje danych:
+
+![alt text](image-24.png)
+
+![alt text](image-25.png)
+
+Następnie dodajemy nową kolumnę *city* na drugiej instancji:
+
+![alt text](image-26.png)
+
+Dodajmy kilka wierszy na pub:
+
+![alt text](image-27.png)
+
+Jak widać wiersze te zostały dodane na sub:
+
+![alt text](image-28.png)
+
+Jak widać różne schematy tabeli wcale nie muszą przeszkadzać w replikcaji danych. Tak zresztą możemy przeczytać w dokumentacji:
+
+>Note, however, that there is no need for the schemas to be absolutely the same on both sides.
+
