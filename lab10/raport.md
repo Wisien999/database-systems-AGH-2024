@@ -110,3 +110,46 @@ Po tej komendzie możemy zupdtować rekord:
 Sprawdźmy sub:
 
 ![alt text](image-16.png)
+
+Jak widać jest pewne rozjechanie danych, wcześniej przez przypadek zupdatowałem rekord w sub, ta zmiana nie została oczywiście zreplikowana na pub, natomiast po zupdtowaniu tego samego rekordu w pub, zmiana ta nie została wykonana w sub. Dlatego w pub rekord o id 20 ma name=test-test a w sub name=test.
+
+### Delete
+
+Na pub:
+
+> DELETE FROM pub_tbl WHERE id < 22 AND id > 10;
+
+![alt text](image-17.png)
+
+Sub:
+
+![alt text](image-18.png)
+
+Znowu możemy zaobserwować że rekord o id 20 nie został usunięty, jest jakby wyłączony z synchornizacji. Moglibśmy go ręcznie usunąc ale nie zrobimy tego by móc obserwować jak się będzie zachowywał przy następnych operacjach
+
+### Truncate
+
+Pub:
+
+![alt text](image-19.png)
+
+
+Sub:
+
+![alt text](image-20.png)
+
+Tej operacji nie przeżył rekord o id 20
+
+### Add Column
+
+Pub: 
+
+![alt text](image-21.png)
+
+Sub: 
+
+![alt text](image-22.png)
+
+Po dodaniu danych do pub, dostajemy takie errory odnośnie subskrypcji:
+
+![alt text](image-23.png)
