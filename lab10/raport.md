@@ -308,3 +308,50 @@ Używamy polecenia pg_dump by wykonać dump bazy pub_db do pozostałych baz sub_
 ![alt text](image-42.png)
 ![alt text](image-43.png)
 ![alt text](image-44.png)
+
+Tworzymy publikacje na pierwszych trzech instancjach
+
+![alt text](image-45.png)
+![alt text](image-46.png)
+![alt text](image-47.png)
+
+Tworzymy subskrypcje na ostatnich trzech instancjach
+
+![alt text](image-48.png)
+![alt text](image-49.png)
+![alt text](image-50.png)
+
+Efekt na drugiej instancji:
+
+![alt text](image-51.png)
+
+Efekt na trzeciej instancji:
+
+![alt text](image-52.png)
+
+Efekt na czwartej instancji:
+
+![alt text](image-53.png)
+
+Widać, że dane zostały replikowane w kolejności first -> second -> third -> fourth
+
+Dodajmy przykładowy rekord w pierwszej bazie:
+
+![alt text](image-54.png)
+
+Sprawdźmy, czy rekord się zreplikował na pozostałych instancjach.
+
+Druga instancja:
+
+![alt text](image-55.png)
+
+Trzecia instancja:
+
+![alt text](image-56.png)
+
+Czwarta instancja:
+
+![alt text](image-57.png)
+
+Widać, że rekord zreplikował się na każdej instancji, więc replikacja działa poprawnie.
+
