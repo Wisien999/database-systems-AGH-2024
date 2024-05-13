@@ -204,4 +204,48 @@ Pub:
 
 ## I
 
+Powtarzamy kroki z poprzednich ćwiczeń by stworzyć 
+
+Przy korzystaniu z komendy pg_dump użyjemy flagi -s która skopiuje sam schemat bazy danych. Przed dumpem trzeba także usunąc publikacje.
+
+Po dumpie, mamy puste schematy na instancjach sub_x_1 i sub_x_2:
+
+![alt text](image-33.png)
+
+![alt text](image-34.png)
+
+Następnie po wznowieniu publikacji i ustawieniu subskrybcji dane zostały automatycznie zsynchronizowane:
+
+![alt text](image-35.png)
+
+![alt text](image-36.png)
+
+upewnijmy się czy synchronizacja działa przez wykonanie operacji truncate:
+
+pub:
+
+![alt text](image-37.png)
+
+my_sub:
+
+![alt text](image-38.png)
+
+sub_x_1:
+
+![alt text](image-39.png)
+
+sub_x_2:
+
+![alt text](image-40.png)
+
+Sprawdźmy jeszcze widok pg_stat_replication:
+
+pub:
+
+![alt text](image-41.png)
+
+Jak widać mamy 3 rekordy po jednym dla każdej subskrypcji
+
+w przypadku subów widoki te są puste
+
 ## II - Cascade
