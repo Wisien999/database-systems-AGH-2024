@@ -14,8 +14,9 @@ auth_type = trust
 ```
 
 W SQL:
-> CREATE ROLE testuser WITH LOGIN SUPERUSER;
+> CREATE ROLE testuser WITH LOGIN SUPERUSER PASSWORD 'testuser';
 
+![alt text](image-1.png)
 
 > pgbouncer -d /etc/pgbouncer/pgbouncer.ini
 
