@@ -30,5 +30,9 @@ W SQL:
 Uruchomienie benchmarka bezpośrednio na bazie
 > pgbench -p 5400 -c 20 -t 1000 -S -C -f script.sql
 
-
 ![alt](bw2.png)
+
+Uruchomienie benchmarka za pośrednictwem pgbouncera
+> pgbench -p 6432 test -c 20 -t 1000 -S -C -f script.sql
+
+![alt](bw3.png)
