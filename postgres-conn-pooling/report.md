@@ -23,7 +23,7 @@ W SQL:
 ![alt](bw1.png)
 
 
-> pgbench -p 5400 -i postgres
+> pgbench -p 5432 -i postgres
 
 ![alt text](image.png)
 
