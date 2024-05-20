@@ -16,23 +16,25 @@ auth_type = trust
 W SQL:
 > CREATE ROLE testuser WITH LOGIN SUPERUSER PASSWORD 'testuser';
 
-![alt text](image-1.png)
+![](image-1.png)
 
 > pgbouncer -d /etc/pgbouncer/pgbouncer.ini
 
-![alt](bw1.png)
+![](bw1.png)
 
 
 > pgbench -p 5432 -i postgres
 
-![alt text](image.png)
+![](image.png)
 
 Uruchomienie benchmarka bezpośrednio na bazie
+
 > pgbench -p 5400 -c 20 -t 1000 -S -C -f script.sql
 
-![alt](bw2.png)
+![](bw2.png)
 
 Uruchomienie benchmarka za pośrednictwem pgbouncera
+
 > pgbench -p 6432 test -c 20 -t 1000 -S -C -f script.sql
 
-![alt](bw3.png)
+![](bw3.png)
