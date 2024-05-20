@@ -1,4 +1,5 @@
 > ./initdb -D /tmp/test_db
+
 Zmiana portu na:
 ```
 port=5400
@@ -22,6 +23,8 @@ W SQL:
 
 
 > pgbench -p 5400 -i postgres
+
+![alt text](image.png)
 
 > pgbench -p 5400 0c 20 -t 1000 -S postgres
 astępnie uruchamiamy benchmark (polecenie pgbench) symulując działanie
