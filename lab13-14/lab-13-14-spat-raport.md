@@ -244,9 +244,9 @@ WHERE id IN
 
 > Wyniki, zrzut ekranu, komentarz
 
-```sql
---  ...
-```
+![alt text](./zad3-1.png)
+
+Wynik zapytania zwrócił nam wszystkie parki, których obszary znajdują się całkowicie wewnątrz stanu Wyoming. Wizualizacja na mapie przedstawia te parki.
 
 
 ```sql
@@ -258,10 +258,14 @@ WHERE state = 'Wyoming'
 
 > Wyniki, zrzut ekranu, komentarz
 
-```sql
---  ...
-```
+![alt text](./zad3-2.png)
 
+
+Wynik zapytania zwrócił cały obszar stanu Wyoming.
+
+Gdy dodamy obie warstwy z dwóch poprzednich zapytań na mapie możemy zobaczyć nasze parki (zielony) na obszarze Wyoming (żółty):
+
+![alt text](./zad3-3.png)
 
 Porównaj wynik z:
 
@@ -278,10 +282,30 @@ W celu wizualizacji użyj podzapytania
 
 > Wyniki, zrzut ekranu, komentarz
 
+Do wizualizacji wykorzystano poniższe podzapytanie:
+
 ```sql
---  ...
+SELECT pp.name, pp.geom  FROM us_parks pp
+WHERE id IN
+(
+    SELECT p.id
+    FROM us_parks p, us_states s
+    WHERE s.state = 'Wyoming'
+    AND SDO_ANYINTERACT (p.geom, s.geom ) = 'TRUE';
+)
 ```
 
+Wynik tego zapytania zwraca wszystkie parki, które mają jakąkolwiek interakcję z obszarem stanu Wyoming (czyli mogą być całkowicie wewnątrz, częściowo wewnątrz, lub przylegać do granicy stanu):
+
+![alt text](./zad3-4.png)
+
+Gdy dodamy tę warstwę na wartstwę stanu Wyoming, to możemy lepiej zobaczyć te przecięcia:
+
+![alt text](./zad3-5.png)
+
+Prezentując wszystkie trzy warstwy na wspólnej mapie, widzimy na zielono część wspólną dwóch poprzednich zapytań (SDO_INSIDE i SDO_ANYINTERACT). Dzięki temu możemy lepiej zrozumieć, które parki są całkowicie wewnątrz stanu Wyoming, a które mają jakąkolwiek interakcję z granicami stanu:
+
+![alt text](./zad3-6.png)
 
 # Zadanie 4
 
