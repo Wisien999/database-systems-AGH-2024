@@ -265,7 +265,7 @@ Wynik zapytania zwrócił cały obszar stanu Wyoming.
 
 Gdy dodamy obie warstwy z dwóch poprzednich zapytań na mapie możemy zobaczyć nasze parki (zielony) na obszarze Wyoming (żółty):
 
-![alt text](./zad3-3.png)
+![alt text](./img/zad3-1.png)
 
 Porównaj wynik z:
 
@@ -297,15 +297,15 @@ WHERE id IN
 
 Wynik tego zapytania zwraca wszystkie parki, które mają jakąkolwiek interakcję z obszarem stanu Wyoming (czyli mogą być całkowicie wewnątrz, częściowo wewnątrz, lub przylegać do granicy stanu):
 
-![alt text](./zad3-4.png)
+![alt text](./img/zad3-4.png)
 
 Gdy dodamy tę warstwę na wartstwę stanu Wyoming, to możemy lepiej zobaczyć te przecięcia:
 
-![alt text](./zad3-5.png)
+![alt text](./img/zad3-5.png)
 
 Prezentując wszystkie trzy warstwy na wspólnej mapie, widzimy na zielono część wspólną dwóch poprzednich zapytań (SDO_INSIDE i SDO_ANYINTERACT). Dzięki temu możemy lepiej zrozumieć, które parki są całkowicie wewnątrz stanu Wyoming, a które mają jakąkolwiek interakcję z granicami stanu:
 
-![alt text](./zad3-6.png)
+![alt text](./img/zad3-6.png)
 
 # Zadanie 4
 
