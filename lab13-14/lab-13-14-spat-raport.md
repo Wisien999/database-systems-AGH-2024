@@ -122,7 +122,7 @@ sdo_ordinate_array ( -117.0, 40.0, -90., 44.0)) g
 FROM dual
 ```
 
-![](img/zad2-3.png)
+![alt](img/zad2-3.png)
 
 Jest to zwykły prostokąt.
 
@@ -148,7 +148,7 @@ where sdo_filter(
 Zwróć uwagę na liczbę zwróconych wierszy (16)
 
 
-![](img/zad2-2.png)
+![alt](img/zad2-2.png)
 
 Zgodnie z oczekiwaniami, zwrócono 16 wierszy. 2 stany zostały błędnie zakwalifikowane jako pokrywające się z prostokątem. 
 Dokumentacja mówi, że funkcja `SDO_FILTER` w przeciwności do `SDO_ANYINTERACT` służy do szybkiego filtrowania danych, a nie do dokładnego sprawdzania pokrywania się geometrii.
