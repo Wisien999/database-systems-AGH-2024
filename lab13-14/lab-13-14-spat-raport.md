@@ -244,9 +244,9 @@ WHERE id IN
 
 > Wyniki, zrzut ekranu, komentarz
 
-![alt text](./zad3-1.png)
+Wynik zapytania zwraca nam wszystkie parki, których obszary znajdują się całkowicie wewnątrz stanu Wyoming. Wizualizacja na mapie przedstawia te parki:
 
-Wynik zapytania zwrócił nam wszystkie parki, których obszary znajdują się całkowicie wewnątrz stanu Wyoming. Wizualizacja na mapie przedstawia te parki.
+![alt text](./zad3-1.png)
 
 
 ```sql
@@ -258,14 +258,14 @@ WHERE state = 'Wyoming'
 
 > Wyniki, zrzut ekranu, komentarz
 
+Wynik zapytania zwraca cały obszar stanu Wyoming. Wizualizacja na mapie przedstawia ten obszar:
+
 ![alt text](./zad3-2.png)
 
 
-Wynik zapytania zwrócił cały obszar stanu Wyoming.
-
 Gdy dodamy obie warstwy z dwóch poprzednich zapytań na mapie możemy zobaczyć nasze parki (zielony) na obszarze Wyoming (żółty):
 
-![alt text](./img/zad3-1.png)
+![alt text](./img/zad3-3.png)
 
 Porównaj wynik z:
 
