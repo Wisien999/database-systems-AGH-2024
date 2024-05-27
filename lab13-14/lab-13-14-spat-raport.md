@@ -122,46 +122,57 @@ sdo_ordinate_array ( -117.0, 40.0, -90., 44.0)) g
 FROM dual
 ```
 
+![](img/zad2-3.png)
 
+Jest to zwykły prostokąt.
 
-> Wyniki, zrzut ekranu, komentarz
-
-```sql
---  ...
-```
 
 
 Użyj funkcji SDO_FILTER
 
 ```sql
-SELECT state, geom FROM us_states
-WHERE sdo_filter (geom,
-sdo_geometry (2003, 8307, null,
-sdo_elem_info_array (1,1003,3),
-sdo_ordinate_array ( -117.0, 40.0, -90., 44.0))
+select * 
+from us_states 
+where sdo_filter(
+	geom, 
+	sdo_geometry (
+		2003, 
+		8307, 
+		null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -117.0, 40.0, -90., 44.0)
+	)
 ) = 'TRUE';
 ```
 
 Zwróć uwagę na liczbę zwróconych wierszy (16)
 
 
-> Wyniki, zrzut ekranu, komentarz
+![](img/zad2-2.png)
+
+Zgodnie z oczekiwaniami, zwrócono 16 wierszy. 2 stany zostały błędnie zakwalifikowane jako pokrywające się z prostokątem. 
+Dokumentacja mówi, że funkcja `SDO_FILTER` w przeciwności do `SDO_ANYINTERACT` służy do szybkiego filtrowania danych, a nie do dokładnego sprawdzania pokrywania się geometrii.
+
+
+Użyj funkcji `SDO_ANYINTERACT`
 
 ```sql
---  ...
-```
-
-
-Użyj funkcji  SDO_ANYINTERACT
-
-```sql
-SELECT state, geom FROM us_states
-WHERE sdo_anyinteract (geom,
-sdo_geometry (2003, 8307, null,
-sdo_elem_info_array (1,1003,3),
-sdo_ordinate_array ( -117.0, 40.0, -90., 44.0))
+select * 
+from us_states 
+where sdo_anyinteract(
+	geom, 
+	sdo_geometry (
+		2003, 
+		8307, 
+		null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -117.0, 40.0, -90., 44.0)
+	)
 ) = 'TRUE';
 ```
+
+![](img/zad2-1.png)
+
 
 Porównaj wyniki sdo_filter i sdo_anyinteract
 
@@ -171,8 +182,32 @@ Pokaż wynik na mapie
 > Wyniki, zrzut ekranu, komentarz
 
 ```sql
---  ...
+select * 
+from us_states 
+where sdo_anyinteract(
+	geom, 
+	sdo_geometry (
+		2003, 
+		8307, 
+		null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -117.0, 40.0, -90., 44.0)
+	)
+) != sdo_filter (
+	geom, 
+	sdo_geometry (
+		2003, 
+		8307, 
+		null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -117.0, 40.0, -90., 44.0)
+	)
+);
 ```
+
+![](img/zad2-3.png)
+
+Czerwone opszary to stany dla których `SDO_ANYINTERACT` i `SDO_FILTER` zwróciły różne odpowiedzi.
 
 # Zadanie 3
 
