@@ -120,12 +120,14 @@ SELECT  sdo_geometry (2003, 8307, null,
 sdo_elem_info_array (1,1003,3),
 sdo_ordinate_array ( -117.0, 40.0, -90., 44.0)) g
 FROM dual
+
+-- i dodatkowo 
+select * from us_states;
 ```
 
 ![alt](img/zad2-3.png)
 
-Jest to zwykły prostokąt.
-
+Jest to zwykły prostokąt na obszarze US.
 
 
 Użyj funkcji SDO_FILTER
