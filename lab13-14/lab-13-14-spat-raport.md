@@ -175,13 +175,14 @@ where sdo_anyinteract(
 
 ![](img/zad2-1.png)
 
+Tutaj wynik jest dokładny i składa się z 14 stanów.
+
 
 Porównaj wyniki sdo_filter i sdo_anyinteract
 
 Pokaż wynik na mapie
 
 
-> Wyniki, zrzut ekranu, komentarz
 
 ```sql
 select * 
@@ -207,9 +208,11 @@ where sdo_anyinteract(
 );
 ```
 
-![](img/zad2-3.png)
+![](img/zad2-4.png)
 
 Czerwone opszary to stany dla których `SDO_ANYINTERACT` i `SDO_FILTER` zwróciły różne odpowiedzi.
+
+Jak widać jedyna różnica w wyniku to 2 dodatkowe stany zwrócowe przez `SDO_FILTER` co wynika z wcześniej wymienionej różnicy w przeznaczeniu `CDO_FILTER` i `SDO_ANYINTERACT`.
 
 # Zadanie 3
 
