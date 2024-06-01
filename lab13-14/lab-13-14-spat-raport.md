@@ -513,7 +513,6 @@ e)    Znajdz wszystkie miasta w odlegości od 15 do 30 mil od drogi 'I275'
 
 f)      Itp. (własne przykłady)
 
-
 > Wyniki, zrzut ekranu, komentarz
 > (dla każdego z podpunktów)
 
@@ -555,7 +554,6 @@ AND SDO_RELATE(r.geom, i.geom, 'mask=ANYINTERACT') = 'TRUE';
 ![alt text](./img/zad5-4.png)
 
 d)    Znajdz wszystkie drogi które przecinają rzekę Mississippi
-
 
 ```sql
 SELECT i.interstate
@@ -637,7 +635,6 @@ AND sdo_nn(c.location, i.geom, 'sdo_num_res=5') = 'TRUE';
 --  ...
 ```
 
-
 Dodatkowo:
 
 a)     Znajdz kilka miast najbliższych rzece Mississippi
@@ -652,14 +649,12 @@ e)    Znajdz 5 najbliższych dużych miast (o populacji powyżej 300 tys) od 
 
 f)      Itp. (własne przykłady)
 
-
 > Wyniki, zrzut ekranu, komentarz
 > (dla każdego z podpunktów)
 
 ```sql
 --  ...
 ```
-
 
 # Zadanie 7
 
@@ -671,13 +666,11 @@ FROM us_interstates
 WHERE interstate = 'I4';
 ```
 
-
 >Wyniki, zrzut ekranu, komentarz
 
 ```sql
 --  ...
 ```
-
 
 Dodatkowo:
 
@@ -690,7 +683,6 @@ c)     Która rzeka jest najdłuższa/najkrótsza
 d)    Które stany mają najdłuższą granicę
 
 e)    Itp. (własne przykłady)
-
 
 > Wyniki, zrzut ekranu, komentarz
 > (dla każdego z podpunktów)
@@ -706,8 +698,6 @@ SELECT SDO_GEOM.SDO_DISTANCE ( c1.location, c2.location, 0.5) distance
 FROM us_cities c1, us_cities c2
 WHERE c1.city = 'Buffalo' and c2.city = 'Syracuse';
 ```
-
-
 
 >Wyniki, zrzut ekranu, komentarz
 
@@ -735,7 +725,6 @@ c.     sdo_centroid, sdo_mbr, sdo_convexhull, sdo_simplify
 
 f)      Itp. (własne przykłady)
 
-
 > Wyniki, zrzut ekranu, komentarz
 > (dla każdego z podpunktów)
 
@@ -743,8 +732,7 @@ f)      Itp. (własne przykłady)
 --  ...
 ```
 
-
-Zadanie 8
+# Zadanie 8
 
 Wykonaj kilka własnych przykładów/analiz
 
