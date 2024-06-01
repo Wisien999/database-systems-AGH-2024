@@ -481,14 +481,23 @@ AND sdo_within_distance (c.location, i.geom,'distance=50 unit=mile'
 )
 ```
 
-
-
 > Wyniki, zrzut ekranu, komentarz
 
 ```sql
---  ...
+-- Znalezienie miast w odległości 50 mil od drogi I4.
+SELECT c.city, c.state_abrv, c.location
+FROM us_cities c
+WHERE ROWID IN (
+    SELECT c.rowid
+    FROM us_interstates i, us_cities c
+    WHERE i.interstate = 'I4'
+    AND SDO_WITHIN_DISTANCE(c.location, i.geom, 'distance=50 unit=mile') = 'TRUE'
+);
 ```
 
+![alt text](./img/zad5-1.png)
+
+Miasta, które leżą w odległości 50 mil od drogi I4 to **St Petersburg**, **Tampa** oraz **Orlando**.
 
 Dodatkowo:
 
@@ -508,9 +517,108 @@ f)      Itp. (własne przykłady)
 > Wyniki, zrzut ekranu, komentarz
 > (dla każdego z podpunktów)
 
+a)     Znajdz wszystkie jednostki administracyjne przez które przechodzi droga I4
+
 ```sql
---  ...
+SELECT s.state
+FROM us_states s, us_interstates i
+WHERE i.interstate = 'I4'
+AND SDO_RELATE(s.geom, i.geom, 'mask=ANYINTERACT') = 'TRUE';
 ```
+
+![alt text](./img/zad5-2.png)
+
+b)    Znajdz wszystkie jednostki administracyjne w pewnej odległości od I4
+
+```sql
+SELECT c.city, c.state_abrv, c.location
+FROM us_cities c
+WHERE ROWID IN (
+    SELECT c.rowid
+    FROM us_interstates i, us_cities c
+    WHERE i.interstate = 'I4'
+    AND SDO_WITHIN_DISTANCE(c.location, i.geom, 'distance=100 unit=mile') = 'TRUE'
+);
+```
+
+![alt text](./img/zad5-3.png)
+
+c)     Znajdz rzeki które przecina droga I4
+
+```sql
+SELECT r.name
+FROM us_rivers r, us_interstates i
+WHERE i.interstate = 'I4'
+AND SDO_RELATE(r.geom, i.geom, 'mask=ANYINTERACT') = 'TRUE';
+```
+
+![alt text](./img/zad5-4.png)
+
+d)    Znajdz wszystkie drogi które przecinają rzekę Mississippi
+
+
+```sql
+SELECT i.interstate
+FROM us_interstates i, us_rivers r
+WHERE r.name = 'Mississippi'
+AND SDO_RELATE(i.geom, r.geom, 'mask=ANYINTERACT') = 'TRUE';
+```
+
+![alt text](./img/zad5-5.png)
+
+e)    Znajdz wszystkie miasta w odlegości od 15 do 30 mil od drogi 'I275'
+
+```sql
+SELECT c.city, c.state_abrv, c.location
+FROM us_cities c
+WHERE ROWID IN (
+    SELECT c.rowid
+    FROM us_interstates i, us_cities c
+    WHERE i.interstate = 'I275'
+    AND SDO_WITHIN_DISTANCE(c.location, i.geom, 'distance=30 unit=mile') = 'TRUE'
+    AND SDO_WITHIN_DISTANCE(c.location, i.geom, 'distance=15 unit=mile') = 'TRUE'
+);
+```
+
+![alt text](./img/zad5-6.png)
+
+f) Znajdź wszystkie parki narodowe w odległości 50 mil od miasta Seattle.
+
+```sql
+SELECT p.name, p.geom
+FROM us_parks p, us_cities c
+WHERE c.city = 'Seattle'
+AND SDO_WITHIN_DISTANCE(p.geom, c.location, 'distance=5 unit=mile') = 'TRUE';
+```
+
+![alt text](./img/zad5-7.png)
+
+g)  Znajdź wszystkie miasta w odległości od 25 do 40 mil od drogi 'I10'.
+
+```sql
+SELECT c.city, c.state_abrv, c.location
+FROM us_cities c
+WHERE ROWID IN (
+    SELECT c.rowid
+    FROM us_interstates i, us_cities c
+    WHERE i.interstate = 'I10'
+    AND SDO_WITHIN_DISTANCE(c.location, i.geom, 'distance=40 unit=mile') = 'TRUE'
+    AND SDO_WITHIN_DISTANCE(c.location, i.geom, 'distance=25 unit=mile') = 'TRUE'
+);
+```
+
+![alt text](./img/zad5-8.png)
+
+h) Znajdź wszystkie parki narodowe, które są przecięte przez autostradę 'I90'.
+
+```sql
+SELECT p.name, p.geom
+FROM us_parks p, us_interstates i
+WHERE i.interstate = 'I90'
+AND SDO_RELATE(p.geom, i.geom, 'mask=ANYINTERACT') = 'TRUE';
+```
+
+![alt text](./img/zad5-9.png)
 
 # Zadanie 6
 
