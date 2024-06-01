@@ -1,6 +1,6 @@
 # Raport
 
-# Przetwarzanie i analiza danych przestrzennych 
+# Przetwarzanie i analiza danych przestrzennych
 # Oracle spatial
 
 
@@ -8,7 +8,7 @@
 
 **Imiona i nazwiska:**
 
---- 
+---
 
 Celem ćwiczenia jest zapoznanie się ze sposobem przechowywania, przetwarzania i analizy danych przestrzennych w bazach danych
 (na przykładzie systemu Oracle spatial)
@@ -53,9 +53,12 @@ US_STATES
 > Wyniki, zrzut ekranu, komentarz
 
 ```sql
---  ...
+SELECT * FROM US_STATES;
 ```
 
+![alt text](./img/zad1-1.png)
+
+Tabela `US_STATES` zawiera informacje o stanach w USA. Każdy wiersz reprezentuje jeden stan, zawierając kolumny takie jak nazwa stanu, skrót (state_abrv), oraz dane geometryczne (geom).
 
 US_INTERSTATES
 
@@ -63,9 +66,14 @@ US_INTERSTATES
 > Wyniki, zrzut ekranu, komentarz
 
 ```sql
---  ...
+SELECT * FROM US_INTERSTATES;
 ```
 
+![alt text](./img/zad1-2.png)
+
+Tabela US_INTERSTATES zawiera informacje o międzystanowych autostradach. Każdy wiersz zawiera kolumny takie jak nazwa autostrady, identyfikator (id), oraz dane geometryczne (geom) określające trasę autostrady.
+
+![alt text](./img/zad1-3.png)
 
 US_CITIES
 
@@ -73,9 +81,21 @@ US_CITIES
 > Wyniki, zrzut ekranu, komentarz
 
 ```sql
---  ...
+SELECT * FROM US_CITIES;
 ```
 
+![alt text](./img/zad1-4.png)
+
+Tabela US_CITIES zawiera informacje o miastach w USA. Każdy wiersz zawiera kolumny takie jak nazwa miasta, skrót stanu (state_abrv), oraz dane geometryczne (geom).
+
+```sql
+SELECT * FROM US_CITIES
+WHERE state_abrv = 'FL';
+```
+
+![alt text](./img/zad1-5.png)
+
+Drugie zapytanie ogranicza wynik do miast w stanie Floryda.
 
 US_RIVERS
 
@@ -83,9 +103,12 @@ US_RIVERS
 > Wyniki, zrzut ekranu, komentarz
 
 ```sql
---  ...
+SELECT * FROM US_RIVERS;
 ```
 
+![alt text](./img/zad1-6.png)
+
+Tabela US_RIVERS zawiera informacje o rzekach w USA. Każdy wiersz zawiera kolumny takie jak nazwa rzeki, identyfikator (id), oraz dane geometryczne (geom) określające przebieg rzeki.
 
 US_COUNTIES
 
@@ -93,9 +116,21 @@ US_COUNTIES
 > Wyniki, zrzut ekranu, komentarz
 
 ```sql
---  ...
+SELECT * FROM US_COUNTIES;
 ```
 
+![alt text](./img/zad1-7.png)
+
+Tabela US_COUNTIES zawiera informacje o hrabstwach w USA. Każdy wiersz zawiera kolumny takie jak nazwa hrabstwa, skrót stanu (state_abrv), oraz dane geometryczne (geom).
+
+```sql
+SELECT * FROM US_COUNTIES
+WHERE state_abrv = 'FL';
+```
+
+Drugie zapytanie ogranicza wynik do hrabstw w stanie Floryda.
+
+![alt text](./img/zad1-8.png)
 
 US_PARKS
 
@@ -103,9 +138,21 @@ US_PARKS
 > Wyniki, zrzut ekranu, komentarz
 
 ```sql
---  ...
+SELECT * FROM US_PARKS;
 ```
 
+![alt text](./img/zad1-9.png)
+
+Tabela US_PARKS zawiera informacje o parkach w USA. Każdy wiersz zawiera kolumny takie jak nazwa parku, identyfikator (id), oraz dane geometryczne (geom)
+
+```sql
+SELECT * FROM US_PARKS;
+WHERE id < 50;
+```
+
+![alt text](./img/zad1-10.png)
+
+Drugie zapytanie ogranicza wynik do parków o identyfikatorze mniejszym niż 50.
 
 # Zadanie 2
 
@@ -121,7 +168,7 @@ sdo_elem_info_array (1,1003,3),
 sdo_ordinate_array ( -117.0, 40.0, -90., 44.0)) g
 FROM dual
 
--- i dodatkowo 
+-- i dodatkowo
 select * from us_states;
 ```
 
@@ -133,13 +180,13 @@ Jest to zwykły prostokąt na obszarze US.
 Użyj funkcji SDO_FILTER
 
 ```sql
-select * 
-from us_states 
+select *
+from us_states
 where sdo_filter(
-	geom, 
+	geom,
 	sdo_geometry (
-		2003, 
-		8307, 
+		2003,
+		8307,
 		null,
 		sdo_elem_info_array (1,1003,3),
 		sdo_ordinate_array ( -117.0, 40.0, -90., 44.0)
@@ -152,20 +199,20 @@ Zwróć uwagę na liczbę zwróconych wierszy (16)
 
 ![alt](img/zad2-2.png)
 
-Zgodnie z oczekiwaniami, zwrócono 16 wierszy. 2 stany zostały błędnie zakwalifikowane jako pokrywające się z prostokątem. 
+Zgodnie z oczekiwaniami, zwrócono 16 wierszy. 2 stany zostały błędnie zakwalifikowane jako pokrywające się z prostokątem.
 Dokumentacja mówi, że funkcja `SDO_FILTER` w przeciwności do `SDO_ANYINTERACT` służy do szybkiego filtrowania danych, a nie do dokładnego sprawdzania pokrywania się geometrii.
 
 
 Użyj funkcji `SDO_ANYINTERACT`
 
 ```sql
-select * 
-from us_states 
+select *
+from us_states
 where sdo_anyinteract(
-	geom, 
+	geom,
 	sdo_geometry (
-		2003, 
-		8307, 
+		2003,
+		8307,
 		null,
 		sdo_elem_info_array (1,1003,3),
 		sdo_ordinate_array ( -117.0, 40.0, -90., 44.0)
@@ -185,22 +232,22 @@ Pokaż wynik na mapie
 
 
 ```sql
-select * 
-from us_states 
+select *
+from us_states
 where sdo_anyinteract(
-	geom, 
+	geom,
 	sdo_geometry (
-		2003, 
-		8307, 
+		2003,
+		8307,
 		null,
 		sdo_elem_info_array (1,1003,3),
 		sdo_ordinate_array ( -117.0, 40.0, -90., 44.0)
 	)
 ) != sdo_filter (
-	geom, 
+	geom,
 	sdo_geometry (
-		2003, 
-		8307, 
+		2003,
+		8307,
 		null,
 		sdo_elem_info_array (1,1003,3),
 		sdo_ordinate_array ( -117.0, 40.0, -90., 44.0)
@@ -246,21 +293,18 @@ WHERE id IN
 
 Wynik zapytania zwraca nam wszystkie parki, których obszary znajdują się całkowicie wewnątrz stanu Wyoming. Wizualizacja na mapie przedstawia te parki:
 
-![alt text](./zad3-1.png)
-
+![alt text](./img/zad3-1.png)
 
 ```sql
 SELECT state, geom FROM us_states
 WHERE state = 'Wyoming'
 ```
 
-
-
 > Wyniki, zrzut ekranu, komentarz
 
 Wynik zapytania zwraca cały obszar stanu Wyoming. Wizualizacja na mapie przedstawia ten obszar:
 
-![alt text](./zad3-2.png)
+![alt text](./img/zad3-2.png)
 
 
 Gdy dodamy obie warstwy z dwóch poprzednich zapytań na mapie możemy zobaczyć nasze parki (zielony) na obszarze Wyoming (żółty):
@@ -277,8 +321,6 @@ AND SDO_ANYINTERACT (p.geom, s.geom ) = 'TRUE';
 ```
 
 W celu wizualizacji użyj podzapytania
-
-
 
 > Wyniki, zrzut ekranu, komentarz
 
@@ -330,13 +372,90 @@ AND SDO_RELATE ( c.geom,s.geom, 'mask=COVEREDBY') = 'TRUE';
 
 W przypadku wykorzystywania narzędzia SQL Developer, w celu wizualizacji danych na mapie należy użyć podzapytania (podobnie jak w poprzednim zadaniu)
 
-
-
 > Wyniki, zrzut ekranu, komentarz
 
+##### Pierwsze zapytanie używa maski INSIDE+COVEREDBY
+
 ```sql
---  ...
+-- zapytanie
+SELECT c.county, c.state_abrv, c.geom
+FROM us_counties c, us_states s
+WHERE s.state = 'New Hampshire'
+AND SDO_RELATE(c.geom, s.geom, 'mask=INSIDE+COVEREDBY') = 'TRUE';
+
+-- wizualizacja
+SELECT cc.county, cc.state_abrv, cc.geom
+FROM us_counties cc
+WHERE cc.id IN
+(
+    SELECT c.id
+    FROM us_counties c, us_states s
+    WHERE s.state = 'New Hampshire'
+    AND SDO_RELATE(c.geom, s.geom, 'mask=INSIDE+COVEREDBY') = 'TRUE'
+);
 ```
+
+![alt text](./img/zad4-1.png)
+
+Maska `INSIDE+COVEREDBY` łączy logiki obu tych masek zwracając jednostki administracyjne, które są całkowicie wewnątrz stanu oraz jednostki administracyjne, które są częściowo lub całkowicie pokryte przez stan.
+
+##### Drugie zapytanie używa maski INSIDE
+
+```sql
+-- zapytanie
+SELECT c.county, c.state_abrv, c.geom
+FROM us_counties c, us_states s
+WHERE s.state = 'New Hampshire'
+AND SDO_RELATE ( c.geom,s.geom, 'mask=INSIDE') = 'TRUE';
+
+-- wizualizacja
+SELECT cc.county, cc.state_abrv, cc.geom
+FROM us_counties cc
+WHERE cc.id IN
+(
+    SELECT c.id
+    FROM us_counties c, us_states s
+    WHERE s.state = 'New Hampshire'
+    AND SDO_RELATE(c.geom, s.geom, 'mask=INSIDE') = 'TRUE'
+);
+```
+
+![alt text](./img/zad4-2.png)
+
+Maska `INSIDE` zwraca jednostki administracyjne, które są całkowicie wewnątrz stanu.
+
+##### Trzecie zapytanie używa maski COVEREDBY
+
+```sql
+-- zapytanie
+SELECT c.county, c.state_abrv, c.geom
+FROM us_counties c, us_states s
+WHERE s.state = 'New Hampshire'
+AND SDO_RELATE ( c.geom,s.geom, 'mask=COVEREDBY') = 'TRUE';
+
+-- wizualizacja
+SELECT cc.county, cc.state_abrv, cc.geom
+FROM us_counties cc
+WHERE cc.id IN
+(
+    SELECT c.id
+    FROM us_counties c, us_states s
+    WHERE s.state = 'New Hampshire'
+    AND SDO_RELATE(c.geom, s.geom, 'mask=COVEREDBY') = 'TRUE'
+);
+```
+
+![alt text](./img/zad4-3.png)
+
+Maska `COVEREDBY` zwraca jednostki administracyjne, które są częściowo lub całkowicie pokryte przez stan.
+
+W różnych wariantach zapytania używamy różnych masek (`INSIDE`, `COVEREDBY`), aby znaleźć jednostki administracyjne w różnych relacjach przestrzennych ze stanem New Hampshire.
+
+Aby znaleźć wszystkie jednostki administracyjne (us_counties) wewnątrz stanu New Hampshire, najlepiej użyć maski `INSIDE`, ponieważ zwraca ona jednostki, które są całkowicie wewnątrz granic stanu.
+
+![alt text](./img/zad4-4.png)
+
+W tym przypadku wynik pokazuje, że dwie jednostki administracyjne (Merrimack oraz Belknap) spełniają ten warunek.
 
 # Zadanie 5
 
@@ -351,12 +470,12 @@ WHERE interstate = 'I4'
 SELECT * FROM us_states
 WHERE state_abrv = 'FL'
 
-SELECT c.city, c.state_abrv, c.location 
+SELECT c.city, c.state_abrv, c.location
 FROM us_cities c
-WHERE ROWID IN 
-( 
+WHERE ROWID IN
+(
 SELECT c.rowid
-FROM us_interstates i, us_cities c 
+FROM us_interstates i, us_cities c
 WHERE i.interstate = 'I4'
 AND sdo_within_distance (c.location, i.geom,'distance=50 unit=mile'
 )
@@ -399,7 +518,7 @@ Znajdz 5 miast najbliższych drogi I4
 
 ```sql
 SELECT c.city, c.state_abrv, c.location
-FROM us_interstates i, us_cities c 
+FROM us_interstates i, us_cities c
 WHERE i.interstate = 'I4'
 AND sdo_nn(c.location, i.geom, 'sdo_num_res=5') = 'TRUE';
 ```
