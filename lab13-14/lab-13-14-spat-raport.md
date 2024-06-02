@@ -779,6 +779,8 @@ WHERE
 
 f)      Itp. (własne przykłady)
 
+## TODO
+
 # Zadanie 7
 
 Oblicz długość drogi I4
@@ -791,9 +793,9 @@ WHERE interstate = 'I4';
 
 >Wyniki, zrzut ekranu, komentarz
 
-```sql
---  ...
-```
+![alt text](./img/zad7-0.png)
+
+Długość drogi I4 to 212 km.
 
 Dodatkowo:
 
@@ -810,9 +812,142 @@ e)    Itp. (własne przykłady)
 > Wyniki, zrzut ekranu, komentarz
 > (dla każdego z podpunktów)
 
+a)     Oblicz długość rzeki Mississippi
+
 ```sql
---  ...
+SELECT interstate, SDO_GEOM.SDO_LENGTH (geom, 0.5,'unit=kilometer') length
+FROM us_interstates
+ORDER BY length
+FETCH FIRST ROW ONLY;
 ```
+
+![alt text](./img/zad7-1.png)
+
+Długość rzeki Mississippi to 3860 kilometrów.
+
+b)    Która droga jest najdłuższa/najkrótsza
+
+Najkrótsza
+
+```sql
+SELECT interstate, SDO_GEOM.SDO_LENGTH (geom, 0.5,'unit=kilometer') length
+FROM us_interstates
+ORDER BY length
+FETCH FIRST ROW ONLY;
+
+-- Wizualizacja
+SELECT i.interstate, i.geom
+FROM us_interstates i
+WHERE id IN
+(
+SELECT id
+FROM us_interstates
+ORDER BY SDO_GEOM.SDO_LENGTH (geom, 0.5,'unit=kilometer')
+FETCH FIRST ROW ONLY
+)
+```
+
+![alt text](./img/zad7-2.png)
+
+Najdłuższa
+
+```sql
+SELECT interstate, SDO_GEOM.SDO_LENGTH (geom, 0.5,'unit=kilometer') length
+FROM us_interstates
+ORDER BY length DESC
+FETCH FIRST ROW ONLY;
+
+-- wizualizacja
+SELECT i.interstate, i.geom
+FROM us_interstates i
+WHERE id IN
+(
+SELECT id
+FROM us_interstates
+ORDER BY SDO_GEOM.SDO_LENGTH (geom, 0.5,'unit=kilometer') DESC
+FETCH FIRST ROW ONLY
+)
+```
+
+![alt text](./img/zad7-3.png)
+
+c)     Która rzeka jest najdłuższa/najkrótsza
+
+Najkrótsza
+
+```sql
+SELECT name, SDO_GEOM.SDO_LENGTH (geom, 0.5,'unit=kilometer') length
+FROM us_rivers
+ORDER BY length
+FETCH FIRST ROW ONLY;
+
+-- wizualizacja
+SELECT r.name, r.geom
+FROM us_rivers r
+WHERE id IN
+(
+SELECT id
+FROM us_rivers
+ORDER BY SDO_GEOM.SDO_LENGTH (geom, 0.5,'unit=kilometer')
+FETCH FIRST ROW ONLY
+)
+```
+
+![alt text](./img/zad7-4.png)
+
+Najdłuższa
+
+```sql
+SELECT name, SDO_GEOM.SDO_LENGTH (geom, 0.5,'unit=kilometer') length
+FROM us_rivers
+ORDER BY length DESC
+FETCH FIRST ROW ONLY;
+
+-- wizualizacja
+SELECT r.name, r.geom
+FROM us_rivers r
+WHERE id IN
+(
+SELECT id
+FROM us_rivers
+ORDER BY SDO_GEOM.SDO_LENGTH (geom, 0.5,'unit=kilometer') DESC
+FETCH FIRST ROW ONLY
+)
+```
+
+![alt text](./img/zad7-5.png)
+
+d)    Które stany mają najdłuższą granicę
+
+```sql
+SELECT
+    state,
+    SDO_GEOM.SDO_LENGTH(geom, 0.5, 'unit=kilometer') AS border_length
+FROM
+    us_states
+ORDER BY
+    border_length DESC
+FETCH FIRST 5 ROWS ONLY
+
+-- wizualizacja
+SELECT state, geom FROM US_STATES
+WHERE id IN
+(
+SELECT
+    id
+FROM
+    us_states
+ORDER BY
+    SDO_GEOM.SDO_LENGTH(geom, 0.5, 'unit=kilometer') DESC
+FETCH FIRST 5 ROWS ONLY
+)
+```
+
+![alt text](./img/zad7-6.png)
+
+e)    Itp. (własne przykłady)
+
+## TODO
 
 Oblicz odległość między miastami Buffalo i Syracuse
 
@@ -825,8 +960,17 @@ WHERE c1.city = 'Buffalo' and c2.city = 'Syracuse';
 >Wyniki, zrzut ekranu, komentarz
 
 ```sql
---  ...
+SELECT SDO_GEOM.SDO_DISTANCE ( c1.location, c2.location, 0.5, 'unit=kilometer') distance
+FROM us_cities c1, us_cities c2
+WHERE c1.city = 'Buffalo' and c2.city = 'Syracuse';
+
+-- wizualizacja
+SELECT city, location
+FROM US_CITIES
+WHERE city = 'Buffalo' or city = 'Syracuse'
 ```
+
+![alt text](./img/zad7-7.png)
 
 Dodatkowo:
 
@@ -851,9 +995,80 @@ f)      Itp. (własne przykłady)
 > Wyniki, zrzut ekranu, komentarz
 > (dla każdego z podpunktów)
 
+a)     Oblicz odległość między miastem Tampa a drogą I4
+
 ```sql
---  ...
+SELECT SDO_GEOM.SDO_DISTANCE ( c1.location, i.geom, 0.5, 'unit=kilometer') distance
+FROM us_cities c1, us_interstates i
+WHERE c1.city = 'Tampa' and i.interstate = 'I4';
 ```
+
+![alt text](./img/zad7-8.png)
+
+Odległość wynosi 3 km.
+
+b)    Jaka jest odległość z między stanem Nowy Jork a  Florydą
+
+```sql
+SELECT SDO_GEOM.SDO_DISTANCE (s1.geom, s2.geom, 0.5, 'unit=kilometer') distance
+FROM us_states s1, us_states s2
+WHERE s1.state = 'New York' and s2.state = 'Florida';
+```
+
+![alt text](./img/zad7-9.png)
+
+Odległość wynosi 1256 km.
+
+c)     Jaka jest odległość z między miastem Nowy Jork a  Florydą
+
+```sql
+SELECT SDO_GEOM.SDO_DISTANCE (c1.location, s2.geom, 0.5, 'unit=kilometer') distance
+FROM us_cities c1, us_states s2
+WHERE c1.city = 'New York' and s2.state = 'Florida';
+```
+
+![alt text](./img/zad7-10.png)
+
+Odległość wynsoi 1296 km.
+
+d)    Podaj 3 parki narodowe do których jest najbliżej z Nowego Jorku, oblicz odległości do tych parków
+
+```sql
+SELECT
+    p.name,
+    SDO_GEOM.SDO_DISTANCE(c.location, p.geom, 0.5, 'unit=mile') AS distance
+FROM
+    us_parks p,
+    us_cities c
+WHERE
+    c.city = 'New York'
+AND
+    SDO_NN(p.geom, c.location, 'sdo_num_res=3') = 'TRUE'
+ORDER BY
+    distance
+```
+
+![alt text](./img/zad7-11.png)
+
+Trzy najbliższe parki to Institute Park, Prospect Park oraz Thompkins Park.
+
+e)    Przetestuj działanie funkcji
+
+a.     sdo_intersection, sdo_union, sdo_difference
+
+## TODO
+
+b.     sdo_buffer
+
+## TODO
+
+c.     sdo_centroid, sdo_mbr, sdo_convexhull, sdo_simplify
+
+## TODO
+
+f)      Itp. (własne przykłady)
+
+## TODO
 
 # Zadanie 8
 
