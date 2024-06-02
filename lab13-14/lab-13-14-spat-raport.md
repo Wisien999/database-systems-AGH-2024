@@ -632,8 +632,18 @@ AND sdo_nn(c.location, i.geom, 'sdo_num_res=5') = 'TRUE';
 >Wyniki, zrzut ekranu, komentarz
 
 ```sql
---  ...
+SELECT c.city, c.state_abrv, c.location
+FROM us_cities c
+WHERE ROWID IN
+(
+    SELECT c.rowid
+    FROM us_interstates i, us_cities c
+    WHERE i.interstate = 'I4'
+    AND sdo_nn(c.location, i.geom, 'sdo_num_res=5') = 'TRUE'
+)
 ```
+
+![alt text](./img/zad6-0.png)
 
 Dodatkowo:
 
@@ -652,9 +662,122 @@ f)      Itp. (własne przykłady)
 > Wyniki, zrzut ekranu, komentarz
 > (dla każdego z podpunktów)
 
+a)     Znajdz kilka miast najbliższych rzece Mississippi
+
 ```sql
---  ...
+SELECT c.city, c.state_abrv, c.location
+FROM us_cities c
+WHERE ROWID IN
+(
+    SELECT c.rowid
+    FROM us_rivers r, us_cities c
+    WHERE r.Name = 'Mississippi'
+    AND sdo_nn(c.location, r.geom, 'sdo_num_res=5') = 'TRUE'
+)
 ```
+
+![alt text](./img/zad6-1.png)
+
+b)    Znajdz 3 miasta najbliżej Nowego Jorku
+
+```sql
+SELECT c.city, c.state_abrv, c.location
+FROM us_cities c
+WHERE ROWID IN
+(
+    SELECT c.rowid
+    FROM us_cities c
+    WHERE sdo_nn(c.location, (SELECT location FROM us_cities WHERE city = 'New York'), 'sdo_num_res=4') = 'TRUE'
+    AND c.City != 'New York'
+)
+```
+
+![alt text](./img/zad6-2.png)
+
+c)     Znajdz kilka jednostek administracyjnych (us_counties) z których jest najbliżej do Nowego Jorku
+
+```sql
+SELECT pp.county, pp.geom FROM us_counties pp
+WHERE id IN
+(
+    SELECT co.id
+    FROM us_counties co
+    WHERE sdo_nn(co.geom, (SELECT location FROM us_cities WHERE city = 'New York'), 'sdo_num_res=10') = 'TRUE'
+)
+```
+
+![alt text](./img/zad6-3.png)
+
+d)    Znajdz 5 najbliższych miast od drogi  'I170', podaj odległość do tych miast
+
+```sql
+SELECT
+    pp.city,
+    pp.location,
+    SDO_GEOM.SDO_DISTANCE(pp.location, i.geom, 0.005, 'unit=mile') AS distance_to_road
+FROM
+    us_cities pp,
+    us_interstates i
+WHERE
+    i.interstate = 'I170'
+    AND SDO_NN(pp.location, i.geom, 'sdo_num_res=5') = 'TRUE';
+
+-- wizualizacja
+SELECT pp.city, pp.location FROM us_cities pp
+WHERE rowid IN
+(
+SELECT c.rowid
+FROM us_cities c, us_interstates i
+WHERE
+i.interstate = 'I170'
+AND sdo_nn(c.location, i.geom, 'sdo_num_res=5') = 'TRUE'
+)
+```
+
+![alt text](./img/zad6-4.png)
+
+e)    Znajdz 5 najbliższych dużych miast (o populacji powyżej 300 tys) od drogi  'I170'
+
+```sql
+SELECT
+    c.city,
+    c.pop90,
+    SDO_GEOM.SDO_DISTANCE(c.location, i.geom, 0.5, 'unit=kilometer') as distance
+FROM
+    us_cities c,
+    us_interstates i
+WHERE
+    i.interstate = 'I170'
+    AND c.pop90 > 300000
+ORDER BY
+    distance
+FETCH FIRST 5 ROWS ONLY
+
+-- wizualizacja
+SELECT
+    pp.city,
+    pp.pop90,
+    pp.location
+FROM
+    us_cities pp
+WHERE
+    pp.id IN (
+            SELECT
+                c.id
+            FROM
+                (SELECT * FROM us_cities WHERE pop90 > 300000) c,
+                us_interstates i
+            WHERE
+                i.interstate = 'I170'
+            ORDER BY
+                SDO_GEOM.SDO_DISTANCE(c.location, i.geom, 0.5, 'unit=mile')
+            FETCH FIRST 5 ROWS ONLY
+    )
+```
+
+![alt text](./img/zad6-5.png)
+
+f)      Itp. (własne przykłady)
 
 # Zadanie 7
 
