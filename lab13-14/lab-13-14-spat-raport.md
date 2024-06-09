@@ -1123,7 +1123,6 @@ select sdo_geom.sdo_buffer(
 
 ![text](./img/zad7-eb.png)
 
-## TODO
 
 c.     sdo_centroid, sdo_mbr, sdo_convexhull, sdo_simplify
 
@@ -1190,7 +1189,6 @@ select sdo_util.simplify(sdo_geom.sdo_union(
 
 ![text](./img/zad7-ec4.png)
 
-## TODO
 
 f)      Itp. (własne przykłady)
 
