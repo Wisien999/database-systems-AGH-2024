@@ -1054,15 +1054,141 @@ Trzy najbliższe parki to Institute Park, Prospect Park oraz Thompkins Park.
 
 e)    Przetestuj działanie funkcji
 
+
+Na takich 2 kształtach będziemy testować funkcje 
+
+![text](./img/zad7-e.png)
+
+
 a.     sdo_intersection, sdo_union, sdo_difference
 
-## TODO
+
+```sql
+select sdo_geom.sdo_intersection(
+	sdo_geometry (2003, 8307, null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -117.0, 40.0, -90., 44.0)
+	),
+	sdo_geometry (2003, 8307, null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -107.0, 35.0, -100., 44.0)
+	)
+)
+```
+
+![text](./img/zad7-ea1.png)
+
+```sql
+select sdo_geom.sdo_union(
+	sdo_geometry (2003, 8307, null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -117.0, 40.0, -90., 44.0)
+	),
+	sdo_geometry (2003, 8307, null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -107.0, 35.0, -100., 44.0)
+	)
+)
+```
+
+![text](./img/zad7-ea2.png)
+
+```sql
+select sdo_geom.sdo_difference(
+	sdo_geometry (2003, 8307, null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -117.0, 40.0, -90., 44.0)
+	),
+	sdo_geometry (2003, 8307, null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -107.0, 35.0, -100., 44.0)
+	)
+)
+```
+
+![text](./img/zad7-ea3.png)
+
 
 b.     sdo_buffer
+
+```sql
+select sdo_geom.sdo_buffer(	
+	sdo_geometry (2003, 8307, null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -117.0, 40.0, -90., 44.0)
+	),
+	50
+) from dual
+```
+
+![text](./img/zad7-eb.png)
 
 ## TODO
 
 c.     sdo_centroid, sdo_mbr, sdo_convexhull, sdo_simplify
+
+```sql
+select sdo_geom.sdo_centroid(sdo_geom.sdo_union(
+	sdo_geometry (2003, 8307, null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -120.0, 40.0, -90., 44.0)
+	),
+	sdo_geometry (2003, 8307, null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -107.0, 35.0, -100., 44.0)
+	)
+)) from dual
+```
+
+![text](./img/zad7-ec1.png)
+
+
+```sql
+select sdo_geom.sdo_mbr(sdo_geom.sdo_union(
+	sdo_geometry (2003, 8307, null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -120.0, 40.0, -90., 44.0)
+	),
+	sdo_geometry (2003, 8307, null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -107.0, 35.0, -100., 44.0)
+	)
+)) from dual
+```
+
+![text](./img/zad7-ec2.png)
+
+
+```sql
+select sdo_geom.sdo_convexhull(sdo_geom.sdo_union(
+	sdo_geometry (2003, 8307, null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -120.0, 40.0, -90., 44.0)
+	),
+	sdo_geometry (2003, 8307, null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -107.0, 35.0, -100., 44.0)
+	)
+)) from dual
+```
+
+![text](./img/zad7-ec3.png)
+
+
+```sql
+select sdo_util.simplify(sdo_geom.sdo_union(
+	sdo_geometry (2003, 8307, null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -120.0, 40.0, -90., 44.0)
+	),
+	sdo_geometry (2003, 8307, null,
+		sdo_elem_info_array (1,1003,3),
+		sdo_ordinate_array ( -107.0, 35.0, -100., 44.0)
+	)
+), 6, 0.5) from dual
+```
+
+![text](./img/zad7-ec4.png)
 
 ## TODO
 
