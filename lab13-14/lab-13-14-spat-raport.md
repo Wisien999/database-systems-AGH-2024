@@ -7,6 +7,7 @@
 ---
 
 **Imiona i nazwiska:**
+Mateusz Skowron, Bartłomiej Wiśniewski, Karol Wrona
 
 ---
 
